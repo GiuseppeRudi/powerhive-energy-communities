@@ -25,3 +25,13 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
+  
+  angular-app:
+    container_name: angular-app
+    build:
+      context: ./energycommunities-ng
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - springboot-app

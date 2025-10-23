@@ -5,7 +5,7 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: 'welcome/welcome.html',
-  styleUrl: './app.css'
+  styleUrl: 'welcome/welcome.css'
 })
 export class App {
   protected readonly title = signal('energycommunities-ng');

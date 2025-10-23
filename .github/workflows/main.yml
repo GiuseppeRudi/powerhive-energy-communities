@@ -1,0 +1,48 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'develop'
+    tags:
+      - 'v*.*.*' # Si attiva anche quando crei un tag di versione come v1.2.3
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # Necessario per fare il push su GHCR
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }} # Questo token è generato automaticamente da GitHub Actions
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            # Tag con l'hash del commit per i push su develop
+            type=sha,prefix=,suffix=,event=branch,branch=develop
+            # Tag semantico per le release (es. v1.2.3)
+            type=semver,pattern={{version}}
+            # Tag "latest" solo per il branch main (opzionale, ma comune)
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

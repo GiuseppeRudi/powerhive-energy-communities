@@ -21,6 +21,10 @@ public class User {
 
     private String username;
 
+    private String firstName;
+
+    private String lastName;
+
     @Email
     private String email;
 

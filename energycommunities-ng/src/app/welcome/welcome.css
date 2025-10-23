@@ -1,0 +1,79 @@
+.welcome-container {
+  /* Layout */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  /* Dimensioni e spazi */
+  min-height: 100vh;
+  padding: 3rem 2rem;
+  box-sizing: border-box;
+
+  /* Colori e stile */
+  background: linear-gradient(135deg, #f7f9fb, #e3f2fd);
+  text-align: center;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  color: #1a1a1a;
+
+  /* Animazione di fade-in */
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+}
+
+.welcome-container h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #1976d2;
+}
+
+.welcome-container h3 {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.welcome-container p {
+  font-size: 1.1rem;
+  color: #444;
+  max-width: 700px;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.welcome-image {
+  width: 60%;
+  max-width: 500px;
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.welcome-image:hover {
+  transform: scale(1.03);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Animazione fade-in */
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .welcome-container h1 {
+    font-size: 2rem;
+  }
+
+  .welcome-container h3 {
+    font-size: 1.2rem;
+  }
+
+  .welcome-image {
+    width: 90%;
+  }
+}

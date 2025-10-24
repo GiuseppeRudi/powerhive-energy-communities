@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build-test-and-publish:
-    runs-on: ubuntu-lates
+    runs-on: ubuntu-latest
           
     steps:
       # 1. Checkout del codice 

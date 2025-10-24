@@ -110,7 +110,7 @@ jobs:
         working-directory: ./energycommunities
         run: ./mvnw test
 
-  # JOB 3: Costruisce, scansiona e pubblica l'immagine Docker 
+ # JOB 3: Costruisce, scansiona e pubblica l'immagine Docker
   build-scan-and-push:
     runs-on: ubuntu-latest
     needs: [code-quality, build-and-test] 
@@ -136,7 +136,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build Docker image
-        id: build
+        id: build 
         uses: docker/build-push-action@v5
         with:
           context: ./energycommunities
@@ -148,7 +148,7 @@ jobs:
       - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ steps.meta.outputs.tags }}
+          image-ref: ${{ steps.build.outputs.digest }} 
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true

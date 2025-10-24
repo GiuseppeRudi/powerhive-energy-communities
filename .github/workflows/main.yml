@@ -70,7 +70,18 @@ jobs:
           unzip -o ./.sonar/scanner/sonar-scanner-cli.zip -d ./.sonar/scanner
           echo "$PWD/.sonar/scanner/sonar-scanner-${SONAR_SCANNER_VERSION}-linux/bin" >> $GITHUB_PATH
 
-      - name: Run SonarCloud Scan
+      # --- Esecuzione SonarScanner ---
+      - name: Download and set up SonarScanner
+        env:
+          SONAR_SCANNER_VERSION: 5.0.1.3006 # Versione recente
+        run: |
+          mkdir -p ./.sonar/scanner
+          curl -sSLo ./.sonar/scanner/sonar-scanner-cli.zip "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux.zip"
+          unzip -o ./.sonar/scanner/sonar-scanner-cli.zip -d ./.sonar/scanner
+          echo "$PWD/.sonar/scanner/sonar-scanner-${SONAR_SCANNER_VERSION}-linux/bin" >> $GITHUB_PATH
+
+      - name: Run SonarCloud Scan (per Pull Request)
+        if: github.event_name == 'pull_request'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -80,6 +91,15 @@ jobs:
             -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }} \
             -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }} \
             -Dsonar.scm.revision=${{ github.event.pull_request.head.sha }}
+
+      - name: Run SonarCloud Scan (per Push su Main)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner \
+            -Dsonar.branch.name=main
         
   # JOB 2: Esegue i test 
   build-and-test:

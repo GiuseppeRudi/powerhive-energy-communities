@@ -62,7 +62,7 @@ jobs:
       
       - name: Run Frontend Tests (per Coverage)
         run: npm run test -- --no-watch --code-coverage --browsers=ChromeHeadless
-        working-directory: ./frontend
+        working-directory: ./energycommunities-ng
 
       # --- Esecuzione SonarScanner ---
       - name: Download and set up SonarScanner

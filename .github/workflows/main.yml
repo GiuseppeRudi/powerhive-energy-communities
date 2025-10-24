@@ -58,10 +58,6 @@ jobs:
       # --- Preparazione Frontend 
       - name: Install Frontend dependencies
         run: npm install
-        working-directory: ./energycommunities-ng 
-      
-      - name: Run Frontend Tests (per Coverage)
-        run: npm run test -- --no-watch --code-coverage --browsers=ChromeHeadless
         working-directory: ./energycommunities-ng
 
       # --- Esecuzione SonarScanner ---

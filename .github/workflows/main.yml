@@ -70,9 +70,6 @@ jobs:
           curl -sSLo ./.sonar/scanner/sonar-scanner-cli.zip "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux.zip"
           unzip -o ./.sonar/scanner/sonar-scanner-cli.zip -d ./.sonar/scanner
           echo "$PWD/.sonar/scanner/sonar-scanner-${SONAR_SCANNER_VERSION}-linux/bin" >> $GITHUB_PATH
-
-      - name: MOSTRA IL CONTENUTO DI sonar-project.properties
-        run: cat sonar-project.properties
         
       - name: Run SonarCloud Scan (per Pull Request)
         if: github.event_name == 'pull_request'

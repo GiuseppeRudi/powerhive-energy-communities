@@ -1,16 +1,15 @@
 import { Component } from '@angular/core';
 import {RouterLink} from '@angular/router';
 
-
 @Component({
-  selector: 'app-welcome',
+  selector: 'app-login',
   imports: [
     RouterLink
   ],
-  templateUrl: './welcome.html',
-  styleUrl: './welcome.css',
+  templateUrl: './login.html',
+  styleUrl: '../welcome/welcome.css',
   standalone: true
 })
-export class Welcome {
+export class Login {
 
 }

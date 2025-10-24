@@ -1,6 +1,26 @@
-<div class="welcome-container" align="center">
+<nav class="navbar">
+  <div class="navbar-logo">PowerHive</div>
+  <ul class="navbar-links">
+    <li><a href="#">Home</a></li>
+    <li><a href="#">Dashboard</a></li>
+    <li><a routerLink="/login">Login</a></li>
+    <li><a href="#">Analytics</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="welcome-container">
   <h1>Welcome to PowerHive!</h1>
   <h3>Your personal energy community manager</h3>
   <p>This website will provide you with all the tools to build, manage and analyze your energy community.</p>
-  <img src="./assets/images/mock_plots.jpg" alt="Mock plots" class="welcome-image">
+  <h3>Observe your members' consume and production graphs</h3>
+  <br>
+  <img src="/assets/images/consume.png" alt="Consume Plots" class="welcome-image">
+  <br>
+  <h3>Our ASP-powered system will let you analyze and optimize your members' energy profiles</h3>
+  <br>
+  <img src="/assets/images/mock_plots.png" alt="Mock Plots" class="welcome-image">
+  <h1>Get started now!</h1>
+  <a routerLink="login" class="btn">Vai al Login</a>
+
 </div>

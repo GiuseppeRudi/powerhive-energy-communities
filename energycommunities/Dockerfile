@@ -2,13 +2,16 @@
 FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /app
 
-COPY energycommunities/pom.xml .
+# Questo è corretto, copia il pom.xml dalla radice del contesto
+COPY pom.xml .
 RUN mvn dependency:go-offline
 
-COPY energycommunities/ .
+# Modifica questa riga per copiare la cartella 'src'
+COPY src/ ./src/
 
 RUN mvn clean package -DskipTests
 
+# ===== STAGE 2: Run =====
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 

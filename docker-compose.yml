@@ -1,7 +1,7 @@
 services:
   postgres:
     container_name: postgress
-    image: postgres:17
+    image: postgres:17 # Nota: L'ultima versione stabile è postgres:16. La 17 è in beta.
     restart: always
     environment:
       POSTGRES_USER: root
@@ -10,13 +10,13 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-  
+
   springboot-app:
     restart: always
     container_name: springboot-app
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ./energycommunities  # <--- MODIFICATO
+      dockerfile: Dockerfile      # Ora Docker lo troverà dentro 'energycommunities'
     ports:
       - "8080:8080"
     depends_on:
@@ -26,11 +26,11 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-  
+
   angular-app:
     container_name: angular-app
     build:
-      context: ./energycommunities-ng
+      context: ./energycommunities-ng # Questo è già corretto
       dockerfile: Dockerfile
     ports:
       - "4200:80"

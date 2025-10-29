@@ -10,6 +10,7 @@ import {mockUser} from '../models/mock'
   standalone: true,
   imports: [RouterLink, CommonModule],
   templateUrl: './dashboard.html',
+  styleUrl: '../welcome/welcome.css'
 })
 export class Dashboard implements OnInit {
   plan?: Plan;

@@ -1,18 +1,20 @@
-<h2>Member Overview: {{member?.fullName}}</h2>
-<h3>Member Type: {{member?.memberType}}</h3>
+<div class="content-div">
+  <h2 align="center">Member Overview: {{member?.fullName}}</h2>
+  <h3>Member Type: {{member?.memberType}}</h3>
 
-<div *ngIf="produceChartData">
-  <h3>Produced Energy</h3>
-  <app-energy-chart
-    [data]="produceChartData"
-    [options]="chartOptions">
-  </app-energy-chart>
-</div>
+  <div *ngIf="produceChartData">
+    <h3>Produced Energy</h3>
+    <app-energy-chart
+      [data]="produceChartData"
+      [options]="chartOptions">
+    </app-energy-chart>
+  </div>
 
-<div *ngIf="consumeChartData">
-  <h3>Consumed Energy</h3>
-  <app-energy-chart
-    [data]="consumeChartData"
-    [options]="chartOptions">
-  </app-energy-chart>
+  <div *ngIf="consumeChartData">
+    <h3>Consumed Energy</h3>
+    <app-energy-chart
+      [data]="consumeChartData"
+      [options]="chartOptions">
+    </app-energy-chart>
+  </div>
 </div>

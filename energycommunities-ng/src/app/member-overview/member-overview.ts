@@ -11,7 +11,8 @@ import { EnergyChartComponent } from '../components/energy-chart/energy-chart';
   selector: 'app-member-overview',
   standalone: true,
   imports: [CommonModule, EnergyChartComponent],
-  templateUrl: './member-overview.html'
+  templateUrl: './member-overview.html',
+  styleUrl: '../welcome/welcome.css'
 })
 export class MemberOverview implements OnInit {
   member?: Member;

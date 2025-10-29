@@ -2,8 +2,12 @@ package it.unical.demacs.asd.energycommunities.controller;
 
 import java.util.List;
 
+import it.unical.demacs.asd.energycommunities.dto.LoginDto;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/users")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
@@ -37,7 +41,26 @@ public class UserController {
     public ResponseEntity<UserDto> registerNewUser(@RequestBody UserRegistrationDto registrationDto) {
         UserDto newUser = userService.registerNewUser(registrationDto);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
-    }   
-    
-    
+    }
+
+
+    @PostMapping("/login")
+    public ResponseEntity<UserDto> login(@RequestBody LoginDto loginDto, HttpServletRequest request) {
+        UserDto user = userService.login(loginDto.getUsername(), loginDto.getPassword());
+
+        if (user != null) {
+//           UsernamePasswordAuthenticationToken authToken =
+//                    new UsernamePasswordAuthenticationToken(user.getUsername(), null, List.of());
+//
+//            SecurityContextHolder.getContext().setAuthentication(authToken);
+            request.getSession(true);
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
+
+
+
 }

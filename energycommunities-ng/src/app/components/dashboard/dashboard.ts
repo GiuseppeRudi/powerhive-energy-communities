@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { AuthService} from '../../services/auth.service';
+import { User} from '../../../model/User';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -11,6 +14,15 @@ import { CommonModule } from '@angular/common';
 })
 
 export class Dashboard {
+
+  currentUser : User | null = null;
+
+  constructor(private authService: AuthService) { }
+
+  ngOnInit() {
+    this.authService.user$.subscribe(user => this.currentUser = user);
+  }
+
 
   errorMessage = '';
   successMessage = '';

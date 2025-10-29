@@ -25,7 +25,8 @@ public class SecurityConfig {
             authorize.requestMatchers(
                 "/v3/api-docs/**", 
                 "/users/register",
-                "/swagger-ui/**"
+                "/swagger-ui/**",
+                "/profiles/**"
             ).permitAll()
             .anyRequest().authenticated()
         ).httpBasic(httpBasic -> httpBasic.init(http))

@@ -37,7 +37,5 @@ public class UserController {
     public ResponseEntity<UserDto> registerNewUser(@RequestBody UserRegistrationDto registrationDto) {
         UserDto newUser = userService.registerNewUser(registrationDto);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
-    }   
-    
-    
+    }
 }

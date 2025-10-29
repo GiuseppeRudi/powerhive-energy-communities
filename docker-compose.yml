@@ -30,12 +30,15 @@ services:
   angular-app:
     container_name: angular-app
     build:
-      context: ./energycommunities-ng # Questo è già corretto
+      context: ./energycommunities-ng
       dockerfile: Dockerfile
     ports:
-      - "4200:80"
+      - "4200:4200"
     depends_on:
       - springboot-app
+    volumes:
+      - ./energycommunities-ng:/usr/src/app
+      - /usr/src/app/node_modules
 
 volumes:
   postgres-data:

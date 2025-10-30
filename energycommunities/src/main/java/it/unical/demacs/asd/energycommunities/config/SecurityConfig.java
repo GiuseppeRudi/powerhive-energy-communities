@@ -10,6 +10,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -18,31 +21,32 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain SecurityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable())
-		.cors(cors -> cors.disable())
-        .authorizeHttpRequests(authorize ->
-            authorize.requestMatchers(
-                "/v3/api-docs/**", 
-                "/users/register",
-                "/swagger-ui/**",
-                "/plan/upload"
-            ).permitAll()
-            .anyRequest().authenticated()
-        ).httpBasic(httpBasic -> httpBasic.init(http))
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(List.of("http://localhost:4200"));
+                    config.setAllowCredentials(true);
+                    config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+                    config.setAllowedHeaders(List.of("*"));
+                    return config;
+                }))
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/v3/api-docs/**", "/users/register", "/users/login", "/swagger-ui/**","/plan/upload" ).permitAll()
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form.disable())
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                );
 
-        .logout(logout -> logout
-            .logoutUrl("/logout")
-            .logoutSuccessHandler((request, response, authentication) -> {
-                response.setStatus(200);
-                response.getWriter().write("Successifully logout");
-                response.getWriter().flush();
-            })  
-            .invalidateHttpSession(true)
-            .deleteCookies("JSESSIONID"));
-        
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder(){

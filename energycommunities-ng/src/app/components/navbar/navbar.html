@@ -1,0 +1,11 @@
+<nav class="navbar">
+  <div class="navbar-logo">PowerHive</div>
+  <ul class="navbar-links">
+    <li><a routerLink="/">Home</a></li>
+
+    <li *ngIf="currentUser!=null"><a routerLink="/dashboard">Dashboard</a></li>
+    <li *ngIf="currentUser==null"><a routerLink="/login">Login</a></li>
+    <li *ngIf="currentUser!=null"><a routerLink="/">Analytics</a></li>
+    <li ><a routerLink="/">Contact</a></li>
+  </ul>
+</nav>

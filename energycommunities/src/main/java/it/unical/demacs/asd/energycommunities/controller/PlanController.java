@@ -3,6 +3,8 @@ package it.unical.demacs.asd.energycommunities.controller;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
+import javax.naming.NameNotFoundException;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,11 +26,11 @@ public class PlanController {
     private final PlanService planService;
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file) throws UnsupportedEncodingException, IOException{
+    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file, @RequestParam Long ownerId) throws UnsupportedEncodingException, IOException, NameNotFoundException{
         if(file.isEmpty()) 
             return ResponseEntity.badRequest().body("File is empty");
 
-        planService.upload(file);
+        planService.upload(file, ownerId);
         
         return ResponseEntity.ok("Data successifully saved");
     }

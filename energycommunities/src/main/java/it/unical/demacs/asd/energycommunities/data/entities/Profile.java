@@ -3,12 +3,16 @@ package it.unical.demacs.asd.energycommunities.data.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Data
 @NoArgsConstructor
 @Table(name = "profiles")
+@ToString(exclude = {"member"})
+@EqualsAndHashCode(exclude = {"member"})
 public class Profile {
 
     public enum ProfileType {

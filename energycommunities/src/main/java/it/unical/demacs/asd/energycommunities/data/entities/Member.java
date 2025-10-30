@@ -2,8 +2,11 @@ package it.unical.demacs.asd.energycommunities.data.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -11,6 +14,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Table(name = "members")
+@ToString(exclude = {"plan", "profiles"})
+@EqualsAndHashCode(exclude = {"plan", "profiles"})
 public class Member {
 
     public enum MemberType {
@@ -23,6 +28,9 @@ public class Member {
 
     @Column(nullable = false)
     private String fullName;
+
+    @Email
+    private String email;
 
 
     @Enumerated(EnumType.STRING)
@@ -43,6 +51,7 @@ public class Member {
     @JsonIgnore
     private Plan plan;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Profile> profiles;
 }

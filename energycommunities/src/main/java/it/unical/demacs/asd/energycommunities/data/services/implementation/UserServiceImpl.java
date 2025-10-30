@@ -44,4 +44,16 @@ public class UserServiceImpl implements UserService{
 
         return modelMapper.map(savedUser, UserDto.class);
     }
+
+    public UserDto login(String username, String password) {
+        User user = userDao.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username + " not found"));
+
+        if (passwordEncoder.matches(password, user.getPassword())) {
+            return modelMapper.map(user, UserDto.class);
+        } else {
+            return null; // o lancia un'eccezione
+        }
+    }
+
 }

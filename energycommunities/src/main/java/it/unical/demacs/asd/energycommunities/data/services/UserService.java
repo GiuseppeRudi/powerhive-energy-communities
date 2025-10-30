@@ -9,4 +9,6 @@ public interface UserService {
     List<UserDto> getAll();
 
     UserDto registerNewUser (UserRegistrationDto registrationDto);
+
+    UserDto login(String username, String password);
 }

@@ -4,6 +4,9 @@ import { CommonModule } from '@angular/common';
 import { PlanService } from '../services/plan.service';
 import { Plan, Member, User, } from '../models/models';
 import {mockUser} from '../models/mock'
+import { AuthService} from '../../services/auth.service';
+import { User} from '../../../model/User';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -14,8 +17,15 @@ import {mockUser} from '../models/mock'
 export class Dashboard implements OnInit {
   plan?: Plan;
 
+  constructor(private authService: AuthService) { }
+
+  currentUser : User | null = null;
+
 
   ngOnInit() {
+
+    this.authService.user$.subscribe(user => this.currentUser = user);
+
     this.plan = mockUser.plan;
     console.log(this.plan);
     /*

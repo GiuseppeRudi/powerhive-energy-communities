@@ -1,8 +1,4 @@
 import { Routes } from '@angular/router';
-import { Welcome } from './welcome/welcome';
-import { Login } from './login/login';
-import {Dashboard} from './dashboard/dashboard';
-import {MemberOverview} from './member-overview/member-overview';
 import {Csv} from './components/csv/csv';
 import { Welcome } from './components/welcome/welcome';
 import { Login } from './components/login/login';

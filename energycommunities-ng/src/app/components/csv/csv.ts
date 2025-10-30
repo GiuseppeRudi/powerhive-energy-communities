@@ -7,9 +7,9 @@ import { EnergyChartComponent } from '../energy-chart/energy-chart';
 @Component({
   selector: 'app-csv',
   standalone: true,
-  imports: [ CommonModule, EnergyChartComponent],
+  imports: [ CommonModule],
   templateUrl: './csv.html',
-  styleUrl: '../../welcome/welcome.css'
+  styleUrl: '../welcome/welcome.css',
 })
 export class Csv {
   errorMessage = '';

@@ -10,7 +10,7 @@ import {AuthService} from '../../services/auth.service';
     CommonModule,
   ],
   templateUrl: './login.html',
-  styleUrl: './login.css',
+  styleUrls: ['../welcome/welcome.css', 'login.css'],
   standalone: true
 })
 export class Login {

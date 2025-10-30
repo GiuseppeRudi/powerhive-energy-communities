@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { PlanService } from '../services/plan.service';
-import { Plan, Member, User, } from '../models/models';
-import {mockUser} from '../models/mock'
+import {PlanService} from '../../services/plan.service';
+import { User } from '../../model/User';
+import {  Member } from '../../model/models';
+import { Plan} from '../../model/Plan';
+import {mockUser} from '../../model/mock'
 import { AuthService} from '../../services/auth.service';
-import { User} from '../../../model/User';
 
 
 @Component({

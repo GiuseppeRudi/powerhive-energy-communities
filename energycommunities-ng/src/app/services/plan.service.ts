@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { User, Plan } from '../models/models';
+import { User } from '../model/User';
+import { Plan} from '../model/Plan';
 
 @Injectable({ providedIn: 'root' })
 export class PlanService {

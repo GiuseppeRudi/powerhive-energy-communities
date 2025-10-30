@@ -1,4 +1,6 @@
-import { User, Plan, Member, Profile, ProfileGraph } from './models';
+import {  Member, Profile, ProfileGraph } from './models';
+import { User} from './User';
+import { Plan} from './Plan';
 
 // Funzione per generare un array di 24 valori casuali tra 0 e 10
 function generateRandomGraph(): number[] {
@@ -48,8 +50,8 @@ const mockPlan: Plan = {
 // Crea User mock
 export const mockUser: User = {
   id: 999,
-  firstName: 'Test',
-  lastName: 'User',
+  first_name: 'Test',
+  last_name: 'User',
   username: 'testuser',
   email: 'test@example.com',
   plan: mockPlan

@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { PlanService } from '../services/plan.service';
-import { Member, Profile, ProfileGraph, MemberType } from '../models/models';
-import {member1} from '../models/mock';
+import { PlanService } from '../../services/plan.service';
+import { Member, Profile, ProfileGraph, MemberType } from '../../model/models';
+import {member1} from '../../model/mock';
 import { ChartData, ChartOptions } from 'chart.js';
 import { CommonModule } from '@angular/common';
-import { EnergyChartComponent } from '../components/energy-chart/energy-chart';
+import { EnergyChartComponent } from '../energy-chart/energy-chart';
 
 @Component({
   selector: 'app-member-overview',

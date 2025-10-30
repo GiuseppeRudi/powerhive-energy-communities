@@ -7,7 +7,7 @@ import { EnergyChartComponent } from '../energy-chart/energy-chart';
 @Component({
   selector: 'app-csv',
   standalone: true,
-  imports: [RouterLink, CommonModule, EnergyChartComponent],
+  imports: [ CommonModule, EnergyChartComponent],
   templateUrl: './csv.html',
 })
 export class Csv {

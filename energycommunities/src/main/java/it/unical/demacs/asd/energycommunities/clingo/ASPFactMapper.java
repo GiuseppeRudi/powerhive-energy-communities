@@ -33,7 +33,7 @@ public class ASPFactMapper {
                         String values = g.getGraph().stream()
                                 .map(Object::toString)
                                 .collect(Collectors.joining(","));
-                        facts.append(String.format("profileGraph(%d, [%s]).\n", g.getId(), values));
+                        //facts.append(String.format("profileGraph(%d, [%s]).\n", g.getId(), values));
                     }
                 }
             }

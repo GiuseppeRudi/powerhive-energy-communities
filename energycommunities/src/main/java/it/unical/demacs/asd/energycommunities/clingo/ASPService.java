@@ -25,14 +25,14 @@ public class ASPService {
             """;
 
         String program = facts + "\n" + rules;
-        Control ctl = new Control();
+        Control ctl = new Control("0");
 
 
 
 //            ctl.load("src/main/resources/asp/energy.lp");
 //            ctl.add("base", new Signature[0], facts);
-        ctl.add("base", program);
-        ctl.ground("base");
+        ctl.add(program);
+        ctl.ground();
 
         try (SolveHandle handle = ctl.solve(SolveMode.YIELD)) {
             while (handle.hasNext()) {

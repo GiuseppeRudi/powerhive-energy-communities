@@ -14,6 +14,7 @@ import { AuthService} from '../../services/auth.service';
   standalone: true,
   imports: [RouterLink, CommonModule],
   templateUrl: './dashboard.html',
+  styleUrl: '../welcome/welcome.css'
 })
 export class Dashboard implements OnInit {
   plan?: Plan;

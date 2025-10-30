@@ -9,6 +9,7 @@ import { EnergyChartComponent } from '../energy-chart/energy-chart';
   standalone: true,
   imports: [ CommonModule, EnergyChartComponent],
   templateUrl: './csv.html',
+  styleUrl: '../../welcome/welcome.css'
 })
 export class Csv {
   errorMessage = '';

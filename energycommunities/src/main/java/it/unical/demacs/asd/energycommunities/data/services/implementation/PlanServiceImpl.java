@@ -71,7 +71,7 @@ public class PlanServiceImpl implements PlanService {
         for (CSVRecord record : records) {
 
             Member member = new Member();
-            member.setFullName(record.get("nome_cognome"));
+            member.setFullName(record.get("full_name"));
             member.setEmail(record.get("email"));
             member.setPlan(plan); // connect to plan
 

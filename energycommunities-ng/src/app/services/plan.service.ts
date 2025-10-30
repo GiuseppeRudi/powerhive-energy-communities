@@ -6,13 +6,15 @@ import { Plan} from '../model/Plan';
 
 @Injectable({ providedIn: 'root' })
 export class PlanService {
-  constructor(private http: HttpClient) {}
+  private readonly baseUrl = 'http://localhost:8080/plan';
+  constructor(private readonly http: HttpClient) {}
 
-  getCurrentUser(): Observable<User> {
-    return this.http.get<User>('/api/users/current');
+  uploadCsv(file : File, ownerId : number) : Observable<any>{
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('ownerId', ownerId.toString());
+
+    return this.http.post(`${this.baseUrl}/upload`, formData, { responseType: 'text' });
   }
 
-  getPlan(planId: number): Observable<Plan> {
-    return this.http.get<Plan>(`/api/plans/${planId}`);
-  }
 }

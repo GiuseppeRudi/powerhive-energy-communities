@@ -7,7 +7,7 @@ import {  Member } from '../../model/models';
 import { Plan} from '../../model/Plan';
 import {mockUser} from '../../model/mock'
 import { AuthService} from '../../services/auth.service';
-
+import {mockPlan} from '../../model/mock';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,7 +28,7 @@ export class Dashboard implements OnInit {
 
     this.authService.user$.subscribe(user => this.currentUser = user);
 
-    this.plan = mockUser.plan;
+    this.plan = mockPlan;
     console.log(this.plan);
     /*
     this.planService.getCurrentUser().subscribe((user: User) => {

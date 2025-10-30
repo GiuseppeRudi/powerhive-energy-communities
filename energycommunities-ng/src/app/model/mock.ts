@@ -42,7 +42,7 @@ const member2: Member = {
 };
 
 // Crea Plan mock
-const mockPlan: Plan = {
+export const mockPlan: Plan = {
   id: 100,
   members: [member1, member2]
 };
@@ -54,5 +54,5 @@ export const mockUser: User = {
   last_name: 'User',
   username: 'testuser',
   email: 'test@example.com',
-  plan: mockPlan
+  plan_id: 1,
 };

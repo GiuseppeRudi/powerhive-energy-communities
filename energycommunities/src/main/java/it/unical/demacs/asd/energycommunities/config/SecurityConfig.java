@@ -26,7 +26,7 @@ public class SecurityConfig {
                 "/v3/api-docs/**", 
                 "/users/register",
                 "/swagger-ui/**",
-                "/profiles/**"
+                "/plan/upload"
             ).permitAll()
             .anyRequest().authenticated()
         ).httpBasic(httpBasic -> httpBasic.init(http))

@@ -9,6 +9,7 @@ import org.potassco.clingo.solving.SolveMode;
 import org.potassco.clingo.symbol.Signature;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 public class ASPService {
@@ -16,29 +17,25 @@ public class ASPService {
     public void runClingo(User user) {
         String facts = ASPFactMapper.toFacts(user);
 
-        String rules = """
-            total_energy(U, Total) :- 
-                user(U,_,_),
-                profile(P,_,_),
-                profileGraph(_,Values),
-                Total = #sum{E : member(_,_,_), E=1}.
-            """;
-
-        String program = facts + "\n" + rules;
         Control ctl = new Control("0");
 
-
-
-//            ctl.load("src/main/resources/asp/energy.lp");
-//            ctl.add("base", new Signature[0], facts);
-        ctl.add(program);
+        ctl.load(Path.of("energycommunities/asp/assign_profile.lp"));
+        ctl.add(facts);
         ctl.ground();
 
         try (SolveHandle handle = ctl.solve(SolveMode.YIELD)) {
-            while (handle.hasNext()) {
+            for(int j=0; j<2; j++) {
+                //while (handle.hasNext()) {
                 Model model = handle.next();
                 System.out.println(model);
+                long[] cost = model.getCost();
+                System.out.print("Weight@Priority: ");
+                for (int i = 0; i < cost.length; i++) {
+                    System.out.print(cost[i] + "@" + (cost.length - i) + " ");
+                }
+                System.out.println();
             }
+            //}
         }
 
         ctl.close();

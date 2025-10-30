@@ -24,16 +24,17 @@ public class ASPFactMapper {
 
                 // Profiles
                 for (Profile profile : member.getProfiles()) {
-                    facts.append(String.format("profile(%d, %d, %s).\n",
-                            profile.getId(), member.getId(), profile.getType().name().toLowerCase()));
+                    facts.append(String.format("profile(%d, %d, %d, %s).\n",
+                            profile.getId(), member.getId(), profile.getProfileGraph().getId(), profile.getType().name().toLowerCase()));
 
                     // Profile Graph
                     ProfileGraph g = profile.getProfileGraph();
                     if (g != null) {
-                        String values = g.getGraph().stream()
-                                .map(Object::toString)
-                                .collect(Collectors.joining(","));
-                        //facts.append(String.format("profileGraph(%d, [%s]).\n", g.getId(), values));
+                        int pos = 0;
+                        for (Integer val: g.getGraph()) {
+                            facts.append(String.format("profileGraph(%d,%d,%d).\n", g.getId(), pos, val));
+                            pos++;
+                        }
                     }
                 }
             }

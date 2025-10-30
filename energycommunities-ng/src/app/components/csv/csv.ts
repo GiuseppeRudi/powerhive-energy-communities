@@ -63,7 +63,7 @@ export class Csv {
         energyValues: r.slice(4).map(Number)
       }));
 
-      this.successMessage = 'File uploaded and valid ✅';
+      this.successMessage = 'File uploaded and valid ';
     };
 
     reader.onerror = () => {

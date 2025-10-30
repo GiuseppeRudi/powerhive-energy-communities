@@ -1,5 +1,25 @@
 <div class="content-div">
   <h1>CSV</h1>
+
+  <div class="csv-instructions">
+    <h2>How to Fill the CSV</h2>
+    <p>
+      The CSV file must follow this structure:
+    </p>
+    <pre>
+id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22,t23
+    </pre>
+    <p>
+      Each row represents a consumption or production profile for a user.
+      Each user can have multiple profiles. The <strong>category</strong> field can be either <em>CONSUMER</em> or <em>PRODUCER</em>.
+      The columns <strong>t0–t23</strong> represent the energy consumption or production (in kW) for each hour of the day.
+      Each user must have a unique identifier in the <strong>email</strong> field.
+
+      PLEASE DOWNLOAD THE TEMPLATE AND COMPILE IT FOLLOWING THIS INSTRUCTIONS
+    </p>
+    <hr>
+  </div>
+
   <div class="csv-container">
     <h2>CSV Section</h2>
 
@@ -22,26 +42,7 @@
           <td *ngFor="let cell of row">{{ cell }}</td>
         </tr>
       </table>
-      <a routerLink="/dashboard" class="btn btn-csv">Confirm file and go to dashboard</a>
+      <a routerLink="/dashboard" class="btn btn-csv"> Save Plan! </a>
     </div>
-
-    <!--<div *ngIf="profiles.length > 0" class="charts-section">
-      <h3>Energy Trend by Profile</h3>
-      <div *ngFor="let profile of profiles" class="chart-card">
-        <h4>{{ profile.nome_cognome }} ({{ profile.category }})</h4>
-        <app-energy-chart
-          [data]="getChartData(profile)"
-          [options]="chartOptions">
-        </app-energy-chart>
-      </div>
-    </div>-->
   </div>
-
 </div>
-
-
-<!--
-To visualize a preview of your members' data, click on "Choose file" and select your csv file
-If you're not sure on how to compile the csv, download the template with the button below.
-After checking the preview of your data click the confirm button at the bottom of the page.
--->

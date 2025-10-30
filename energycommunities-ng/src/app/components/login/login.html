@@ -4,7 +4,6 @@
       {{ showRegister ? 'Torna al login' : 'Registrati' }}
     </button>
 
-    <!-- LOGIN -->
     <div *ngIf="!showRegister">
       <h2>Login</h2>
       <form (ngSubmit)="onLogin()" #loginForm="ngForm">

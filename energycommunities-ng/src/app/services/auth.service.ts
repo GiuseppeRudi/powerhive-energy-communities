@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {User} from '../../model/User';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {User} from '../model/User';
+import {BehaviorSubject, Observable, tap} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -15,15 +15,15 @@ export class AuthService {
 
   private baseUrl: string = 'http://localhost:8080/users';
 
-  login(username: string, password: string) {
+  login(username: string, password: string): Observable<User> {
     const body = { username, password };
     return this.http.post<User>(`${this.baseUrl}/login`, body, {
       withCredentials: true
-    }).subscribe({
-      next: (user) => this.userSubject.next(user),
-      error: (error) => console.error('Login failed', error)
-    });
+    }).pipe(
+      tap(user => this.userSubject.next(user))  // aggiorna userSubject
+    );
   }
+
 
   logout() {
     this.userSubject.next(null);

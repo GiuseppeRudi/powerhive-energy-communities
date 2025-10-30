@@ -1,40 +1,35 @@
-<h1>Complete dashboard</h1>
-<div class="dashboard-container">
-  <h2>Dashboard</h2>
-
-  <div *ngIf="currentUser; else notLogged">
-    <h2> Benvenuto, {{currentUser.first_name}} {{currentUser.last_name}}</h2>
-    <p> Username : {{currentUser.username}}</p>
-    <p> Email : {{currentUser.email}}</p>
-  </div>
-
-  <ng-template #notLogged>
-    <h2> Non sei loggato</h2>
-  </ng-template>
-
-  <input
-    type="file"
-    accept=".csv"
-    (change)="onFileSelected($event)"
-    id="fileInput"
-  />
-  <br><br>
-  <button (click)="downloadTemplate()" class="btn">
-    Scarica template CSV
-  </button>
-
-  <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
-  <p *ngIf="successMessage" class="success">{{ successMessage }}</p>
-
-  <div *ngIf="csvData.length > 0" class="preview">
-    <h3>Anteprima CSV</h3>
-    <table>
-      <tr>
-        <th *ngFor="let col of csvData[0]">{{ col }}</th>
-      </tr>
-      <tr *ngFor="let row of csvData.slice(1)">
-        <td *ngFor="let cell of row">{{ cell }}</td>
-      </tr>
-    </table>
-  </div>
+<div *ngIf="currentUser != null">
+  <h1> Welcome {{currentUser.username}}</h1>
 </div>
+
+
+<div class="content-div" *ngIf="plan">
+
+  <div class="header-with-button">
+    <h1>Dashboard</h1>
+    <a routerLink="/csv" class="btn btn-csv">Import CSV</a>
+  </div>
+
+  <h2 align="center">Your Members</h2>
+
+  <table class="members-table">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Category</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let member of plan.members">
+      <td>
+        <a [routerLink]="['/member', member.id]">
+          {{ member.fullName }}
+        </a>
+      </td>
+      <td>{{ member.memberType }}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<p class="content-div" *ngIf="!plan">Loading your plan...</p>

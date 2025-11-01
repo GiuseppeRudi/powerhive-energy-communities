@@ -108,3 +108,16 @@ button:disabled {
     font-size: 0.9rem;
   }
 }
+
+.error {
+  border: 2px solid #e74c3c; /* rosso errore */
+  background-color: #ffe6e6; /* leggero sfondo rosato */
+}
+
+.error-message {
+  color: #e74c3c;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+

@@ -1,20 +1,22 @@
 <div class="login-container">
   <div class="login-card">
     <button (click)="showRegister = !showRegister" class="btn">
-      {{ showRegister ? 'Torna al login' : 'Registrati' }}
+      {{ showRegister ? 'Go back to login' : 'Register' }}
     </button>
 
     <div *ngIf="!showRegister">
       <h2>Login</h2>
       <form (ngSubmit)="onLogin()" #loginForm="ngForm">
         <div class="form-group">
-          <label for="login-username">Nome utente</label>
+          <label for="login-username">Username</label>
           <input
             type="text"
             id="login-username"
             name="username"
             [(ngModel)]="username"
             required
+            [class.error]="loginError"
+            (input)="loginError = false; errorMessage = null"
           />
         </div>
 
@@ -26,16 +28,18 @@
             name="password"
             [(ngModel)]="password"
             required
+            [class.error]="loginError"
+            (input)="loginError = false; errorMessage = null"
           />
         </div>
-
-        <button type="submit" [disabled]="!loginForm.valid">Accedi</button>
+        <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+        <button type="submit" [disabled]="!loginForm.valid">Login</button>
       </form>
     </div>
 
     <!-- REGISTRAZIONE -->
     <div *ngIf="showRegister">
-      <h2>Registrazione</h2>
+      <h2>Registration</h2>
       <form (ngSubmit)="onRegister()" #registerForm="ngForm">
         <div class="form-group">
           <label for="reg-username">Username</label>
@@ -71,7 +75,7 @@
         </div>
 
         <div class="form-group">
-          <label for="reg-firstname">Nome</label>
+          <label for="reg-firstname">First Name</label>
           <input
             type="text"
             id="reg-firstname"
@@ -82,7 +86,7 @@
         </div>
 
         <div class="form-group">
-          <label for="reg-lastname">Cognome</label>
+          <label for="reg-lastname">Last name</label>
           <input
             type="text"
             id="reg-lastname"
@@ -92,7 +96,7 @@
           />
         </div>
 
-        <button type="submit" [disabled]="!registerForm.valid">Registrati</button>
+        <button type="submit" [disabled]="!registerForm.valid">Register</button>
       </form>
     </div>
   </div>

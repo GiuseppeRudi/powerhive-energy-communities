@@ -1,10 +1,8 @@
-<div *ngIf="currentUser != null">
-  <h1> Welcome {{currentUser.username}}</h1>
-</div>
-
-
 <div class="content-div" *ngIf="plan">
-
+  <div *ngIf="currentUser != null">
+    <h1> Welcome {{currentUser.username}}</h1>
+  </div>
+  <br>
   <div class="header-with-button">
     <h1>Dashboard</h1>
     <a routerLink="/csv" class="btn btn-csv">Import CSV</a>

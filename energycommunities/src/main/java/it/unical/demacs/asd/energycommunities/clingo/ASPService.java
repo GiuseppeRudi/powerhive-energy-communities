@@ -108,7 +108,9 @@ public class ASPService {
                 profileDto.setId(profileId);
             } else continue;
             Member member = user.getPlan().getMembers().get((int) (memberId-1));
+            memberDto.setMemberType(member.getMemberType());
             Profile profile = member.getProfiles().get((int) (profileId-1));
+            profileDto.setProfileType(profile.getType());
             ProfileGraph pg = profile.getProfileGraph();
             profileDto.setGraph(pg.getGraph());
             memberDto.getProfiles().add(profileDto);

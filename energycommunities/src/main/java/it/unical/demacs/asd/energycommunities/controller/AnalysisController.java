@@ -27,10 +27,10 @@ public class AnalysisController {
         BestModelDto bestModelDto = aspService.chooseBestProfiles(user);
 
         System.out.println("Best Profiles per members:");
-        for(MemberDetailDto mp: bestModelDto.getAssignments()) {
-            System.out.println("Member " + mp.getId());
-            for(ProfileDto p : mp.getProfiles()) {
-                System.out.print("  Profile " + p.getId() + ": ");
+        for(MemberDetailDto m: bestModelDto.getAssignments()) {
+            System.out.println("Member " + m.getId() + " " + m.getMemberType() + ": ");
+            for(ProfileDto p : m.getProfiles()) {
+                System.out.print("  Profile " + p.getId() + " " + p.getProfileType() + ": ");
                 for(int i=0; i<p.getGraph().size(); i++){
                     System.out.print(p.getGraph().get(i) + " ");
                 }

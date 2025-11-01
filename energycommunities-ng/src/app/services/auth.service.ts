@@ -20,7 +20,7 @@ export class AuthService {
     return this.http.post<User>(`${this.baseUrl}/login`, body, {
       withCredentials: true
     }).pipe(
-      tap(user => this.userSubject.next(user))  // aggiorna userSubject
+      tap(user => this.userSubject.next(user))
     );
   }
 
@@ -34,5 +34,10 @@ export class AuthService {
   register(registrationDto : any){
     return this.http.post(`${this.baseUrl}/register`, registrationDto);
   }
+
+  get currentUser(): User | null {
+    return this.userSubject.value;
+  }
+
 
 }

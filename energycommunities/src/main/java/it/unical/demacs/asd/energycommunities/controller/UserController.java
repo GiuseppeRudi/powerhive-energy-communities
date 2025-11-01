@@ -49,10 +49,6 @@ public class UserController {
         UserDto user = userService.login(loginDto.getUsername(), loginDto.getPassword());
 
         if (user != null) {
-//           UsernamePasswordAuthenticationToken authToken =
-//                    new UsernamePasswordAuthenticationToken(user.getUsername(), null, List.of());
-//
-//            SecurityContextHolder.getContext().setAuthentication(authToken);
             request.getSession(true);
             return ResponseEntity.ok(user);
         } else {

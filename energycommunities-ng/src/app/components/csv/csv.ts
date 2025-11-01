@@ -1,30 +1,33 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ChartData, ChartOptions } from 'chart.js';
-import { EnergyChartComponent } from '../energy-chart/energy-chart';
+import { PlanService} from '../../services/plan.service';
 
 @Component({
   selector: 'app-csv',
   standalone: true,
-  imports: [ CommonModule],
+  imports: [CommonModule],
   templateUrl: './csv.html',
-  styleUrl: '../welcome/welcome.css',
+  styleUrls: ['../welcome/welcome.css'],
 })
 export class Csv {
   errorMessage = '';
   successMessage = '';
   csvData: string[][] = [];
   profiles: any[] = [];
+  selectedFile: File | null = null;
 
   expectedHeader = [
     'id', 'full_name', 'email', 'category',
     ...Array.from({ length: 24 }, (_, i) => `t${i}`)
   ];
 
+  constructor(private planService: PlanService, private router: Router) {}
+
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
+    this.selectedFile = null;
     this.errorMessage = '';
     this.successMessage = '';
     this.csvData = [];
@@ -54,6 +57,7 @@ export class Csv {
       }
 
       this.csvData = rows;
+      this.selectedFile = file;
 
       // Crea oggetti profilo
       this.profiles = rows.slice(1).map(r => ({
@@ -84,30 +88,22 @@ export class Csv {
     URL.revokeObjectURL(url);
   }
 
-  getChartData(profile: any): ChartData<'line'> {
-    const isProducer = profile.category === 'producer';
-    const color = isProducer ? 'green' : 'red';
-    const label = isProducer ? 'Produced Energy' : 'Consumed Energy';
+  saveCsv(): void {
+    if (!this.selectedFile) {
+      this.errorMessage = 'No file selected';
+      return;
+    }
 
-    return {
-      labels: Array.from({ length: 24 }, (_, i) => i.toString()),
-      datasets: [{
-        label,
-        data: profile.energyValues,
-        borderColor: color,
-        backgroundColor: 'transparent',
-        borderWidth: 2,
-        tension: 0.25
-      }]
-    };
+    const ownerId = 1;
+
+    this.planService.uploadCsv(this.selectedFile, ownerId).subscribe({
+      next: (res) => {
+        this.successMessage = res;
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.errorMessage = 'Error uploading file: ' + (err.error || err.message);
+      }
+    });
   }
-
-  chartOptions: ChartOptions<any> = {
-    responsive: true,
-    scales: {
-      x: { title: { display: true, text: 'Hours' } },
-      y: { title: { display: true, text: 'Energy (kWh)' }, beginAtZero: true }
-    },
-    plugins: { legend: { display: true } }
-  };
 }

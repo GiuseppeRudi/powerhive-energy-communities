@@ -1,6 +1,8 @@
 package it.unical.demacs.asd.energycommunities.data.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import it.unical.demacs.asd.energycommunities.data.utils.MemberType;
+import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
@@ -18,9 +20,7 @@ import java.util.List;
 @EqualsAndHashCode(exclude = {"plan", "profiles"})
 public class Member {
 
-    public enum MemberType {
-        PRODUCER, CONSUMER, PROSUMER
-    }
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,8 +38,8 @@ public class Member {
     private MemberType memberType;
 
     public MemberType getMemberType() {
-        boolean hasProducer = profiles.stream().anyMatch(p -> p.getType() == Profile.ProfileType.PRODUCER);
-        boolean hasConsumer = profiles.stream().anyMatch(p -> p.getType() == Profile.ProfileType.CONSUMER);
+        boolean hasProducer = profiles.stream().anyMatch(p -> p.getType() == ProfileType.PRODUCER);
+        boolean hasConsumer = profiles.stream().anyMatch(p -> p.getType() == ProfileType.CONSUMER);
 
         if (hasProducer && hasConsumer) return MemberType.PROSUMER;
         else if (hasProducer) return MemberType.PRODUCER;

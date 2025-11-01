@@ -4,17 +4,24 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.naming.NameNotFoundException;
 
+import it.unical.demacs.asd.energycommunities.data.dao.*;
+import it.unical.demacs.asd.energycommunities.data.utils.MemberType;
+import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
+import it.unical.demacs.asd.energycommunities.dto.MemberDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.PlanDto;
+import it.unical.demacs.asd.energycommunities.dto.ProfileDto;
+import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import it.unical.demacs.asd.energycommunities.data.dao.PlanDao;
-import it.unical.demacs.asd.energycommunities.data.dao.UserDao;
 import it.unical.demacs.asd.energycommunities.data.entities.*;
 import it.unical.demacs.asd.energycommunities.data.services.PlanService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +32,12 @@ public class PlanServiceImpl implements PlanService {
 
     private final PlanDao planDao;
     private final UserDao userDao;
+    private final MemberDao memberDao;
+    private final ProfileDao profileDao;
+    private final ProfileGraphDao profileGraphDao;
+
+    private final ModelMapper modelMapper;
+
 
     @Override
     @Transactional
@@ -77,10 +90,10 @@ public class PlanServiceImpl implements PlanService {
 
             // Determine MemberType
             String category = record.get("category").toLowerCase();
-            Member.MemberType memberType = switch (category) {
-                case "producer" -> Member.MemberType.PRODUCER;
-                case "consumer" -> Member.MemberType.CONSUMER;
-                default -> Member.MemberType.PROSUMER;
+            MemberType memberType = switch (category) {
+                case "producer" -> MemberType.PRODUCER;
+                case "consumer" -> MemberType.CONSUMER;
+                default -> MemberType.PROSUMER;
             };
             member.setMemberType(memberType);
 
@@ -88,9 +101,9 @@ public class PlanServiceImpl implements PlanService {
             Profile profile = new Profile();
             profile.setMember(member);
             profile.setType(
-                    (memberType == Member.MemberType.PRODUCER)
-                            ? Profile.ProfileType.PRODUCER
-                            : Profile.ProfileType.CONSUMER
+                    (memberType == MemberType.PRODUCER)
+                            ? ProfileType.PRODUCER
+                            : ProfileType.CONSUMER
             );
 
             // Create ProfileGraph and fill values
@@ -120,4 +133,22 @@ public class PlanServiceImpl implements PlanService {
         owner.setPlan(plan);
         userDao.save(owner);
     }
+
+    @Override
+    public PlanDto getPlanById(Long planId) {
+        Plan plan = planDao.findById(planId)
+                .orElseThrow(() -> new RuntimeException("Plan not found with id: " + planId));
+        return modelMapper.map(plan, PlanDto.class);
+    }
+
+
+    @Override
+    public MemberDetailDto getMember(Long planId, Long memberId) {
+        Member member = memberDao.findByIdAndPlanId(memberId, planId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Member with id " + memberId + " and plan id " + planId + " not found"));
+
+        return modelMapper.map(member, MemberDetailDto.class);
+    }
+
 }

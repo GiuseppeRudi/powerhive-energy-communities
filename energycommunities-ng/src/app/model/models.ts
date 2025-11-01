@@ -1,5 +1,5 @@
-export type MemberType = 'PRODUCER' | 'CONSUMER' | 'PROSUMER';
-export type ProfileType = 'PRODUCER' | 'CONSUMER';
+import {ProfileType} from '../utils/enum/ProfileType';
+
 
 export interface ProfileGraph {
   graph: number[];
@@ -11,12 +11,7 @@ export interface Profile {
   profileGraph: ProfileGraph;
 }
 
-export interface Member {
-  id: number;
-  fullName: string;
-  memberType: MemberType;
-  profiles: Profile[];
-}
+
 
 
 

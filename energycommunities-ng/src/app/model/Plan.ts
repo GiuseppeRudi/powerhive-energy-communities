@@ -1,6 +1,6 @@
-import {Member} from './models';
+import {MemberSummary} from './MemberSummary';
 
 export interface Plan {
   id: number;
-  members: Member[];
+  members: MemberSummary[];
 }

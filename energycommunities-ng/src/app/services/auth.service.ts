@@ -35,4 +35,9 @@ export class AuthService {
     return this.http.post(`${this.baseUrl}/register`, registrationDto);
   }
 
+  get currentUser(): User | null {
+    return this.userSubject.value;
+  }
+
+
 }

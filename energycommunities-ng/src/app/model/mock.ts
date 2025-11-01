@@ -1,4 +1,4 @@
-import {  Member, Profile, ProfileGraph } from './models';
+import {   Profile, ProfileGraph } from './models';
 import { User} from './User';
 import { Plan} from './Plan';
 
@@ -27,25 +27,25 @@ const profile3: Profile = {
 };
 
 // Crea membri mock
-export const member1: Member = {
-  id: 1,
-  fullName: 'Mario Rossi',
-  memberType: 'PROSUMER', // ha profilo producer e consumer
-  profiles: [profile1, profile2, profile3]
-};
-
-const member2: Member = {
-  id: 2,
-  fullName: 'Luigi Bianchi',
-  memberType: 'CONSUMER',
-  profiles: [profile3]
-};
+// export const member1: Member = {
+//   id: 1,
+//   fullName: 'Mario Rossi',
+//   memberType: 'PROSUMER', // ha profilo producer e consumer
+//   profiles: [profile1, profile2, profile3]
+// };
+//
+// const member2: Member = {
+//   id: 2,
+//   fullName: 'Luigi Bianchi',
+//   memberType: 'CONSUMER',
+//   profiles: [profile3]
+// };
 
 // Crea Plan mock
-export const mockPlan: Plan = {
-  id: 100,
-  members: [member1, member2]
-};
+// export const mockPlan: Plan = {
+//   id: 100,
+//   members: [member1, member2]
+// };
 
 // Crea User mock
 export const mockUser: User = {

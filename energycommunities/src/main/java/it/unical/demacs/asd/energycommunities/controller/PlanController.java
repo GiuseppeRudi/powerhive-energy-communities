@@ -5,14 +5,12 @@ import java.io.UnsupportedEncodingException;
 
 import javax.naming.NameNotFoundException;
 
+import it.unical.demacs.asd.energycommunities.data.entities.Plan;
+import it.unical.demacs.asd.energycommunities.dto.MemberDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.PlanDto;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import it.unical.demacs.asd.energycommunities.data.services.PlanService;
@@ -35,4 +33,30 @@ public class PlanController {
         return ResponseEntity.ok("Data successifully saved");
     }
 
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<PlanDto> getPlanById(@PathVariable Long id){
+        PlanDto plan = planService.getPlanById(id);
+
+
+        System.out.println(plan.toString());
+
+        if(plan == null)
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(plan);
+
+    }
+
+    @GetMapping(value = "/{plan_id}/{member_id}")
+    public ResponseEntity<MemberDetailDto> getMember(@PathVariable Long plan_id, @PathVariable Long member_id){
+        MemberDetailDto memberDetailDto = planService.getMember(plan_id,member_id);
+
+        System.out.println(memberDetailDto.toString());
+
+        if(memberDetailDto == null)
+            return ResponseEntity.notFound().build();
+
+        return ResponseEntity.ok(memberDetailDto);
+    }
 }
+

@@ -5,18 +5,24 @@ import it.unical.demacs.asd.energycommunities.data.entities.Profile;
 import it.unical.demacs.asd.energycommunities.data.entities.ProfileGraph;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
 import it.unical.demacs.asd.energycommunities.dto.BestModelDto;
-import it.unical.demacs.asd.energycommunities.dto.MemberDto;
+import it.unical.demacs.asd.energycommunities.dto.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.ProfileDto;
+import lombok.RequiredArgsConstructor;
 import org.potassco.clingo.*;
 import org.potassco.clingo.control.Control;
 import org.potassco.clingo.solving.Model;
 import org.potassco.clingo.solving.SolveHandle;
 import org.potassco.clingo.solving.SolveMode;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Service;
+
 import java.nio.file.Path;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Service
+@RequiredArgsConstructor
 public class ASPService {
 
     public BestModelDto chooseBestProfiles(User user) {
@@ -77,7 +83,8 @@ public class ASPService {
     private BestModelDto createBestModelDto(User user, String[] bestModel, long[] bestCost) {
         BestModelDto bestModelDto = new BestModelDto();
         bestModelDto.setCost(bestCost);
-        List<MemberDto> memberDtos = new ArrayList<>();
+//        List<MemberDto> memberDtos = new ArrayList<>();
+        List<MemberDetailDto> memberDtos = new ArrayList<>();
         Pattern pattern = Pattern.compile("assign\\((\\d+),(\\d+)\\)");
 
         Map<Long,Integer> alreadyAdded = new HashMap<>();
@@ -88,26 +95,23 @@ public class ASPService {
             Matcher matcher = pattern.matcher(assignment);
             if (!matcher.find()) continue; // usa find(), non matches()
             Long memberId = Long.valueOf(matcher.group(1));
-            Long profileId = Long.valueOf(matcher.group(2));
-            MemberDto memberDto = new MemberDto();
+            long profileId = Long.parseLong(matcher.group(2));
+//            MemberDto memberDto = new MemberDto();
+            MemberDetailDto memberDto = new MemberDetailDto();
             ProfileDto profileDto = new ProfileDto();
             if (matcher.matches()) {
                 if (alreadyAdded.containsKey(memberId)) {
                     memberDto = memberDtos.get(alreadyAdded.get(memberId));
                 } else {
-                    memberDto.setMemberId(memberId);
+                    memberDto.setId(memberId);
                 }
-                profileDto.setProfileId(profileId);
+                profileDto.setId(profileId);
             } else continue;
             Member member = user.getPlan().getMembers().get((int) (memberId-1));
             Profile profile = member.getProfiles().get((int) (profileId-1));
             ProfileGraph pg = profile.getProfileGraph();
-            Map<Integer,Integer> values = new HashMap<>();
-            for (int i=0; i<pg.getGraph().size(); i++){
-                values.put(i,pg.getGraph().get(i));
-            }
-            profileDto.setHourlyValues(values);
-            memberDto.getProfileIds().add(profileDto);
+            profileDto.setGraph(pg.getGraph());
+            memberDto.getProfiles().add(profileDto);
             if (alreadyAdded.containsKey(memberId)) {
                 memberDtos.set(alreadyAdded.get(memberId), memberDto);
             } else {

@@ -9,6 +9,6 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 public class BestModelDto {
-    private List<MemberDto> assignments;
+    private List<MemberDetailDto> assignments;
     private long[] cost;
 }

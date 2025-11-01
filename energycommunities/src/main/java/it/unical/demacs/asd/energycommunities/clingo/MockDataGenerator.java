@@ -1,15 +1,16 @@
 package it.unical.demacs.asd.energycommunities.clingo;
 
 import it.unical.demacs.asd.energycommunities.data.entities.*;
-import it.unical.demacs.asd.energycommunities.dto.BestModelDto;
-import it.unical.demacs.asd.energycommunities.dto.MemberDto;
-import it.unical.demacs.asd.energycommunities.dto.ProfileDto;
+import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@Service
+@RequiredArgsConstructor
 public class MockDataGenerator {
 
     public static User createMockUser() {
@@ -43,7 +44,7 @@ public class MockDataGenerator {
             Profile profile = new Profile();
             profile.setId((long) i);
             profile.setMember(member1);
-            profile.setType(Profile.ProfileType.PRODUCER);
+            profile.setType(ProfileType.PRODUCER);
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
@@ -65,7 +66,7 @@ public class MockDataGenerator {
             Profile profile = new Profile();
             profile.setId((long) i);
             profile.setMember(member2);
-            profile.setType(Profile.ProfileType.CONSUMER);
+            profile.setType(ProfileType.CONSUMER);
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
@@ -87,7 +88,7 @@ public class MockDataGenerator {
             Profile profile = new Profile();
             profile.setId((long) i);
             profile.setMember(member3);
-            profile.setType(Profile.ProfileType.PRODUCER);
+            profile.setType(ProfileType.PRODUCER);
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
@@ -99,7 +100,7 @@ public class MockDataGenerator {
             Profile profile = new Profile();
             profile.setId((long) i);
             profile.setMember(member3);
-            profile.setType(Profile.ProfileType.CONSUMER);
+            profile.setType(ProfileType.CONSUMER);
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
@@ -121,7 +122,7 @@ public class MockDataGenerator {
             Profile profile = new Profile();
             profile.setId((long) i);
             profile.setMember(member4);
-            profile.setType(Profile.ProfileType.CONSUMER);
+            profile.setType(ProfileType.CONSUMER);
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
@@ -143,7 +144,7 @@ public class MockDataGenerator {
             Profile profile = new Profile();
             profile.setId((long) i);
             profile.setMember(member5);
-            profile.setType(Profile.ProfileType.PRODUCER);
+            profile.setType(ProfileType.PRODUCER);
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
@@ -155,7 +156,7 @@ public class MockDataGenerator {
             Profile profile = new Profile();
             profile.setId((long) i);
             profile.setMember(member5);
-            profile.setType(Profile.ProfileType.CONSUMER);
+            profile.setType(ProfileType.CONSUMER);
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
@@ -177,7 +178,7 @@ public class MockDataGenerator {
             Profile profile = new Profile();
             profile.setId((long) i);
             profile.setMember(member6);
-            profile.setType(Profile.ProfileType.PRODUCER);
+            profile.setType(ProfileType.PRODUCER);
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
@@ -198,7 +199,7 @@ public class MockDataGenerator {
         Profile profile7_1 = new Profile();
         profile7_1.setId((long) 1);
         profile7_1.setMember(member7);
-        profile7_1.setType(Profile.ProfileType.PRODUCER);
+        profile7_1.setType(ProfileType.PRODUCER);
 
         ProfileGraph graph7_1 = new ProfileGraph();
         graph7_1.setId((long) 1);
@@ -210,7 +211,7 @@ public class MockDataGenerator {
             Profile profile = new Profile();
             profile.setId((long) i);
             profile.setMember(member7);
-            profile.setType(Profile.ProfileType.CONSUMER);
+            profile.setType(ProfileType.CONSUMER);
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
@@ -232,7 +233,7 @@ public class MockDataGenerator {
             Profile profile = new Profile();
             profile.setId((long) i);
             profile.setMember(member8);
-            profile.setType(Profile.ProfileType.PRODUCER);
+            profile.setType(ProfileType.PRODUCER);
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
@@ -254,7 +255,7 @@ public class MockDataGenerator {
             Profile profile = new Profile();
             profile.setId((long) i);
             profile.setMember(member9);
-            profile.setType(Profile.ProfileType.CONSUMER);
+            profile.setType(ProfileType.CONSUMER);
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
@@ -265,7 +266,7 @@ public class MockDataGenerator {
         Profile profile9_5 = new Profile();
         profile9_5.setId((long) 5);
         profile9_5.setMember(member9);
-        profile9_5.setType(Profile.ProfileType.PRODUCER);
+        profile9_5.setType(ProfileType.PRODUCER);
 
         ProfileGraph graph9_5 = new ProfileGraph();
         graph9_5.setId((long) 5);
@@ -287,7 +288,7 @@ public class MockDataGenerator {
             Profile profile = new Profile();
             profile.setId((long) i);
             profile.setMember(member10);
-            profile.setType(Profile.ProfileType.PRODUCER);
+            profile.setType(ProfileType.PRODUCER);
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
@@ -298,7 +299,7 @@ public class MockDataGenerator {
         Profile profile10_3 = new Profile();
         profile10_3.setId((long) 3);
         profile10_3.setMember(member10);
-        profile10_3.setType(Profile.ProfileType.CONSUMER);
+        profile10_3.setType(ProfileType.CONSUMER);
 
         ProfileGraph graph10_3 = new ProfileGraph();
         graph10_3.setId((long) 3);
@@ -350,25 +351,6 @@ public class MockDataGenerator {
         }
 
         return graph;
-    }
-
-
-
-    public static void main(String[] args) {
-        User mockUser = createMockUser();
-        ASPService aspService = new ASPService();
-        BestModelDto bestModelDto = aspService.chooseBestProfiles(mockUser); // chiamata all'ASP
-        System.out.println("Best Profiles per members:");
-        for(MemberDto mp: bestModelDto.getAssignments()) {
-            System.out.println("Membro " + mp.getMemberId());
-            for(ProfileDto p : mp.getProfileIds()) {
-                System.out.print("  Profilo " + p.getProfileId() + ": ");
-                for(int i=0; i<p.getHourlyValues().size(); i++){
-                    System.out.print(p.getHourlyValues().get(i) + " ");
-                }
-            }
-            System.out.println("\n");
-        }
     }
 }
 

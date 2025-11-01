@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import {AuthService} from '../../services/auth.service';
+import {User} from '../../model/User';
+import {Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -10,11 +12,12 @@ import {AuthService} from '../../services/auth.service';
     CommonModule,
   ],
   templateUrl: './login.html',
-  styleUrl: './login.css',
+  styleUrls: ['../welcome/welcome.css', 'login.css'],
   standalone: true
 })
 export class Login {
 
+  currentUser : User | null = null;
   //state of page
   showRegister : boolean = false;
 
@@ -30,17 +33,20 @@ export class Login {
   regLastName : string = '';
 
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) { }
 
   onLogin(){
 
-    this.authService.login(this.username, this.password);
-    alert(`Login con utente: ${this.username}`);
+      this.authService.login(this.username, this.password).subscribe({
+        next: (user) => {
+          this.router.navigate(['/dashboard']);
+        },
+        error: (err) => {
+          console.error('Login fallito', err);
+        }
+      });
 
 
-    console.log('login', this.username);
-    console.log('password', this.password);
-    alert(`Login con utente: ${this.username}`);
   }
 
   onRegister(){

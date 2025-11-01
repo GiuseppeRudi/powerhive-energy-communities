@@ -33,7 +33,7 @@ public class SecurityConfig {
                     return config;
                 }))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/v3/api-docs/**", "/users/register", "/users/login", "/swagger-ui/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/users/register", "/users/login", "/swagger-ui/**","/plan/**" ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())

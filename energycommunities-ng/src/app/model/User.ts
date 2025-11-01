@@ -1,8 +1,9 @@
+
 export interface User {
   id : number;
-  username : string;
-  email : string;
   first_name : string;
   last_name : string;
-  plain_id : number;
+  username : string;
+  email : string;
+  plan_id : number;
 }

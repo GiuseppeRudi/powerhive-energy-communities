@@ -4,16 +4,12 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
 import javax.naming.NameNotFoundException;
 
 import it.unical.demacs.asd.energycommunities.data.dao.*;
-import it.unical.demacs.asd.energycommunities.data.utils.MemberType;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import it.unical.demacs.asd.energycommunities.dto.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.PlanDto;
-import it.unical.demacs.asd.energycommunities.dto.ProfileDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -82,29 +78,20 @@ public class PlanServiceImpl implements PlanService {
         List<Member> members = new ArrayList<>();
 
         for (CSVRecord record : records) {
+            Member member = members.stream().filter(m -> m.getEmail().equals(record.get("email"))).findFirst().orElse(null);
+            if(member == null){
+                member = new Member();
+                member.setFullName(record.get("full_name"));
+                member.setEmail(record.get("email"));
+                member.setPlan(plan); // connect to plan
+                member.setProfiles(new ArrayList<>());
 
-            Member member = new Member();
-            member.setFullName(record.get("full_name"));
-            member.setEmail(record.get("email"));
-            member.setPlan(plan); // connect to plan
-
-            // Determine MemberType
-            String category = record.get("category").toLowerCase();
-            MemberType memberType = switch (category) {
-                case "producer" -> MemberType.PRODUCER;
-                case "consumer" -> MemberType.CONSUMER;
-                default -> MemberType.PROSUMER;
-            };
-            member.setMemberType(memberType);
-
+                members.add(member);
+            }
             // Create Profile
             Profile profile = new Profile();
             profile.setMember(member);
-            profile.setType(
-                    (memberType == MemberType.PRODUCER)
-                            ? ProfileType.PRODUCER
-                            : ProfileType.CONSUMER
-            );
+            profile.setType(record.get("category").toString().equals("PRODUCER") ? ProfileType.PRODUCER : ProfileType.CONSUMER);
 
             // Create ProfileGraph and fill values
             ProfileGraph graph = new ProfileGraph();
@@ -115,12 +102,7 @@ public class PlanServiceImpl implements PlanService {
             }
 
             profile.setProfileGraph(graph);
-
-            List<Profile> profiles = new ArrayList<>();
-            profiles.add(profile);
-            member.setProfiles(profiles);
-
-            members.add(member);
+            member.getProfiles().add(profile);
         }
 
         // connect members to plan

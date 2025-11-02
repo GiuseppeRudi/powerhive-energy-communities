@@ -1,0 +1,25 @@
+<div *ngIf="bestModel">
+  <div *ngFor="let member of bestModel.assignments">
+    <h3>Member {{ member.id }}</h3>
+
+    <div *ngIf="produceChartDataMap.get(member.id)">
+      <h4>Production</h4>
+      <app-energy-chart
+        [data]="produceChartDataMap.get(member.id)!"
+        [options]="chartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+
+    <div *ngIf="consumeChartDataMap.get(member.id)">
+      <h4>Consumption</h4>
+      <app-energy-chart
+        [data]="consumeChartDataMap.get(member.id)!"
+        [options]="chartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+
+    <hr>
+  </div>
+</div>

@@ -4,6 +4,7 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import { User } from '../model/User';
 import { Plan} from '../model/Plan';
 import {MemberDetail} from '../model/MemberDetail';
+import {BestModel} from '../model/BestModel';
 
 @Injectable({ providedIn: 'root' })
 export class PlanService {
@@ -31,5 +32,7 @@ export class PlanService {
     return this.http.get<MemberDetail>(`${this.baseUrl}/${planID}/${memberId}`);
   }
 
-
+  getBestModel() : Observable<BestModel>{
+    return this.http.get<BestModel>(`http://localhost:8080/analysis/start`);
+  }
 }

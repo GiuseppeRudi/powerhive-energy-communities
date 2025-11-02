@@ -16,7 +16,7 @@ export class PlanService {
   private readonly baseUrl = 'http://localhost:8080/plan';
   constructor(private readonly http: HttpClient) {}
 
-  uploadCsv(file : File, ownerId : number) : Observable<any>{
+  uploadCsv(file : File, ownerId : number) : Observable<string>{
     const formData = new FormData();
     formData.append('file', file);
     formData.append('ownerId', ownerId.toString());

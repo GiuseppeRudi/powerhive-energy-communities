@@ -28,9 +28,9 @@ public class PlanController {
         if(file.isEmpty()) 
             return ResponseEntity.badRequest().body("File is empty");
 
-        planService.upload(file, ownerId);
+        PlanDto planDto = planService.upload(file, ownerId);
         
-        return ResponseEntity.ok("Data successifully saved");
+        return ResponseEntity.ok(planDto.getId().toString());
     }
 
     @GetMapping(value = "/{id}")

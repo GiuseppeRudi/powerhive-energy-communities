@@ -11,7 +11,7 @@ import it.unical.demacs.asd.energycommunities.dto.PlanDto;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface PlanService {
-    void upload(MultipartFile file, Long ownerId) throws UnsupportedEncodingException, IOException, NameNotFoundException;
+    PlanDto upload(MultipartFile file, Long ownerId) throws UnsupportedEncodingException, IOException, NameNotFoundException;
 
     PlanDto getPlanById(Long planId);
 

@@ -29,7 +29,11 @@ public class PlanServiceImpl implements PlanService {
     private final PlanDao planDao;
     private final UserDao userDao;
     private final MemberDao memberDao;
+
+    @SuppressWarnings("unused")
     private final ProfileDao profileDao;
+    
+    @SuppressWarnings("unused")
     private final ProfileGraphDao profileGraphDao;
 
     private final ModelMapper modelMapper;

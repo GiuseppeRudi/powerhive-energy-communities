@@ -32,22 +32,26 @@ export class Login {
   regFirstName : string = '';
   regLastName : string = '';
 
+  errorMessage: string | null = null;
+  loginError: boolean = false;
 
   constructor(private authService: AuthService, private router: Router) { }
 
-  onLogin(){
-
-      this.authService.login(this.username, this.password).subscribe({
-        next: (user) => {
-          this.router.navigate(['/dashboard']);
-        },
-        error: (err) => {
-          console.error('Login fallito', err);
-        }
-      });
-
-
+  onLogin() {
+    this.authService.login(this.username, this.password).subscribe({
+      next: (user) => {
+        this.errorMessage = null;
+        this.loginError = false;
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        console.error('Login fallito', err);
+        this.errorMessage = 'Incorrect username or password, retry';
+        this.loginError = true;
+      }
+    });
   }
+
 
   onRegister(){
     const registrationDto ={
@@ -59,8 +63,17 @@ export class Login {
     };
 
     this.authService.register(registrationDto).subscribe({
-      next: result => console.log('Register successful!', result),
-      error: error => console.log('Register Error', error)
+      next: result => {
+        console.log('Register successful!', result);
+        this.showRegister = false;
+        this.regUsername = '';
+        this.regEmail = '';
+        this.regPassword = '';
+        this.regFirstName = '';
+        this.regLastName = '';
+      },
+      error: error => console.log('Registration Error', error),
+
     });
   }
 }

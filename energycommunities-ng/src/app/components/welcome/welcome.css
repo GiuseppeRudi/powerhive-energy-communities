@@ -479,3 +479,21 @@ h1 {
     font-size: 0.8rem;
   }
 }
+
+.btn-analysis {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+}
+
+.analysis-row {
+  display: flex;
+  align-items: center; /* centra verticalmente bottone e testo */
+  gap: 1rem;           /* spazio tra bottone e testo */
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #1a1a1a;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+}

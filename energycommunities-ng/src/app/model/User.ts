@@ -1,4 +1,3 @@
-import { Plan } from './Plan';
 
 export interface User {
   id : number;
@@ -6,5 +5,5 @@ export interface User {
   last_name : string;
   username : string;
   email : string;
-  plan : Plan;
+  plan_id : number;
 }

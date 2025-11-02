@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PlanService } from '../../services/plan.service';
-import { Member, Profile, ProfileGraph, MemberType } from '../../model/models';
-import {member1} from '../../model/mock';
+import { MemberDetail} from '../../model/MemberDetail';
 import { ChartData, ChartOptions } from 'chart.js';
 import { CommonModule } from '@angular/common';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
+import { AuthService } from '../../services/auth.service';
+import {User} from '../../model/User';
 
 @Component({
   selector: 'app-member-overview',
@@ -14,8 +15,11 @@ import { EnergyChartComponent } from '../energy-chart/energy-chart';
   templateUrl: './member-overview.html',
   styleUrl: '../welcome/welcome.css'
 })
-export class MemberOverview implements OnInit {
-  member?: Member;
+export class MemberOverview  {
+  currentUser : User | null = null;
+  member?: MemberDetail;
+  memberId : number | null = null;
+
   consumeChartData?: ChartData<any>;
   produceChartData?: ChartData<any>;
 
@@ -29,35 +33,43 @@ export class MemberOverview implements OnInit {
     plugins: { legend: { display: true } }
   };
 
-  constructor(private route: ActivatedRoute/*, private planService: PlanService*/) {}
-
+  constructor(private route: ActivatedRoute,
+              private planService: PlanService,
+              private authService: AuthService) { }
 
 
   ngOnInit() {
-    const memberId = Number(this.route.snapshot.paramMap.get('id'));
-    /*
-    this.planService.getCurrentUser().subscribe(user => {
-      this.member = user.plan.members.find(m => m.id === memberId);
-      if (this.member) {
-        this.buildCharts(this.member);
-      }
+    this.authService.user$.subscribe(user => {
+      this.currentUser = user;
+
+      this.route.paramMap.subscribe(paramMap => {
+        const id = paramMap.get('id');
+        if (id && this.currentUser) {
+          this.memberId = +id;
+          this.planService.getMember(this.currentUser.plan_id, this.memberId).subscribe({
+            next: (member: MemberDetail) => {
+              console.log(member);
+              this.member = member;
+              this.buildCharts(member);
+            },
+            error: (error: Error) => console.error(error)
+          });
+        }
+      });
     });
-     */
-    this.buildCharts(member1);
-    this.member = member1;
   }
 
-  buildCharts(member: Member) {
-    const producers = member.profiles.filter(p => p.type === 'PRODUCER');
-    const consumers = member.profiles.filter(p => p.type === 'CONSUMER');
+  buildCharts(member: MemberDetail) {
+    const producers = member.profiles.filter(p => p.profileType === 'PRODUCER');
+    const consumers = member.profiles.filter(p => p.profileType === 'CONSUMER');
     const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'black', 'brown'];
 
     if (producers.length > 0) {
       this.produceChartData = {
-        labels: Array.from({ length: 24 }, (_, i) => i.toString()),
-        datasets: producers.map((p,index) => ({
+        labels: Array.from({ length: producers[0].graph.length }, (_, i) => i.toString()),
+        datasets: producers.map((p, index) => ({
           label: `Producer Profile ${p.id}`,
-          data: p.profileGraph.graph,
+          data: p.graph,
           borderColor: colors[index % colors.length],
           backgroundColor: 'transparent',
           tension: 0.25
@@ -67,10 +79,10 @@ export class MemberOverview implements OnInit {
 
     if (consumers.length > 0) {
       this.consumeChartData = {
-        labels: Array.from({ length: 24 }, (_, i) => i.toString()),
-        datasets: consumers.map((p,index) => ({
+        labels: Array.from({ length: consumers[0].graph.length }, (_, i) => i.toString()),
+        datasets: consumers.map((p, index) => ({
           label: `Consumer Profile ${p.id}`,
-          data: p.profileGraph.graph,
+          data: p.graph,
           borderColor: colors[(index + producers.length) % colors.length],
           backgroundColor: 'transparent',
           tension: 0.25
@@ -78,4 +90,5 @@ export class MemberOverview implements OnInit {
       };
     }
   }
+
 }

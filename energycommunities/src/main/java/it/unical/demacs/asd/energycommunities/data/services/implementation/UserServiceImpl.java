@@ -1,12 +1,7 @@
 package it.unical.demacs.asd.energycommunities.data.services.implementation;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-
 import org.modelmapper.ModelMapper;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

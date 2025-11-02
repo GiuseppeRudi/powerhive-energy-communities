@@ -12,9 +12,15 @@ COPY src/ ./src/
 RUN mvn clean package -DskipTests
 
 # ===== STAGE 2: Run =====
-FROM eclipse-temurin:21-jre-alpine
-WORKDIR /app
+# changed from FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre
+# added
+RUN apt-get update && apt-get install -y libstdc++6 && rm -rf /var/lib/apt/lists/*
+# added
+COPY /asp/assign_profile.lp /app/energycommunities/asp/assign_profile.lp
 
+
+WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080

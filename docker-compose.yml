@@ -1,13 +1,14 @@
 services:
   postgres:
     container_name: postgress
-    image: postgres:17 # Nota: L'ultima versione stabile è postgres:16. La 17 è in beta.
+    image: postgres:17
     restart: always
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
+      POSTGRES_DB: energycommunities
     ports:
-      - "5432:5432"
+      - "5555:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
@@ -15,14 +16,14 @@ services:
     restart: always
     container_name: springboot-app
     build:
-      context: ./energycommunities  # <--- MODIFICATO
-      dockerfile: Dockerfile      # Ora Docker lo troverà dentro 'energycommunities'
+      context: ./energycommunities
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     depends_on:
       - postgres
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/energycommunities
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_JPA_HIBERNATE_DDL_AUTO: create

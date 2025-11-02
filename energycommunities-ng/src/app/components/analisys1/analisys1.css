@@ -1,0 +1,10 @@
+.disclaimer {
+  background-color: #f5f8ff;
+  border-left: 4px solid #0c751b;
+  padding: 1rem 1.2rem;
+  margin-bottom: 2rem;
+  border-radius: 0.6rem;
+  font-size: 0.95rem;
+  color: #444;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}

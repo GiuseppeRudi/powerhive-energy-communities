@@ -37,7 +37,7 @@ public class PlanServiceImpl implements PlanService {
 
     @Override
     @Transactional
-    public void upload(MultipartFile file, Long ownerId) throws NameNotFoundException {
+    public PlanDto upload(MultipartFile file, Long ownerId) throws NameNotFoundException {
 
         if (file.isEmpty()) {
             throw new IllegalArgumentException("CSV file is empty");
@@ -114,6 +114,8 @@ public class PlanServiceImpl implements PlanService {
         // Assign plan to owner and save user
         owner.setPlan(plan);
         userDao.save(owner);
+
+        return modelMapper.map(plan, PlanDto.class);
     }
 
     @Override

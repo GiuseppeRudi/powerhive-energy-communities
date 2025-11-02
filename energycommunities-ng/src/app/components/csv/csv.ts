@@ -1,7 +1,10 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PlanService} from '../../services/plan.service';
+import { AuthService} from '../../services/auth.service';
+import {User} from '../../model/User';
+import {Plan} from '../../model/Plan';
 
 @Component({
   selector: 'app-csv',
@@ -10,19 +13,33 @@ import { PlanService} from '../../services/plan.service';
   templateUrl: './csv.html',
   styleUrls: ['../welcome/welcome.css'],
 })
-export class Csv {
+export class Csv implements OnInit {
+  currentUser : User | null = null;
+
+  constructor(private planService: PlanService, private router: Router, private authService : AuthService) {}
+
+  ownerId: number = 0;
   errorMessage = '';
   successMessage = '';
   csvData: string[][] = [];
   profiles: any[] = [];
   selectedFile: File | null = null;
 
+  ngOnInit() {
+
+    this.authService.user$.subscribe(user => this.currentUser = user);
+
+    if(this.currentUser != null) {
+      this.ownerId = this.currentUser.id;
+    }
+
+  }
+
   expectedHeader = [
     'id', 'full_name', 'email', 'category',
     ...Array.from({ length: 24 }, (_, i) => `t${i}`)
   ];
 
-  constructor(private planService: PlanService, private router: Router) {}
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -94,11 +111,12 @@ export class Csv {
       return;
     }
 
-    const ownerId = 1;
 
-    this.planService.uploadCsv(this.selectedFile, ownerId).subscribe({
+    this.planService.uploadCsv(this.selectedFile, this.ownerId).subscribe({
       next: (res) => {
         this.successMessage = res;
+        console.log(this.successMessage);
+        this.authService.setUserField('plan_id', Number(this.successMessage))
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {

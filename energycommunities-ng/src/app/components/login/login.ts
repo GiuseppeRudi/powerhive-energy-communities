@@ -52,14 +52,13 @@ export class Login {
     });
   }
 
-
   onRegister(){
     const registrationDto ={
       username: this.regUsername,
       password: this.regPassword,
       firstName : this.regFirstName,
       lastName : this.regLastName,
-
+      email : this.regEmail,
     };
 
     this.authService.register(registrationDto).subscribe({

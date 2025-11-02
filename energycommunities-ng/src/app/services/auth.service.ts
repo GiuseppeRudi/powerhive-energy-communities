@@ -39,5 +39,14 @@ export class AuthService {
     return this.userSubject.value;
   }
 
+  setUserField<K extends keyof User>(field: K, value: User[K]): void {
+    const currentUser = this.userSubject.value;
+
+    if (currentUser) {
+      const updatedUser = { ...currentUser, [field]: value };
+      this.userSubject.next(updatedUser);
+    }
+  }
+
 
 }

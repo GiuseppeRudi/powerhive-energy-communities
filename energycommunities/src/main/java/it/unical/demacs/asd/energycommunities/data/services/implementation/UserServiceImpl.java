@@ -30,6 +30,15 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserDto registerNewUser(UserRegistrationDto registrationDto) {
+
+        if (userDao.findByEmail(registrationDto.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email già registrata: " + registrationDto.getEmail());
+        }
+
+        if (userDao.findByUsername(registrationDto.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Username già esistente: " + registrationDto.getUsername());
+        }
+
         User user = modelMapper.map(registrationDto, User.class);
 
         String encodePassword = passwordEncoder.encode(registrationDto.getPassword());

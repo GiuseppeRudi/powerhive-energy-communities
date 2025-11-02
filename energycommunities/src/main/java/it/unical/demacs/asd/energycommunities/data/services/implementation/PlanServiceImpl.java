@@ -91,7 +91,7 @@ public class PlanServiceImpl implements PlanService {
             // Create Profile
             Profile profile = new Profile();
             profile.setMember(member);
-            profile.setType(record.get("category").toString().equals("PRODUCER") ? ProfileType.PRODUCER : ProfileType.CONSUMER);
+            profile.setType(record.get("category").toString().toUpperCase().equals("PRODUCER") ? ProfileType.PRODUCER : ProfileType.CONSUMER);
 
             // Create ProfileGraph and fill values
             ProfileGraph graph = new ProfileGraph();

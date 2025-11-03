@@ -5,7 +5,6 @@ import java.io.UnsupportedEncodingException;
 
 import javax.naming.NameNotFoundException;
 
-import it.unical.demacs.asd.energycommunities.data.entities.Plan;
 import it.unical.demacs.asd.energycommunities.dto.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.PlanDto;
 import org.springframework.http.MediaType;

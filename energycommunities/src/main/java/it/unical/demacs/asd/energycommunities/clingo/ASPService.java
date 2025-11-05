@@ -2,7 +2,6 @@ package it.unical.demacs.asd.energycommunities.clingo;
 
 import it.unical.demacs.asd.energycommunities.data.entities.Member;
 import it.unical.demacs.asd.energycommunities.data.entities.Profile;
-import it.unical.demacs.asd.energycommunities.data.entities.ProfileGraph;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
 import it.unical.demacs.asd.energycommunities.dto.BestModelDto;
 import it.unical.demacs.asd.energycommunities.dto.MemberDetailDto;
@@ -13,7 +12,6 @@ import org.potassco.clingo.control.Control;
 import org.potassco.clingo.solving.Model;
 import org.potassco.clingo.solving.SolveHandle;
 import org.potassco.clingo.solving.SolveMode;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
@@ -82,48 +80,63 @@ public class ASPService {
 
     private BestModelDto createBestModelDto(User user, String[] bestModel, long[] bestCost) {
         BestModelDto bestModelDto = new BestModelDto();
-        bestModelDto.setCost(bestCost);
-//        List<MemberDto> memberDtos = new ArrayList<>();
         List<MemberDetailDto> memberDtos = new ArrayList<>();
-        Pattern pattern = Pattern.compile("assign\\((\\d+),(\\d+)\\)");
+        List<Integer> kpi1List = new ArrayList<>();
+        List<Integer> kpi2List = new ArrayList<>();
 
-        Map<Long,Integer> alreadyAdded = new HashMap<>();
+        Pattern assignPattern = Pattern.compile("assign\\((\\d+),(\\d+)\\)");
+        Pattern kpi1Pattern = Pattern.compile("kpi_1\\((\\d+),(\\d+)\\)");
+        Pattern kpi2Pattern = Pattern.compile("kpi_2\\((\\d+),(\\d+)\\)");
+
+        Map<Long, Integer> alreadyAdded = new HashMap<>();
         int count = 0;
 
-        for (String assignment : bestModel) {
-            System.out.println(assignment);
-            Matcher matcher = pattern.matcher(assignment);
-            if (!matcher.find()) continue; // usa find(), non matches()
-            Long memberId = Long.valueOf(matcher.group(1));
-            long profileId = Long.parseLong(matcher.group(2));
-//            MemberDto memberDto = new MemberDto();
-            MemberDetailDto memberDto = new MemberDetailDto();
-            ProfileDto profileDto = new ProfileDto();
-            if (matcher.matches()) {
+        for (String atom : bestModel) {
+            Matcher assignMatcher = assignPattern.matcher(atom);
+            Matcher kpi1Matcher = kpi1Pattern.matcher(atom);
+            Matcher kpi2Matcher = kpi2Pattern.matcher(atom);
+
+            if (assignMatcher.find()) {
+                Long memberId = Long.valueOf(assignMatcher.group(1));
+                long profileId = Long.parseLong(assignMatcher.group(2));
+                MemberDetailDto memberDto;
                 if (alreadyAdded.containsKey(memberId)) {
                     memberDto = memberDtos.get(alreadyAdded.get(memberId));
                 } else {
+                    memberDto = new MemberDetailDto();
                     memberDto.setId(memberId);
+                    memberDtos.add(memberDto);
+                    alreadyAdded.put(memberId, count++);
                 }
+
+                Member member = user.getPlan().getMembers().get((int) (memberId - 1));
+                memberDto.setFullName(member.getFullName());
+                memberDto.setMemberType(member.getMemberType());
+
+                Profile profile = member.getProfiles().get((int) (profileId - 1));
+                ProfileDto profileDto = new ProfileDto();
                 profileDto.setId(profileId);
-            } else continue;
-            Member member = user.getPlan().getMembers().get((int) (memberId-1));
-            memberDto.setMemberType(member.getMemberType());
-            Profile profile = member.getProfiles().get((int) (profileId-1));
-            profileDto.setProfileType(profile.getType());
-            ProfileGraph pg = profile.getProfileGraph();
-            profileDto.setGraph(pg.getGraph());
-            memberDto.getProfiles().add(profileDto);
-            if (alreadyAdded.containsKey(memberId)) {
-                memberDtos.set(alreadyAdded.get(memberId), memberDto);
-            } else {
-                memberDtos.add(memberDto);
-                alreadyAdded.put(memberId, count++);
+                profileDto.setProfileType(profile.getType());
+                profileDto.setGraph(profile.getProfileGraph().getGraph());
+
+                memberDto.getProfiles().add(profileDto);
+            }
+            else if (kpi1Matcher.find()) {
+                int percentage = Integer.parseInt(kpi1Matcher.group(2));
+                kpi1List.add(percentage);
+            }
+            else if (kpi2Matcher.find()) {
+                int percentage = Integer.parseInt(kpi2Matcher.group(2));
+                kpi2List.add(percentage);
             }
         }
+
         bestModelDto.setAssignments(memberDtos);
+        bestModelDto.setKpi1(kpi1List);
+        bestModelDto.setKpi2(kpi2List);
         return bestModelDto;
     }
+
 
     private static boolean isBetter(long[] a, long[] b) {
         int n = Math.min(a.length, b.length);

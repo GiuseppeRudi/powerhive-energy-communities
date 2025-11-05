@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {RouterLink} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import {User} from '../../model/User';
 import {NgIf} from '@angular/common';
@@ -19,12 +19,18 @@ export class Navbar implements OnInit {
 
   currentUser : User | null = null;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit(){
 
     this.authService.user$.subscribe(user => this.currentUser = user);
 
   }
+
+  logout() {
+    this.authService.logout(); // cancella sessione e stato utente
+    this.router.navigate(['/login']); // reindirizza alla pagina di login
+  }
+
 
 }

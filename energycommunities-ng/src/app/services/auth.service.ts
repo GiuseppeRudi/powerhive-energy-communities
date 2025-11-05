@@ -11,7 +11,13 @@ export class AuthService {
   private userSubject : BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
   public user$ : Observable<User | null> = this.userSubject.asObservable();
 
-  constructor(private http : HttpClient) { }
+  constructor(private http : HttpClient) {
+    const savedUser = sessionStorage.getItem('currentUser');
+    this.userSubject = new BehaviorSubject<User | null>(
+      savedUser ? JSON.parse(savedUser) : null
+    );
+    this.user$ = this.userSubject.asObservable();
+  }
 
   private baseUrl: string = 'http://localhost:8080/users';
 
@@ -20,15 +26,17 @@ export class AuthService {
     return this.http.post<User>(`${this.baseUrl}/login`, body, {
       withCredentials: true
     }).pipe(
-      tap(user => this.userSubject.next(user))
+      tap(user => {
+        sessionStorage.setItem('currentUser', JSON.stringify(user));
+        this.userSubject.next(user)
+      } )
     );
   }
 
 
   logout() {
+    sessionStorage.removeItem('currentUser');
     this.userSubject.next(null);
-
-    // da fare
   }
 
   register(registrationDto : any){
@@ -45,8 +53,12 @@ export class AuthService {
     if (currentUser) {
       const updatedUser = { ...currentUser, [field]: value };
       this.userSubject.next(updatedUser);
+      sessionStorage.setItem('currentUser', JSON.stringify(updatedUser));
     }
   }
 
+  isLoggedIn(): boolean {
+    return this.userSubject.value !== null;
+  }
 
 }

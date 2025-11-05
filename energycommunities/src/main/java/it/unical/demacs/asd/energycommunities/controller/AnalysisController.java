@@ -28,6 +28,7 @@ public class AnalysisController {
 
         System.out.println("Best Profiles per members:");
         for(MemberDetailDto m: bestModelDto.getAssignments()) {
+            System.out.println(m.getFullName());
             System.out.println("Member " + m.getId() + " " + m.getMemberType() + ": ");
             for(ProfileDto p : m.getProfiles()) {
                 System.out.print("  Profile " + p.getId() + " " + p.getProfileType() + ": ");
@@ -38,6 +39,8 @@ public class AnalysisController {
             }
             System.out.println("\n");
         }
+        System.out.println("KPI_1: " + bestModelDto.getKpi1());
+        System.out.println("KPI_2: " + bestModelDto.getKpi2());
 
         return ResponseEntity.ok(bestModelDto);
     }

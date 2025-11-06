@@ -38,9 +38,9 @@ surplus_energy_per_member(M,T,Value1-Value2) :-
 :~ energy_snapshot(T,_,K). [K@1,T] % minimizza il bilancio totale (efficienza)
 
 % misura quanta parte dell’energia prodotta viene effettivamente usata (0–100%)
-kpi_1(T,100*A/B) :- energy_snapshot(T,A,_), producers_production_per_hour(T,B), B != 0.
+% kpi_1(T,100*A/B) :- energy_snapshot(T,A,_), producers_production_per_hour(T,B), B != 0.
 % misura quanta parte del consumo totale è soddisfatta da produzione interna.
-kpi_2(T,100*A/B) :- energy_snapshot(T,A,_), consumers_consumption_per_hour(T,B), B != 0.
+% kpi_2(T,100*A/B) :- energy_snapshot(T,A,_), consumers_consumption_per_hour(T,B), B != 0.
 
 
 #show assign/2.

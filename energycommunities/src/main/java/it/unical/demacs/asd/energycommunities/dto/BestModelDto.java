@@ -9,6 +9,6 @@ import java.util.List;
 @NoArgsConstructor
 public class BestModelDto {
     private List<MemberDetailDto> assignments;
-    List<Integer> kpi1;
-    List<Integer> kpi2;
+    // List<Integer> kpi1;
+    // List<Integer> kpi2;
 }

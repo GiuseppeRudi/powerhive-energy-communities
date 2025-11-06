@@ -39,8 +39,8 @@ public class AnalysisController {
             }
             System.out.println("\n");
         }
-        System.out.println("KPI_1: " + bestModelDto.getKpi1());
-        System.out.println("KPI_2: " + bestModelDto.getKpi2());
+        // System.out.println("KPI_1: " + bestModelDto.getKpi1());
+        // System.out.println("KPI_2: " + bestModelDto.getKpi2());
 
         return ResponseEntity.ok(bestModelDto);
     }

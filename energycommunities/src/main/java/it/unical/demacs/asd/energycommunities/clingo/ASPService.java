@@ -72,29 +72,29 @@ public class ASPService {
             e.printStackTrace();
         }
         if (bestModel != null) {
-            return createBestModelDto(user, bestModel,bestCost);
+            return createBestModelDto(user, bestModel);
         }  else {
             return null;
         }
     }
 
-    private BestModelDto createBestModelDto(User user, String[] bestModel, long[] bestCost) {
+    private BestModelDto createBestModelDto(User user, String[] bestModel) {
         BestModelDto bestModelDto = new BestModelDto();
         List<MemberDetailDto> memberDtos = new ArrayList<>();
-        List<Integer> kpi1List = new ArrayList<>();
-        List<Integer> kpi2List = new ArrayList<>();
+        // List<Integer> kpi1List = new ArrayList<>();
+        // List<Integer> kpi2List = new ArrayList<>();
 
         Pattern assignPattern = Pattern.compile("assign\\((\\d+),(\\d+)\\)");
-        Pattern kpi1Pattern = Pattern.compile("kpi_1\\((\\d+),(\\d+)\\)");
-        Pattern kpi2Pattern = Pattern.compile("kpi_2\\((\\d+),(\\d+)\\)");
+        // Pattern kpi1Pattern = Pattern.compile("kpi_1\\((\\d+),(\\d+)\\)");
+        // Pattern kpi2Pattern = Pattern.compile("kpi_2\\((\\d+),(\\d+)\\)");
 
         Map<Long, Integer> alreadyAdded = new HashMap<>();
         int count = 0;
 
-        for (String atom : bestModel) {
-            Matcher assignMatcher = assignPattern.matcher(atom);
-            Matcher kpi1Matcher = kpi1Pattern.matcher(atom);
-            Matcher kpi2Matcher = kpi2Pattern.matcher(atom);
+        for (String a : bestModel) {
+            Matcher assignMatcher = assignPattern.matcher(a);
+            // Matcher kpi1Matcher = kpi1Pattern.matcher(atom);
+            // Matcher kpi2Matcher = kpi2Pattern.matcher(atom);
 
             if (assignMatcher.find()) {
                 Long memberId = Long.valueOf(assignMatcher.group(1));
@@ -121,19 +121,19 @@ public class ASPService {
 
                 memberDto.getProfiles().add(profileDto);
             }
-            else if (kpi1Matcher.find()) {
-                int percentage = Integer.parseInt(kpi1Matcher.group(2));
-                kpi1List.add(percentage);
-            }
-            else if (kpi2Matcher.find()) {
-                int percentage = Integer.parseInt(kpi2Matcher.group(2));
-                kpi2List.add(percentage);
-            }
+//            else if (kpi1Matcher.find()) {
+//                int percentage = Integer.parseInt(kpi1Matcher.group(2));
+//                kpi1List.add(percentage);
+//            }
+//            else if (kpi2Matcher.find()) {
+//                int percentage = Integer.parseInt(kpi2Matcher.group(2));
+//                kpi2List.add(percentage);
+//            }
         }
 
         bestModelDto.setAssignments(memberDtos);
-        bestModelDto.setKpi1(kpi1List);
-        bestModelDto.setKpi2(kpi2List);
+        // bestModelDto.setKpi1(kpi1List);
+        // bestModelDto.setKpi2(kpi2List);
         return bestModelDto;
     }
 

@@ -73,8 +73,8 @@ export class Analisys1 implements OnInit {
       next: (data: BestModel) => {
         console.log(data);
         this.members = data.assignments;
-        this.kpi1 = data.kpi1;
-        this.kpi2 = data.kpi2;
+        // this.kpi1 = data.kpi1;
+        // this.kpi2 = data.kpi2;
         this.members.forEach(member => {
           this.memberExpandedState.set(member.id, false);
         });
@@ -205,11 +205,12 @@ export class Analisys1 implements OnInit {
         }
       ]
     };
+    this.kpi1 = this.calculateKpi(totalConsumption,totalProduction);
+    this.kpi2 = this.calculateKpi(totalProduction,totalConsumption);
   }
 
   buildKpiChart() {
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
-
     if(this.kpi1!=null && this.kpi2!=null) {
       this.kpiChart = {
         labels,
@@ -261,5 +262,17 @@ export class Analisys1 implements OnInit {
     });
 
     return { totalProduction, totalConsumption };
+  }
+
+  calculateKpi(a: number[], b: number[]) {
+    const kpi: number[] = [];
+
+    a.forEach((value, index) => {
+      if(value*100/b[index]>100)
+        kpi.push(100);
+      else
+        kpi.push(Number((value * 100 / b[index]).toFixed(1)));
+    })
+    return kpi;
   }
 }

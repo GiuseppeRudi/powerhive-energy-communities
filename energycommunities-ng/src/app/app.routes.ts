@@ -10,7 +10,7 @@ import { AuthGuard } from './services/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: Welcome },
-  { path: 'login', component: Login },
+  { path: 'login', component: Login, canActivate: [AuthGuard] },
   //protected routes
   { path: 'dashboard', component: Dashboard, canActivate: [AuthGuard] },
   { path: 'member/:id', component: MemberOverview, canActivate: [AuthGuard] },

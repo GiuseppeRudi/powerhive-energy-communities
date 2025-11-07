@@ -3,5 +3,6 @@ import {MemberDetail} from './MemberDetail';
 
 export interface BestModel {
   assignments: MemberDetail[];
-  cost: number[];
+  // kpi1: number[];
+  // kpi2: number[];
 }

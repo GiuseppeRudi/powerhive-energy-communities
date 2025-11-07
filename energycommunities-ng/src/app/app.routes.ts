@@ -6,13 +6,15 @@ import { Dashboard } from './components/dashboard/dashboard';
 import { MemberOverview } from './components/member-overview/member-overview';
 import { AnalysisComponent } from './components/analysis/analysis.component';
 import {Analisys1} from './components/analisys1/analisys1';
+import { AuthGuard } from './services/auth.guard';
 
 export const routes: Routes = [
   { path: '', component: Welcome },
   { path: 'login', component: Login },
-  { path: 'dashboard', component: Dashboard },
-  { path: 'member/:id', component: MemberOverview },
-  { path: 'analysis', component: AnalysisComponent},
-  { path: 'analysis1', component: Analisys1 },
-  { path: 'csv', component: Csv}
+  //protected routes
+  { path: 'dashboard', component: Dashboard, canActivate: [AuthGuard] },
+  { path: 'member/:id', component: MemberOverview, canActivate: [AuthGuard] },
+  { path: 'analysis', component: AnalysisComponent, canActivate: [AuthGuard] },
+  { path: 'analysis1', component: Analisys1, canActivate: [AuthGuard] },
+  { path: 'csv', component: Csv, canActivate: [AuthGuard] },
 ];

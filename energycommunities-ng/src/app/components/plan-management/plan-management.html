@@ -1,16 +1,67 @@
 <div class="content-div">
-<div class="disclaimer">
-  <p><strong>👥 Member Management Page</strong></p>
-  <p>
-    Note: On this page, you can add or remove members from the plan,
-    modify the energy consumption and/or energy production profiles
-    of existing members.
-  </p>
-  <p>
-    Each member’s profile represents their individual energy behavior
-    within the community. Adjusting these profiles allows you to simulate
-    how changes in production or consumption affect the overall energy
-    balance and performance of the community.
-  </p>
-</div>
+
+  <hr>
+
+  <div class="form-container">
+
+    <h3>Add New Member to the Plan</h3>
+
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+    <div *ngIf="successMessage" class="alert alert-success">
+      {{ successMessage }}
+    </div>
+
+    <form (ngSubmit)="saveMember()">
+
+      <div class="form-group">
+        <label for="memberFullName">Full Name</label>
+        <input type="text" id="memberFullName" class="form-control"
+               [(ngModel)]="memberFullName" name="memberFullName" required>
+      </div>
+
+      <div class="form-group">
+        <label for="memberEmail">Email</label>
+        <input type="email" id="memberEmail" class="form-control"
+               [(ngModel)]="memberEmail" name="memberEmail" required>
+      </div>
+
+      <div class="form-group">
+        <label for="memberCategory">Category</label>
+        <select id="memberCategory" class="form-control"
+                [(ngModel)]="memberCategory" name="memberCategory"
+                (ngModelChange)="updatePreviewChart()" required>
+          <option value="" disabled>Select a category...</option>
+          <option value="producer">Producer</option>
+          <option value="consumer">Consumer</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="memberEnergy">24 Energy Values (t0–t23)</label>
+        <textarea id="memberEnergy" class="form-control" rows="4"
+                  [(ngModel)]="memberEnergyValues" name="memberEnergyValues"
+                  (ngModelChange)="updatePreviewChart()"
+                  placeholder="Enter 24 values separated by commas or spaces (e.g. 1.5, 2, 3.0...)."
+                  required></textarea>
+        <small>Enter 24 numbers separated by commas or spaces.</small>
+      </div>
+
+      <div *ngIf="previewChartData" class="chart-preview-container">
+        <h4>Profile Preview</h4>
+        <app-energy-chart
+          [data]="previewChartData"
+          [options]="chartOptions">
+        </app-energy-chart>
+      </div>
+
+      <div class="form-button-container">
+        <button type="submit" class="btn">
+          Save Member
+        </button>
+      </div>
+
+    </form>
+  </div>
 </div>

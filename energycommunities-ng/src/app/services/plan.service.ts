@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import {BehaviorSubject, Observable} from 'rxjs';
 import { User } from '../model/User';
 import { Plan} from '../model/Plan';
@@ -22,6 +22,20 @@ export class PlanService {
     formData.append('ownerId', ownerId.toString());
 
     return this.http.post(`${this.baseUrl}/upload`, formData, { responseType: 'text' });
+  }
+
+
+  addMemberToPlan(memberData: any, ownerId: number): Observable<MemberDetail> {
+    const dto = {
+      fullName: memberData.full_name,
+      email: memberData.email,
+      category: memberData.category,
+      energyValues: memberData.energyValues
+    };
+
+    const params = new HttpParams().set('ownerId', ownerId.toString());
+
+    return this.http.post<MemberDetail>(`${this.baseUrl}/addMember`, dto, { params });
   }
 
   getPlan(planID : number) : Observable<Plan>{

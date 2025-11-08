@@ -1,16 +1,23 @@
 <div class="content-div">
   <div class="disclaimer">
-    <p> <strong>📊 Energy Community Analysis Dashboard</strong> </p> <p>
-    Note: The data displayed on this page is for demonstration purposes only.
-    In future versions, it will work with your own list of members.
-    Currently, it shows an example using realistic energy profiles. </p>
+    <p> <strong>📊 Energy Community Analysis Dashboard</strong> </p>
     <p> For each member, given a set of production and consumption profiles,
       our app applies a decision-making algorithm to select the optimal production
       and consumption profile for each member, in order to optimize the shared energy
       within the energy community. </p>
   </div>
 
-  <!-- Optimal Member Profiles -->
+
+  <div *ngIf="totalConsumption && totalConsumption.length>0" class="analysis-actions">
+    <h3>What would you like to do with this analysis?</h3>
+    <p>You can save it to your analysis history or discard it if you don’t want to keep it.</p>
+    <div class="action-buttons">
+      <button class="btn-save" (click)="saveAnalysis()">Save Analysis</button>
+      <button class="btn-discard" (click)="discardAnalysis()">Discard</button>
+    </div>
+  </div>
+
+
   <div class="chart-section">
     <h2 class="section-title">Optimal Member Profiles Choosen</h2>
 

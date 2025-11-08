@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { CommonModule } from '@angular/common';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
-// import { mockPlan, kpi1, kpi2, calculateTotals } from '../../model/mock';
 import { MemberDetail } from '../../model/MemberDetail';
-import {BestModel} from '../../model/BestModel';
-import {ActivatedRoute} from '@angular/router';
+import {ResultAnalysis_1} from '../../model/ResultAnalysis_1';
+import {ActivatedRoute, Router} from '@angular/router';
 import {PlanService} from '../../services/plan.service';
 import {AuthService} from '../../services/auth.service';
 import {GenerationLoader} from '../generation-loader/generation-loader';
+import {routes} from '../../app.routes';
 
 @Component({
   selector: 'app-analisys1',
@@ -23,7 +23,10 @@ export class Analisys1 implements OnInit {
   kpi1: number[] = [];
   kpi2: number[] = [];
 
-  // per lo stato aperto/chiuso dei membri
+  totalConsumption: number[] = [];
+  totalProduction: number[] = [];
+
+
   memberExpandedState: Map<number, boolean> = new Map();
 
   chartDataMap: Map<number, ChartData<'line'>> = new Map();
@@ -63,18 +66,20 @@ export class Analisys1 implements OnInit {
   };
 
   constructor(
-    private route: ActivatedRoute,
+    private router: Router,
     private planService: PlanService,
     private authService: AuthService
   ) {}
 
   ngOnInit() {
     this.planService.getBestModel().subscribe({
-      next: (data: BestModel) => {
+      next: (data: ResultAnalysis_1) => {
         console.log(data);
         this.members = data.assignments;
-        // this.kpi1 = data.kpi1;
-        // this.kpi2 = data.kpi2;
+        this.kpi1 = data.kpi1;
+        this.kpi2 = data.kpi2;
+        this.totalConsumption = data.totalConsumption;
+        this.totalProduction = data.totalProduction;
         this.members.forEach(member => {
           this.memberExpandedState.set(member.id, false);
         });
@@ -82,16 +87,6 @@ export class Analisys1 implements OnInit {
       },
       error: err => console.error(err)
     });
-    /*
-    this.members = mockPlan.members;
-
-    // Inizializza tutti i membri come chiusi
-    this.members.forEach(member => {
-      this.memberExpandedState.set(member.id, false);
-    });
-
-    this.buildAllCharts();
-    */
   }
 
   toggleMember(memberId: number) {
@@ -184,29 +179,26 @@ export class Analisys1 implements OnInit {
 
   buildTotalComparisonChart() {
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
-    const { totalProduction, totalConsumption } = this.calculateTotalsConsProd();
 
     this.totalComparisonChart = {
       labels,
       datasets: [
         {
           label: 'Total Production',
-          data: totalProduction,
+          data: this.totalProduction,
           borderColor: 'red',
           backgroundColor: 'transparent',
           tension: 0.25,
         },
         {
           label: 'Total Consumption',
-          data: totalConsumption,
+          data: this.totalConsumption,
           borderColor: 'green',
           backgroundColor: 'transparent',
           tension: 0.25,
         }
       ]
     };
-    this.kpi1 = this.calculateKpi(totalConsumption,totalProduction);
-    this.kpi2 = this.calculateKpi(totalProduction,totalConsumption);
   }
 
   buildKpiChart() {
@@ -243,36 +235,33 @@ export class Analisys1 implements OnInit {
     return 'Consumer';
   }
 
-  calculateTotalsConsProd() {
-    const totalProduction = new Array(24).fill(0);
-    const totalConsumption = new Array(24).fill(0);
-
-    this.members.forEach(member => {
-      member.profiles.forEach(profile => {
-        if (profile.profileType === 'PRODUCER') {
-          profile.graph.forEach((value, hour) => {
-            totalProduction[hour] += value;
-          });
-        } else if (profile.profileType === 'CONSUMER') {
-          profile.graph.forEach((value, hour) => {
-            totalConsumption[hour] += value;
-          });
-        }
-      });
-    });
-
-    return { totalProduction, totalConsumption };
+  saveAnalysis() {
+    console.log('Saving analysis...');
+    // Qui puoi chiamare un servizio per salvare l'analisi nello storico
+    // es: this.planService.saveAnalysis(this.members, this.kpi1, this.kpi2).subscribe(...)
   }
 
-  calculateKpi(a: number[], b: number[]) {
-    const kpi: number[] = [];
+  discardAnalysis() {
+    this.resetAnalysisData()
+    this.router.navigate(['/dashboard']);
 
-    a.forEach((value, index) => {
-      if(value*100/b[index]>100)
-        kpi.push(100);
-      else
-        kpi.push(Number((value * 100 / b[index]).toFixed(1)));
-    })
-    return kpi;
   }
+
+  resetAnalysisData() {
+    this.members = [];
+    this.kpi1 = [];
+    this.kpi2 = [];
+    this.totalConsumption = [];
+    this.totalProduction = [];
+
+    this.memberExpandedState.clear();
+    this.chartDataMap.clear();
+
+    this.optConsProfChart = undefined;
+    this.optProdProfChart = undefined;
+    this.totalComparisonChart = undefined;
+    this.kpiChart = undefined;
+
+  }
+
 }

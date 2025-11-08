@@ -7,8 +7,10 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class BestModelDto {
+public class ResultAnalysis_1Dto {
     private List<MemberDetailDto> assignments;
-    // List<Integer> kpi1;
-    // List<Integer> kpi2;
+    List<Double> kpi1;
+    List<Double> kpi2;
+    List<Double> totalConsumption;
+    List<Double> totalProduction;
 }

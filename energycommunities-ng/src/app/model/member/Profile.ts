@@ -1,4 +1,4 @@
-import {ProfileType} from '../utils/enum/ProfileType';
+import {ProfileType} from '../../utils/enum/ProfileType';
 
 export interface Profile {
   id: number;

@@ -2,13 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { CommonModule } from '@angular/common';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
-import { MemberDetail } from '../../model/MemberDetail';
-import {ResultAnalysis_1} from '../../model/ResultAnalysis_1';
+import { MemberDetail } from '../../model/member/MemberDetail';
+import {ResultAnalysis_1} from '../../model/analysis/ResultAnalysis_1';
 import {ActivatedRoute, Router} from '@angular/router';
-import {PlanService} from '../../services/plan.service';
-import {AuthService} from '../../services/auth.service';
+import {AnalysisService} from '../../services/analysis.service';
+import {AuthService} from '../../services/auth/auth.service';
 import {GenerationLoader} from '../generation-loader/generation-loader';
-import {routes} from '../../app.routes';
+import {HistoryService} from '../../services/history.service';
+import {User} from '../../model/User';
+import {SaveAnalysisRequest} from '../../model/SaveAnalysisRequest'
 
 @Component({
   selector: 'app-analisys1',
@@ -19,10 +21,19 @@ import {routes} from '../../app.routes';
 })
 export class Analisys1 implements OnInit {
 
+  constructor(
+    private router: Router,
+    private analysisService: AnalysisService,
+    private authService: AuthService,
+    private history: HistoryService,
+  ) {}
+
+
+  saveAnalysisRequest: SaveAnalysisRequest | null = null ;
   members: MemberDetail[] = [];
   kpi1: number[] = [];
   kpi2: number[] = [];
-
+  resultAnalysis_1 : ResultAnalysis_1 | null = null;
   totalConsumption: number[] = [];
   totalProduction: number[] = [];
 
@@ -65,16 +76,12 @@ export class Analisys1 implements OnInit {
     }
   };
 
-  constructor(
-    private router: Router,
-    private planService: PlanService,
-    private authService: AuthService
-  ) {}
 
   ngOnInit() {
-    this.planService.getBestModel().subscribe({
+    this.analysisService.getResultAnalysis_1().subscribe({
       next: (data: ResultAnalysis_1) => {
         console.log(data);
+        this.resultAnalysis_1 = data;
         this.members = data.assignments;
         this.kpi1 = data.kpi1;
         this.kpi2 = data.kpi2;
@@ -237,9 +244,32 @@ export class Analisys1 implements OnInit {
 
   saveAnalysis() {
     console.log('Saving analysis...');
-    // Qui puoi chiamare un servizio per salvare l'analisi nello storico
-    // es: this.planService.saveAnalysis(this.members, this.kpi1, this.kpi2).subscribe(...)
+
+    const userJson = sessionStorage.getItem('currentUser');
+
+    if (userJson) {
+      const user: User = JSON.parse(userJson);
+      const userId = user.id;
+      console.log('User ID:', userId);
+
+      // Costruisci l'oggetto SaveAnalysisRequest
+      const saveAnalysisRequest: SaveAnalysisRequest = {
+        userId: userId,
+        analysisNumber: 1, // qui metti il numero di analisi che vuoi associare
+        analysisData: this.resultAnalysis_1 // qui metti l'oggetto di analisi, può essere ResultAnalysis_1 o simile
+      };
+
+      this.history.saveAnalysis(saveAnalysisRequest).subscribe({
+        next: (res) => {console.log('Analisi salvata:', res)
+                                      this.router.navigate(['/dashboard']);},
+        error: (err) => console.error('Errore nel salvataggio:', err)
+      });
+
+    } else {
+      console.log('Nessun utente loggato');
+    }
   }
+
 
   discardAnalysis() {
     this.resetAnalysisData()

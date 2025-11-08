@@ -4,13 +4,13 @@ package it.unical.demacs.asd.energycommunities.controller;
 import it.unical.demacs.asd.energycommunities.clingo.ASPService;
 import it.unical.demacs.asd.energycommunities.clingo.MockDataGenerator;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
-import it.unical.demacs.asd.energycommunities.dto.ResultAnalysis_1Dto;
-import it.unical.demacs.asd.energycommunities.dto.MemberDetailDto;
-import it.unical.demacs.asd.energycommunities.dto.ProfileDto;
+import it.unical.demacs.asd.energycommunities.data.services.HistoryService;
+import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis_1Dto;
+import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 
 @RestController
@@ -21,7 +21,8 @@ public class AnalysisController {
 
     private final ASPService aspService;
 
-    @GetMapping(value = "/start")
+
+    @GetMapping(value = "/start_1")
     public ResponseEntity<ResultAnalysis_1Dto> startFirstAnalysis(){
         User user = MockDataGenerator.createMockUser();
         ResultAnalysis_1Dto resultAnalysis1Dto = aspService.chooseBestProfiles(user);

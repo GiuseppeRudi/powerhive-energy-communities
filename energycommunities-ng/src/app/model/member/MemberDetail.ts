@@ -1,4 +1,4 @@
-import {MemberType} from '../utils/enum/MemberType';
+import {MemberType} from '../../utils/enum/MemberType';
 import {Profile} from './Profile'
 
 export interface MemberDetail {

@@ -2,9 +2,9 @@ import {Component, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { PlanService} from '../../services/plan.service';
-import { AuthService} from '../../services/auth.service';
+import { AuthService} from '../../services/auth/auth.service';
 import {User} from '../../model/User';
-import {Plan} from '../../model/Plan';
+import {Plan} from '../../model/plan/Plan';
 
 @Component({
   selector: 'app-csv',

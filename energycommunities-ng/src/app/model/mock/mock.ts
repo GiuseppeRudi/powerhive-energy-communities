@@ -1,8 +1,8 @@
-import { Profile } from './Profile';
-import { User } from './User';
-import { Plan } from './Plan';
-import { MemberDetail } from './MemberDetail';
-import { PlanDetail } from './PlanDetail';
+import { Profile } from '../member/Profile';
+import { User } from '../User';
+import { Plan } from '../plan/Plan';
+import { MemberDetail } from '../member/MemberDetail';
+import { PlanDetail } from '../plan/PlanDetail';
 
 function generateProductionProfile(): number[] {
   return [

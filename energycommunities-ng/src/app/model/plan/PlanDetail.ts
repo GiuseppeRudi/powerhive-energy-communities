@@ -1,4 +1,4 @@
-import {MemberDetail} from './MemberDetail';
+import {MemberDetail} from '../member/MemberDetail';
 
 export interface PlanDetail {
   id: number;

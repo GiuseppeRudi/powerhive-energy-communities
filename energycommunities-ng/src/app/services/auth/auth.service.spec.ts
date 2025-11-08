@@ -3,10 +3,10 @@ import {HttpClient, provideHttpClient, withFetch, withInterceptorsFromDi} from '
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 
 import { AuthService } from './auth.service';
-import { User } from '../model/User';
-import {Dashboard} from '../components/dashboard/dashboard';
-import {Login} from '../components/login/login';
-import {Navbar} from '../components/navbar/navbar';
+import { User } from '../../model/User';
+import {Dashboard} from '../../components/dashboard/dashboard';
+import {Login} from '../../components/login/login';
+import {Navbar} from '../../components/navbar/navbar';
 
 describe('AuthService', () => {
   let service: AuthService;

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Navbar } from './navbar';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/auth/auth.service';
 import { of } from 'rxjs';
 import { User } from '../../model/User';
 import {provideHttpClientTesting} from '@angular/common/http/testing';

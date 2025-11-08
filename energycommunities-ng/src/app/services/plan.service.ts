@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {BehaviorSubject, Observable} from 'rxjs';
-import { Plan} from '../model/Plan';
-import {MemberDetail} from '../model/MemberDetail';
-import {ResultAnalysis_1} from '../model/ResultAnalysis_1';
+import { Plan} from '../model/plan/Plan';
+import {MemberDetail} from '../model/member/MemberDetail';
+import {ResultAnalysis_1} from '../model/analysis/ResultAnalysis_1';
 
 @Injectable({ providedIn: 'root' })
 export class PlanService {
@@ -31,7 +31,4 @@ export class PlanService {
     return this.http.get<MemberDetail>(`${this.baseUrl}/${planID}/${memberId}`);
   }
 
-  getBestModel() : Observable<ResultAnalysis_1>{
-    return this.http.get<ResultAnalysis_1>(`http://localhost:8080/analysis/start`);
-  }
 }

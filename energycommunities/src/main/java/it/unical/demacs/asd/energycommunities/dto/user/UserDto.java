@@ -1,4 +1,4 @@
-package it.unical.demacs.asd.energycommunities.dto;
+package it.unical.demacs.asd.energycommunities.dto.user;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

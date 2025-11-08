@@ -52,6 +52,9 @@ export class Login {
     });
   }
 
+  registerError: boolean = false;
+  registerErrorMessage: string | null = null;
+
   onRegister(){
     const registrationDto ={
       username: this.regUsername,
@@ -63,15 +66,31 @@ export class Login {
 
     this.authService.register(registrationDto).subscribe({
       next: result => {
-        console.log('Register successful!', result);
+        alert('Registration successful! You can now log in.');
         this.showRegister = false;
         this.regUsername = '';
         this.regEmail = '';
         this.regPassword = '';
         this.regFirstName = '';
         this.regLastName = '';
+
+        this.registerError = false;
+        this.registerErrorMessage = null;
       },
-      error: error => console.log('Registration Error', error),
+      error: err => {
+        console.error('Registration Error', err);
+        this.registerError = true;
+
+        if (err.status === 400) {
+          this.registerErrorMessage = 'Invalid input: please check your data.';
+        } else if (err.status === 409) {
+          this.registerErrorMessage = 'Username or email already exists.';
+        } else if (err.status ===403) {
+          this.registerErrorMessage = 'Wrong email format';
+        } else {
+          this.registerErrorMessage = 'Registration failed. Please try again.';
+        }
+      },
 
     });
   }

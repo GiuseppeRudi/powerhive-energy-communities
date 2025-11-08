@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { Csv } from './csv';
+import {provideHttpClientTesting} from '@angular/common/http/testing';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 
 describe('Csv', () => {
   let component: Csv;
@@ -8,7 +10,9 @@ describe('Csv', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Csv]
+      imports: [Csv],
+      providers: [provideHttpClient(withInterceptorsFromDi()),
+        provideHttpClientTesting()]
     })
     .compileComponents();
 

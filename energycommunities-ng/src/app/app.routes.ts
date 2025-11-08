@@ -6,11 +6,13 @@ import { Dashboard } from './components/dashboard/dashboard';
 import { MemberOverview } from './components/member-overview/member-overview';
 import { AnalysisComponent } from './components/analysis/analysis.component';
 import {Analisys1} from './components/analisys1/analisys1';
+import { AuthGuard } from './services/auth.guard';
 import {PlanManagement} from './components/plan-management/plan-management';
 
 export const routes: Routes = [
   { path: '', component: Welcome },
   { path: 'login', component: Login },
+  //protected routes
   { path: 'dashboard', component: Dashboard },
   { path: 'member/:id', component: MemberOverview },
   { path: 'analysis', component: AnalysisComponent},

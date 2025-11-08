@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MemberOverview } from './member-overview';
+import {provideHttpClientTesting} from '@angular/common/http/testing';
+import {provideRouter} from '@angular/router';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 
 describe('MemberOverview', () => {
   let component: MemberOverview;
@@ -8,7 +11,8 @@ describe('MemberOverview', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MemberOverview]
+      imports: [MemberOverview],
+      providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting(), provideRouter([])]
     })
     .compileComponents();
 

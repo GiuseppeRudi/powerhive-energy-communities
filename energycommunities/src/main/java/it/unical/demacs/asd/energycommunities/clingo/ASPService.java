@@ -24,15 +24,14 @@ import java.util.regex.Pattern;
 public class ASPService {
 
     public ResultAnalysis_1Dto chooseBestProfiles(User user) {
-        String facts = ASPFactMapper.toFacts(user);
-
+        String facts = ASPFactMapper.toFacts(user,1);
         String bestModelStr = null;
         long[] bestCost = null;
         String[] bestModel = null;
 
         try (Control ctl = new Control("0", "--opt-mode=opt")) {
 
-            ctl.load(Path.of("energycommunities/asp/assign_profile.lp"));
+            ctl.load(Path.of("energycommunities/encodings/analysis1.lp"));
             ctl.add(facts);
             ctl.ground();
 

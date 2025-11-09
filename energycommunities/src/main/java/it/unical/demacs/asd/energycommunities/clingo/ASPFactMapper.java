@@ -25,7 +25,11 @@ public class ASPFactMapper {
         return facts.toString();
     }
 
-    public static String toFacts(User user) {
+    public static String toFacts(User user, int analysis) {
+        return toFacts(user, analysis, null); // valore di default, ad esempio 0
+    }
+
+    public static String toFacts(User user, int analysis, Integer dim) {
         StringBuilder facts = new StringBuilder();
 
         for (Member member : user.getPlan().getMembers()) {
@@ -34,6 +38,7 @@ public class ASPFactMapper {
 
             profilesAndGraphsToFacts(facts, member);
         }
+        if (analysis == 2) facts.append(String.format("dimCommunity(%d).\n", dim));
 
         return facts.toString();
     }

@@ -109,24 +109,3 @@ export const mockUser: User = {
   email: 'test@example.com',
   plan_id: 1,
 };
-
-export function calculateTotals() {
-  const totalProduction = new Array(24).fill(0);
-  const totalConsumption = new Array(24).fill(0);
-
-  mockPlan.members.forEach(member => {
-    member.profiles.forEach(profile => {
-      if (profile.profileType === 'PRODUCER') {
-        profile.graph.forEach((value, hour) => {
-          totalProduction[hour] += value;
-        });
-      } else if (profile.profileType === 'CONSUMER') {
-        profile.graph.forEach((value, hour) => {
-          totalConsumption[hour] += value;
-        });
-      }
-    });
-  });
-
-  return { totalProduction, totalConsumption };
-}

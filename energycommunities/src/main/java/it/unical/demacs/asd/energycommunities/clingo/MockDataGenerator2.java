@@ -322,8 +322,8 @@ public class MockDataGenerator2 {
 
     public static void main(String[] args) {
         User user = MockDataGenerator2.createMockUser();
-        Analysis2 analysis2 = new Analysis2();
-        analysis2.generate(user,5);
+        ASPService aspService = new ASPService();
+        aspService.generateOptimalCommunity(user,5);
     }
 }
 

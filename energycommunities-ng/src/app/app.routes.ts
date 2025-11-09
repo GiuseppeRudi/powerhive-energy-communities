@@ -8,6 +8,7 @@ import { HistoryComponent } from './components/history/history';
 import { AnalysisComponent } from './components/analysis/analysis.component';
 import {Analysis1} from './components/analysis1/analysis1';
 import { AuthGuard } from './services/auth/auth.guard';
+import {Analysis2} from './components/analysis2/analysis2';
 
 export const routes: Routes = [
   { path: '', component: Welcome },
@@ -18,5 +19,6 @@ export const routes: Routes = [
   { path: 'member/:id', component: MemberOverview, canActivate: [AuthGuard] },
   { path: 'analysis', component: AnalysisComponent, canActivate: [AuthGuard] },
   { path: 'analysis1', component: Analysis1, canActivate: [AuthGuard] },
+  { path: 'analysis2', component: Analysis2, canActivate: [AuthGuard] },
   { path: 'csv', component: Csv, canActivate: [AuthGuard] },
 ];

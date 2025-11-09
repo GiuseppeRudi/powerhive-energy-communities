@@ -1,63 +1,57 @@
 <div class="content-div">
   <div class="disclaimer">
-    <p><strong>Energy Community Analysis 1 Dashboard</strong></p>
+    <p><strong>Energy Community Analysis 2 Dashboard</strong></p>
     <p>
-      For each member, given a set of production and consumption profiles,
-      our app applies a decision-making algorithm to select the optimal production
-      and consumption profile for each member, in order to optimize the shared energy
-      within the energy community.
+      Given a set of potential members,
+      our app applies an optimization algorithm to select the optimal subset
+      of members — of a specified size — that best fit together within an energy community,
+      minimizing energy imbalance and maximizing overall efficiency.
     </p>
   </div>
 
-  <!-- Azioni solo se ci sono dati -->
-  <div *ngIf="typeAnalisys === 0 && resultAnalysis" class="analysis-actions">
-    <h3>What would you like to do with this analysis?</h3>
-    <p>You can save it to your analysis history or discard it if you don’t want to keep it.</p>
-
-    <!-- Campo per inserire il nome -->
-    <div class="analysis-name-input">
-      <label for="analysisName">Analysis Name:</label>
-      <input
-        id="analysisName"
-        type="text"
-        [(ngModel)]="analysisName"
-        placeholder="Enter a name for this analysis"
-      />
-    </div>
-
-
-    <div class="action-buttons">
-      <button class="btn-save" (click)="saveAnalysis()">Save Analysis</button>
-      <button class="btn-discard" (click)="discardAnalysis()">Discard</button>
+  <div class="members-section">
+    <h3>Available members</h3>
+    <div class="members-grid">
+      <div class="member-initial-card" *ngFor="let m of members">
+        <div class="member-avatar">{{ m.fullName[0] }}</div>
+        <div class="member-initial-info">
+          <p class="name">{{ m.fullName }}</p>
+          <p class="type" [class.producer]="m.memberType === 'PRODUCER'" [class.consumer]="m.memberType === 'CONSUMER'">
+            {{ m.memberType }}
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 
-
-  <div *ngIf="typeAnalisys === 1 && resultAnalysis" class="analysis-actions">
-    <h3>Analysis Information</h3>
-    <div class="analysis-summary">
-      <p><strong>Analysis Name:</strong> {{ history?.name }}</p>
-      <p><strong>Analysis Number:</strong> {{ history?.analysisNumber }}</p>
-      <p><strong>Created At:</strong> {{ history?.createdAt | date: 'medium' }}</p>
-    </div>
+  <div class="input-section">
+    <label for="dim">Community Size</label>
+    <input type="number" id="dim" [(ngModel)]="selectedDim" min="1" [max]="members.length" placeholder="Ex. 3" />
+    <button (click)="generateCommunity()" [disabled]="isLoading">
+      {{ isLoading ? 'Generation...' : 'Generate optimal community' }}
+    </button>
   </div>
+  <br>
 
   <!-- Member Profiles -->
   <div class="chart-section">
-    <h2 class="section-title">Optimal Member Profiles Chosen</h2>
-    <div class="members-list">
-      <div *ngIf="!resultAnalysis || !resultAnalysis.assignments || resultAnalysis.assignments.length === 0" class="loading-container">
-        <app-generation-loader></app-generation-loader>
-      </div>
+    <h2 class="section-title">Members Chosen</h2>
+    <div *ngIf="isLoading" class="loading-container">
+      <app-generation-loader></app-generation-loader>
+    </div>
 
+    <div *ngIf="(!resultAnalysis || !resultAnalysis.assignments || resultAnalysis.assignments.length === 0) && !isLoading">
+      <p>Click on "Generate optimal community" to visualize the chosen members.</p>
+    </div>
+    <div class="members-list" *ngIf="(resultAnalysis && resultAnalysis.assignments && resultAnalysis.assignments.length !== 0) && !isLoading">
 
       <div *ngFor="let member of resultAnalysis?.assignments" class="member-card">
         <div class="member-header" (click)="toggleMember(member.id)">
           <div class="member-info">
             <h3 class="member-name">{{ member.fullName }}</h3>
             <span class="member-badge" [class]="getMemberTypeLabel(member).toLowerCase()">
-              {{ getMemberTypeLabel(member) }}
-            </span>
+                {{ getMemberTypeLabel(member) }}
+              </span>
           </div>
           <div class="expand-icon" [class.expanded]="isMemberExpanded(member.id)">
             <i class="fa-solid fa-square-caret-down"></i>
@@ -84,12 +78,15 @@
   <!-- Optimal Consumption Profiles -->
   <div class="chart-section">
     <h2 class="section-title">Optimal Consumption Profiles</h2>
-    <div *ngIf="!optConsProfChart" class="loading-container">
+    <div *ngIf="isLoading" class="loading-container">
       <app-generation-loader></app-generation-loader>
     </div>
-    <div class="chart-wrapper" *ngIf="optConsProfChart">
+    <div *ngIf="!optConsProfChart && !isLoading">
+      <p>Click on "Generate optimal community" to visualize the optimal consumption profiles.</p>
+    </div>
+    <div class="chart-wrapper" *ngIf="optConsProfChart && !isLoading">
       <app-energy-chart
-        [data]="optConsProfChart"
+        [data]="optConsProfChart!"
         [options]="chartOptions"
         [selectedChartType]="'line'">
       </app-energy-chart>
@@ -99,12 +96,15 @@
   <!-- Optimal Production Profiles -->
   <div class="chart-section">
     <h2 class="section-title">Optimal Production Profiles</h2>
-    <div *ngIf="!optProdProfChart" class="loading-container">
+    <div *ngIf="isLoading" class="loading-container">
       <app-generation-loader></app-generation-loader>
     </div>
-    <div class="chart-wrapper" *ngIf="optProdProfChart">
+    <div *ngIf="!optProdProfChart && !isLoading">
+      <p>Click on "Generate optimal community" to visualize the optimal production profiles.</p>
+    </div>
+    <div class="chart-wrapper" *ngIf="optProdProfChart && !isLoading">
       <app-energy-chart
-        [data]="optProdProfChart"
+        [data]="optProdProfChart!"
         [options]="chartOptions"
         [selectedChartType]="'line'">
       </app-energy-chart>
@@ -114,12 +114,15 @@
   <!-- Total Production vs Consumption -->
   <div class="chart-section">
     <h2 class="section-title">Total Production vs Consumption</h2>
-    <div *ngIf="!totalComparisonChart" class="loading-container">
+    <div *ngIf="isLoading" class="loading-container">
       <app-generation-loader></app-generation-loader>
     </div>
-    <div class="chart-wrapper" *ngIf="totalComparisonChart">
+    <div *ngIf="!totalComparisonChart && !isLoading">
+      <p>Click on "Generate optimal community" to visualize the comparison between total production and consumption.</p>
+    </div>
+    <div class="chart-wrapper" *ngIf="totalComparisonChart && !isLoading">
       <app-energy-chart
-        [data]="totalComparisonChart"
+        [data]="totalComparisonChart!"
         [options]="chartOptions"
         [selectedChartType]="'line'">
       </app-energy-chart>
@@ -129,12 +132,15 @@
   <!-- KPI Indexes -->
   <div class="chart-section">
     <h2 class="section-title">Key Performance Indicators (KPIs)</h2>
-    <div *ngIf="!kpiChart" class="loading-container">
+    <div *ngIf="isLoading" class="loading-container">
       <app-generation-loader></app-generation-loader>
     </div>
-    <div class="chart-wrapper" *ngIf="kpiChart">
+    <div *ngIf="!kpiChart && !isLoading">
+      <p>Click on "Generate optimal community" to visualize the KPIs.</p>
+    </div>
+    <div class="chart-wrapper" *ngIf="kpiChart && !isLoading">
       <app-energy-chart
-        [data]="kpiChart"
+        [data]="kpiChart!"
         [options]="kpiChartOptions"
         [selectedChartType]="'line'">
       </app-energy-chart>

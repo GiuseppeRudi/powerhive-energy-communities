@@ -9,7 +9,7 @@ export type ResultAnalysis = ResultAnalysis_1 ;
 
 export interface HistoryDetail {
   id: number;
-  analysisName : string;
+  name : string;
   analysisNumber: number;
   analysisData: ResultAnalysis | null;
   createdAt: string;

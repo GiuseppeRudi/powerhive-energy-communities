@@ -30,6 +30,7 @@ public class HistoryServiceImpl implements HistoryService {
 
         History history = new History();
         history.setUser(user);
+        history.setName(analysisName);
         history.setAnalysisNumber(analysisNumber);
         history.setAnalysisData(analysisData);
 

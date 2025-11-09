@@ -115,6 +115,29 @@
   position: relative;
 }
 
+.analysis-name-input {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+}
+
+.analysis-name-input label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.analysis-name-input input {
+  width: 100%;
+  max-width: 300px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+
 /* KPI Legend */
 .kpi-legend {
   display: flex;

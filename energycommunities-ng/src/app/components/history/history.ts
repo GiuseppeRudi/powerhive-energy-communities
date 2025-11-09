@@ -4,14 +4,15 @@ import {Router, RouterModule} from '@angular/router';
 import {HistorySummary} from '../../model/history/HistorySummary'
 import {HistoryService} from '../../services/history.service';
 import {User} from '../../model/User';
+import {GenerationLoader} from '../generation-loader/generation-loader';
 
 
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, RouterModule],
-  templateUrl: './hystory.html',
-  styleUrls: ['./hystory.css']
+  imports: [CommonModule, RouterModule, GenerationLoader],
+  templateUrl: './history.html',
+  styleUrls: ['./history.css', '../welcome/welcome.css']
 })
 export class HistoryComponent implements OnInit {
   historyList: HistorySummary[] = [];

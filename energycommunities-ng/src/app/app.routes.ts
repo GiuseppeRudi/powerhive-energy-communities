@@ -4,7 +4,7 @@ import { Welcome } from './components/welcome/welcome';
 import { Login } from './components/login/login';
 import { Dashboard } from './components/dashboard/dashboard';
 import { MemberOverview } from './components/member-overview/member-overview';
-import { HistoryComponent } from './components/hystory/hystory';
+import { HistoryComponent } from './components/history/history';
 import { AnalysisComponent } from './components/analysis/analysis.component';
 import {Analysis1} from './components/analysis1/analysis1';
 import { AuthGuard } from './services/auth/auth.guard';

@@ -11,16 +11,22 @@ import { GenerationLoader } from '../generation-loader/generation-loader';
 import { HistoryService } from '../../services/history.service';
 import { User } from '../../model/User';
 import { SaveAnalysisRequest } from '../../model/SaveAnalysisRequest';
+import {HistoryDetail} from '../../model/history/HistoryDetail';
+import {HistorySummary} from '../../model/history/HistorySummary';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-analisys1',
   templateUrl: './analysis1.html',
   standalone: true,
-  imports: [CommonModule, EnergyChartComponent, GenerationLoader],
+  imports: [CommonModule, EnergyChartComponent, GenerationLoader, FormsModule],
   styleUrls: ['./analysis1.css', '../welcome/welcome.css']
 })
 export class Analysis1 implements OnInit {
 
+  analysisName: string = '';
+  history : HistorySummary | undefined = undefined ;
+  typeAnalisys : number | null = null;
   resultAnalysis: ResultAnalysis_1 | null = null;
   memberExpandedState: Map<number, boolean> = new Map();
   chartDataMap: Map<number, ChartData<'line'>> = new Map();
@@ -60,7 +66,7 @@ export class Analysis1 implements OnInit {
     private route : ActivatedRoute,
     private analysisService: AnalysisService,
     private authService: AuthService,
-    private history: HistoryService
+    private historyService: HistoryService
   ) {}
 
   @Input() historyId?: number;
@@ -70,8 +76,10 @@ export class Analysis1 implements OnInit {
     this.route.queryParams.subscribe(params => {
       const historyId = +params['historyId']; // il + converte in number
       if (historyId) {
-        this.history.getHistoryById(historyId).subscribe({
+        this.typeAnalisys = 1 ; // nel caso in cui è una history
+        this.historyService.getHistoryById(historyId).subscribe({
           next: history => {
+            this.history = history;
             this.resultAnalysis = history.analysisData as ResultAnalysis_1;
             this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
             this.buildAllCharts();
@@ -79,7 +87,7 @@ export class Analysis1 implements OnInit {
           error: err => console.error('Errore caricamento history:', err)
         });
       } else {
-        // fallback: chiamata live ASP
+        this.typeAnalisys = 0 ; // nel caso in cui è una nuova analisi
         this.analysisService.getResultAnalysis_1().subscribe({
           next: (data) => {
             this.resultAnalysis = data;
@@ -242,14 +250,22 @@ export class Analysis1 implements OnInit {
 
     const user: User = JSON.parse(userJson);
 
+    // Controllo nome analisi
+    if (!this.analysisName.trim()) {
+      alert('Please enter a name for the analysis before saving.');
+      return;
+    }
+
     const saveAnalysisRequest: SaveAnalysisRequest = {
       userId: user.id,
-      analysisName : "Prova1",
+      analysisName: this.analysisName.trim(),
       analysisNumber: 1,
       analysisData: this.resultAnalysis
     };
 
-    this.history.saveAnalysis(saveAnalysisRequest).subscribe({
+    console.log(saveAnalysisRequest);
+
+    this.historyService.saveAnalysis(saveAnalysisRequest).subscribe({
       next: res => {
         console.log('Analisi salvata:', res);
         this.router.navigate(['/dashboard']);
@@ -257,6 +273,7 @@ export class Analysis1 implements OnInit {
       error: err => console.error('Errore nel salvataggio:', err)
     });
   }
+
 
   discardAnalysis() {
     this.resetAnalysisData();
@@ -279,4 +296,5 @@ export class Analysis1 implements OnInit {
     this.totalComparisonChart = undefined;
     this.kpiChart = undefined;
   }
+
 }

@@ -1,6 +1,6 @@
 export interface HistorySummary {
   id: number;
-  analysisName : string;
+  name : string;
   analysisNumber: number;
   createdAt: string;
 }

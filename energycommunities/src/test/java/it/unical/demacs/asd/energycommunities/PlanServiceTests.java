@@ -28,8 +28,8 @@ import it.unical.demacs.asd.energycommunities.data.entities.Member;
 import it.unical.demacs.asd.energycommunities.data.entities.Plan;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
 import it.unical.demacs.asd.energycommunities.data.services.implementation.PlanServiceImpl;
-import it.unical.demacs.asd.energycommunities.dto.MemberDetailDto;
-import it.unical.demacs.asd.energycommunities.dto.PlanDto;
+import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.user.PlanDto;
 
 @ExtendWith(MockitoExtension.class)
 public class PlanServiceTests {

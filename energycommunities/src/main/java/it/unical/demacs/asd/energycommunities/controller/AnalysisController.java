@@ -4,13 +4,13 @@ package it.unical.demacs.asd.energycommunities.controller;
 import it.unical.demacs.asd.energycommunities.clingo.ASPService;
 import it.unical.demacs.asd.energycommunities.clingo.MockDataGenerator;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
-import it.unical.demacs.asd.energycommunities.dto.BestModelDto;
-import it.unical.demacs.asd.energycommunities.dto.MemberDetailDto;
-import it.unical.demacs.asd.energycommunities.dto.ProfileDto;
+import it.unical.demacs.asd.energycommunities.data.services.HistoryService;
+import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis_1Dto;
+import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 
 @RestController
@@ -21,13 +21,14 @@ public class AnalysisController {
 
     private final ASPService aspService;
 
-    @GetMapping(value = "/start")
-    public ResponseEntity<BestModelDto> startFirstAnalysis(){
+
+    @GetMapping(value = "/start_1")
+    public ResponseEntity<ResultAnalysis_1Dto> startFirstAnalysis(){
         User user = MockDataGenerator.createMockUser();
-        BestModelDto bestModelDto = aspService.chooseBestProfiles(user);
+        ResultAnalysis_1Dto resultAnalysis1Dto = aspService.chooseBestProfiles(user);
 
         System.out.println("Best Profiles per members:");
-        for(MemberDetailDto m: bestModelDto.getAssignments()) {
+        for(MemberDetailDto m: resultAnalysis1Dto.getAssignments()) {
             System.out.println(m.getFullName());
             System.out.println("Member " + m.getId() + " " + m.getMemberType() + ": ");
             for(ProfileDto p : m.getProfiles()) {
@@ -39,10 +40,10 @@ public class AnalysisController {
             }
             System.out.println("\n");
         }
-        // System.out.println("KPI_1: " + bestModelDto.getKpi1());
-        // System.out.println("KPI_2: " + bestModelDto.getKpi2());
+        // System.out.println("KPI_1: " + resultAnalysis1Dto.getKpi1());
+        // System.out.println("KPI_2: " + resultAnalysis1Dto.getKpi2());
 
-        return ResponseEntity.ok(bestModelDto);
+        return ResponseEntity.ok(resultAnalysis1Dto);
     }
 
 }

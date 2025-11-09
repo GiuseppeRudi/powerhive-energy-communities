@@ -3,11 +3,11 @@ package it.unical.demacs.asd.energycommunities.clingo;
 import it.unical.demacs.asd.energycommunities.data.entities.Member;
 import it.unical.demacs.asd.energycommunities.data.entities.Profile;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
-import it.unical.demacs.asd.energycommunities.dto.BestModelDto;
-import it.unical.demacs.asd.energycommunities.dto.MemberDetailDto;
-import it.unical.demacs.asd.energycommunities.dto.ProfileDto;
+import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
+import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis_1Dto;
+import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
-import org.potassco.clingo.*;
 import org.potassco.clingo.control.Control;
 import org.potassco.clingo.solving.Model;
 import org.potassco.clingo.solving.SolveHandle;
@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class ASPService {
 
-    public BestModelDto chooseBestProfiles(User user) {
+    public ResultAnalysis_1Dto chooseBestProfiles(User user) {
         String facts = ASPFactMapper.toFacts(user);
 
         String bestModelStr = null;
@@ -78,11 +78,13 @@ public class ASPService {
         }
     }
 
-    private BestModelDto createBestModelDto(User user, String[] bestModel) {
-        BestModelDto bestModelDto = new BestModelDto();
+    private ResultAnalysis_1Dto createBestModelDto(User user, String[] bestModel) {
+        ResultAnalysis_1Dto resultAnalysis1Dto = new ResultAnalysis_1Dto();
         List<MemberDetailDto> memberDtos = new ArrayList<>();
         // List<Integer> kpi1List = new ArrayList<>();
         // List<Integer> kpi2List = new ArrayList<>();
+
+
 
         Pattern assignPattern = Pattern.compile("assign\\((\\d+),(\\d+)\\)");
         // Pattern kpi1Pattern = Pattern.compile("kpi_1\\((\\d+),(\\d+)\\)");
@@ -131,10 +133,44 @@ public class ASPService {
 //            }
         }
 
-        bestModelDto.setAssignments(memberDtos);
-        // bestModelDto.setKpi1(kpi1List);
-        // bestModelDto.setKpi2(kpi2List);
-        return bestModelDto;
+        resultAnalysis1Dto.setAssignments(memberDtos);
+        List<Double> totalProduction = calculateTotal(memberDtos, ProfileType.PRODUCER);
+        List<Double> totalConsumption = calculateTotal(memberDtos, ProfileType.CONSUMER);
+
+        resultAnalysis1Dto.setKpi1(calculateKpi(totalConsumption, totalProduction));
+        resultAnalysis1Dto.setKpi2(calculateKpi(totalProduction, totalConsumption));
+
+        resultAnalysis1Dto.setTotalProduction(totalProduction);
+        resultAnalysis1Dto.setTotalConsumption(totalConsumption);
+
+        // resultAnalysis1Dto.setKpi1(kpi1List);
+        // resultAnalysis1Dto.setKpi2(kpi2List);
+        return resultAnalysis1Dto;
+    }
+
+
+    private List<Double> calculateTotal(List<MemberDetailDto> members, ProfileType type) {
+        List<Double> totals = new ArrayList<>(Collections.nCopies(24, 0.0));
+        for (MemberDetailDto m : members) {
+            for (ProfileDto p : m.getProfiles()) {
+                if (p.getProfileType().equals(type)) {
+                    for (int i = 0; i < p.getGraph().size(); i++) {
+                        totals.set(i, totals.get(i) + p.getGraph().get(i));
+                    }
+                }
+            }
+        }
+        return totals;
+    }
+
+    private List<Double> calculateKpi(List<Double> a, List<Double> b) {
+        List<Double> kpi = new ArrayList<>();
+        for (int i = 0; i < a.size(); i++) {
+            double value = b.get(i) == 0 ? 0 : (a.get(i) * 100.0 / b.get(i));
+            if (value > 100) value = 100;
+            kpi.add(Math.round(value * 10.0) / 10.0);
+        }
+        return kpi;
     }
 
 

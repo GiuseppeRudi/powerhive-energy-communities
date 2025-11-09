@@ -1,0 +1,48 @@
+<div class="content-div">
+
+  <div class="header-with-button">
+    <h1>Cronologia Analisi</h1>
+    <button class="btn btn-csv" (click)="loadHistory()">Ricarica</button>
+  </div>
+
+  <!-- Stato di caricamento -->
+  <div *ngIf="loading" class="loading-container">
+    <p>Caricamento in corso...</p>
+  </div>
+
+  <!-- Stato di errore -->
+  <div *ngIf="error" class="error-container">
+    <p>{{ error }}</p>
+    <button class="btn" (click)="loadHistory()">Riprova</button>
+  </div>
+
+  <!-- Stato vuoto -->
+  <div *ngIf="!loading && !error && historyList.length === 0" class="empty-state">
+    <p>Non ci sono analisi salvate.</p>
+  </div>
+
+  <!-- Tabella History -->
+  <div *ngIf="!loading && !error && historyList.length > 0">
+    <table class="members-table">
+      <thead>
+      <tr>
+        <th>Nome Analisi</th>
+        <th>Tipo di Analisi</th>
+        <th>Data Creazione</th>
+        <th>Azioni</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let history of historyList">
+        <td>{{ history.name || ('Analisi #' + history.id) }}</td>
+        <td>{{ history.analysisNumber }}</td>
+        <td>{{ formatDate(history.createdAt) }}</td>
+        <td>
+          <button class="btn" (click)="viewAnalysis(history.id)">Visualizza</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

@@ -2,8 +2,8 @@ package it.unical.demacs.asd.energycommunities.data.services;
 
 import java.util.List;
 
-import it.unical.demacs.asd.energycommunities.dto.UserDto;
-import it.unical.demacs.asd.energycommunities.dto.UserRegistrationDto;
+import it.unical.demacs.asd.energycommunities.dto.user.UserDto;
+import it.unical.demacs.asd.energycommunities.dto.user.UserRegistrationDto;
 
 public interface UserService {
     List<UserDto> getAll();

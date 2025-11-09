@@ -26,8 +26,7 @@ public class User {
 
     private String password;
 
-    @OneToOne
-    @JoinColumn(name = "plan_id")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Plan plan;
 
 }

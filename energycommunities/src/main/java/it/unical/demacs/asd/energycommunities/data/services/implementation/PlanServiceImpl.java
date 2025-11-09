@@ -3,7 +3,6 @@ package it.unical.demacs.asd.energycommunities.data.services.implementation;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 import javax.naming.NameNotFoundException;
 
 import it.unical.demacs.asd.energycommunities.data.dao.*;
@@ -77,27 +76,35 @@ public class PlanServiceImpl implements PlanService {
             throw new RuntimeException("CSV parsing error", ex);
         }
 
-        // Create new Plan
-        Plan plan = new Plan();
-        List<Member> members = new ArrayList<>();
+        /* Retrieve the plan (or create a new one) */
+        Plan ownerPlan = planDao.findByUser(owner).orElseGet(() -> {
+            Plan p = new Plan();
+            p.setMembers(new ArrayList<>());
+            p.setUser(owner);
 
-        for (CSVRecord record : records) {
-            Member member = members.stream().filter(m -> m.getEmail().equals(record.get("email"))).findFirst().orElse(null);
-            if(member == null){
-                member = new Member();
-                member.setFullName(record.get("full_name"));
-                member.setEmail(record.get("email"));
-                member.setPlan(plan); // connect to plan
-                member.setProfiles(new ArrayList<>());
+            return p;
+        });
 
-                members.add(member);
-            }
-            // Create Profile
+        /* Populate plan rows */
+        for (CSVRecord record: records){
+            Member member = ownerPlan.getMembers().stream().filter(m -> 
+                m.getEmail().equals(record.get("email"))).findFirst().orElseGet(() -> {
+                            Member m = new Member();
+                            m.setFullName(record.get("full_name"));
+                            m.setEmail(record.get("email"));
+                            m.setPlan(ownerPlan);
+                            m.setProfiles(new ArrayList<>());
+                            
+                            ownerPlan.getMembers().add(m);
+
+                            return m;
+                        });
+            
+            /* Create profile */
             Profile profile = new Profile();
             profile.setMember(member);
             profile.setType(record.get("category").toString().toUpperCase().equals("PRODUCER") ? ProfileType.PRODUCER : ProfileType.CONSUMER);
 
-            // Create ProfileGraph and fill values
             ProfileGraph graph = new ProfileGraph();
             for (int i = 0; i < 24; i++) {
                 String column = "t" + i;
@@ -109,17 +116,9 @@ public class PlanServiceImpl implements PlanService {
             member.getProfiles().add(profile);
         }
 
-        // connect members to plan
-        plan.setMembers(members);
+        owner.setPlan(ownerPlan);
 
-        // Save plan (cascades save members, profiles, graph)
-        planDao.save(plan);
-
-        // Assign plan to owner and save user
-        owner.setPlan(plan);
-        userDao.save(owner);
-
-        return modelMapper.map(plan, PlanDto.class);
+        return(modelMapper.map(userDao.save(owner).getPlan(), PlanDto.class));
     }
 
     @Override

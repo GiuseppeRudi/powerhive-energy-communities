@@ -19,7 +19,11 @@ public class History {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    private String name;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name= "user_id", nullable = false)
+    private User user;
 
     private Integer analysisNumber;
 

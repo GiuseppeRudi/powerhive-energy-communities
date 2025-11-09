@@ -6,7 +6,7 @@ import { Dashboard } from './components/dashboard/dashboard';
 import { MemberOverview } from './components/member-overview/member-overview';
 import { HistoryComponent } from './components/hystory/hystory';
 import { AnalysisComponent } from './components/analysis/analysis.component';
-import {Analisys1} from './components/analisys1/analisys1';
+import {Analysis1} from './components/analysis1/analysis1';
 import { AuthGuard } from './services/auth/auth.guard';
 
 export const routes: Routes = [
@@ -17,6 +17,6 @@ export const routes: Routes = [
   { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
   { path: 'member/:id', component: MemberOverview, canActivate: [AuthGuard] },
   { path: 'analysis', component: AnalysisComponent, canActivate: [AuthGuard] },
-  { path: 'analysis1', component: Analisys1, canActivate: [AuthGuard] },
+  { path: 'analysis1', component: Analysis1, canActivate: [AuthGuard] },
   { path: 'csv', component: Csv, canActivate: [AuthGuard] },
 ];

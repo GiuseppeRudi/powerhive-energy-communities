@@ -1,8 +1,8 @@
 package it.unical.demacs.asd.energycommunities.config;
 
-import it.unical.demacs.asd.energycommunities.data.entities.Member;
-import it.unical.demacs.asd.energycommunities.data.entities.Plan;
-import it.unical.demacs.asd.energycommunities.data.entities.Profile;
+import it.unical.demacs.asd.energycommunities.data.entities.*;
+import it.unical.demacs.asd.energycommunities.dto.history.HistoryDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.history.HistorySummaryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberSummaryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
@@ -11,8 +11,6 @@ import it.unical.demacs.asd.energycommunities.dto.user.UserDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import it.unical.demacs.asd.energycommunities.data.entities.User;
 
 import java.util.stream.Collectors;
 
@@ -54,6 +52,30 @@ public class ModelMapperConfig {
                             }
                             return dto;
                         });
+
+        modelMapper.createTypeMap(History.class, HistoryDetailDto.class)
+                .setConverter( context -> {
+                    History source = context.getSource();
+                    HistoryDetailDto dto = new HistoryDetailDto();
+                    dto.setId(source.getId());
+                    dto.setName(source.getName());
+                    dto.setAnalysisData(source.getAnalysisData());
+                    dto.setAnalysisNumber(source.getAnalysisNumber());
+                    dto.setCreatedAt(source.getCreatedAt().toString());
+                    return dto;
+                });
+
+
+        modelMapper.createTypeMap(History.class, HistorySummaryDto.class)
+                .setConverter( context -> {
+                    History source = context.getSource();
+                    HistorySummaryDto dto = new HistorySummaryDto();
+                    dto.setId(source.getId());
+                    dto.setName(source.getName());
+                    dto.setAnalysisNumber(source.getAnalysisNumber());
+                    dto.setCreatedAt(source.getCreatedAt().toString());
+                    return dto;
+                });
 
         modelMapper.createTypeMap(Profile.class, ProfileDto.class)
                         .setConverter(context -> {

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {ResultAnalysis_1} from '../model/analysis/ResultAnalysis_1';
 import {Observable} from 'rxjs';
-import {Analisys1} from '../components/analisys1/analisys1';
+import {Analysis1} from '../components/analysis1/analysis1';
 
 @Injectable({ providedIn: 'root' })
 export class AnalysisService {

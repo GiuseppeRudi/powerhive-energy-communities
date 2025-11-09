@@ -1,14 +1,16 @@
 <div class="content-div">
   <div class="disclaimer">
-    <p> <strong>📊 Energy Community Analysis Dashboard</strong> </p>
-    <p> For each member, given a set of production and consumption profiles,
+    <p><strong>📊 Energy Community Analysis Dashboard</strong></p>
+    <p>
+      For each member, given a set of production and consumption profiles,
       our app applies a decision-making algorithm to select the optimal production
       and consumption profile for each member, in order to optimize the shared energy
-      within the energy community. </p>
+      within the energy community.
+    </p>
   </div>
 
-
-  <div *ngIf="totalConsumption && totalConsumption.length>0" class="analysis-actions">
+  <!-- Azioni solo se ci sono dati -->
+  <div *ngIf="resultAnalysis" class="analysis-actions">
     <h3>What would you like to do with this analysis?</h3>
     <p>You can save it to your analysis history or discard it if you don’t want to keep it.</p>
     <div class="action-buttons">
@@ -17,18 +19,15 @@
     </div>
   </div>
 
-
+  <!-- Member Profiles -->
   <div class="chart-section">
-    <h2 class="section-title">Optimal Member Profiles Choosen</h2>
-
+    <h2 class="section-title">Optimal Member Profiles Chosen</h2>
     <div class="members-list">
-      <!-- Loader -->
-      <div *ngIf="!members || members.length === 0" class="loading-container">
+      <div *ngIf="resultAnalysis && (!resultAnalysis?.assignments || resultAnalysis.assignments.length === 0)" class="loading-container">
         <app-generation-loader></app-generation-loader>
       </div>
 
-      <!-- Se ci sono membri -->
-      <div *ngFor="let member of members" class="member-card">
+      <div *ngFor="let member of resultAnalysis?.assignments" class="member-card">
         <div class="member-header" (click)="toggleMember(member.id)">
           <div class="member-info">
             <h3 class="member-name">{{ member.fullName }}</h3>
@@ -50,8 +49,6 @@
               [selectedChartType]="'line'">
             </app-energy-chart>
           </div>
-
-          <!-- No Data Message -->
           <div *ngIf="!chartDataMap.get(member.id)" class="no-data">
             <p>No energy profiles available for this member.</p>
           </div>
@@ -60,77 +57,47 @@
     </div>
   </div>
 
+  <!-- Optimal Consumption Profiles -->
   <div class="chart-section">
     <h2 class="section-title">Optimal Consumption Profiles</h2>
-
-    <!-- Loader -->
     <div *ngIf="!optConsProfChart" class="loading-container">
       <app-generation-loader></app-generation-loader>
     </div>
-
-    <!-- Chart -->
     <div class="chart-wrapper" *ngIf="optConsProfChart">
-      <app-energy-chart
-        [data]="optConsProfChart"
-        [options]="chartOptions"
-        [selectedChartType]="'line'">
-      </app-energy-chart>
+      <app-energy-chart [data]="optConsProfChart" [options]="chartOptions" [selectedChartType]="'line'"></app-energy-chart>
     </div>
   </div>
 
+  <!-- Optimal Production Profiles -->
   <div class="chart-section">
     <h2 class="section-title">Optimal Production Profiles</h2>
-
-    <!-- Loader -->
     <div *ngIf="!optProdProfChart" class="loading-container">
       <app-generation-loader></app-generation-loader>
     </div>
-
-    <!-- Chart -->
     <div class="chart-wrapper" *ngIf="optProdProfChart">
-      <app-energy-chart
-        [data]="optProdProfChart"
-        [options]="chartOptions"
-        [selectedChartType]="'line'">
-      </app-energy-chart>
+      <app-energy-chart [data]="optProdProfChart" [options]="chartOptions" [selectedChartType]="'line'"></app-energy-chart>
     </div>
   </div>
 
   <!-- Total Production vs Consumption -->
   <div class="chart-section">
     <h2 class="section-title">Total Production vs Consumption</h2>
-
-    <!-- Loader -->
-    <div *ngIf="!totalComparisonChart" class="loading-container">
+    <div *ngIf="!resultAnalysis" class="loading-container">
       <app-generation-loader></app-generation-loader>
     </div>
-
-    <!-- Chart -->
     <div class="chart-wrapper" *ngIf="totalComparisonChart">
-      <app-energy-chart
-        [data]="totalComparisonChart"
-        [options]="chartOptions"
-        [selectedChartType]="'line'">
-      </app-energy-chart>
+      <app-energy-chart [data]="totalComparisonChart" [options]="chartOptions" [selectedChartType]="'line'"></app-energy-chart>
     </div>
   </div>
 
   <!-- KPI Indexes -->
   <div class="chart-section">
     <h2 class="section-title">Key Performance Indicators (KPIs)</h2>
-
-    <!-- Loader -->
     <div *ngIf="!kpiChart" class="loading-container">
       <app-generation-loader></app-generation-loader>
     </div>
-
-    <!-- KPI Chart -->
     <div class="chart-wrapper" *ngIf="kpiChart">
-      <app-energy-chart
-        [data]="kpiChart"
-        [options]="kpiChartOptions"
-        [selectedChartType]="'line'">
-      </app-energy-chart>
+      <app-energy-chart [data]="kpiChart" [options]="kpiChartOptions" [selectedChartType]="'line'"></app-energy-chart>
     </div>
 
     <div class="kpi-legend" *ngIf="kpiChart">

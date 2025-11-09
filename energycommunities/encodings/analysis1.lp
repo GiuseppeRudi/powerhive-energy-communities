@@ -33,9 +33,11 @@ surplus_energy_per_member(M,T,Value1-Value2) :-
     Value1>Value2.
 
 % vincoli deboli per minimizzare gap
-:~ max_gap(K). [K@3] % minimizza il gap maggiore
-:~ surplus_energy_per_member(M,T,S). [S@2,T] % massimizzare l'autoconsumo
-:~ energy_snapshot(T,_,K). [K@1,T] % minimizza il bilancio totale (efficienza)
+:~ max_gap(K). [K@4] % minimizza il gap maggiore
+:~ energy_snapshot(T,_,K). [K@3,T] % minimizza il bilancio totale (efficienza)
+:~ producers_production_per_hour(T,P), consumers_consumption_per_hour(T,C). [C-P@2,T]
+:~ surplus_energy_per_member(M,T,S). [S@1,M,T] % massimizzare l'autoconsumo
+
 
 % misura quanta parte dell’energia prodotta viene effettivamente usata (0–100%)
 % kpi_1(T,100*A/B) :- energy_snapshot(T,A,_), producers_production_per_hour(T,B), B != 0.

@@ -20,8 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import it.unical.demacs.asd.energycommunities.data.dao.UserDao;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
 import it.unical.demacs.asd.energycommunities.data.services.implementation.UserServiceImpl;
-import it.unical.demacs.asd.energycommunities.dto.UserDto;
-import it.unical.demacs.asd.energycommunities.dto.UserRegistrationDto;
+import it.unical.demacs.asd.energycommunities.dto.user.UserDto;
+import it.unical.demacs.asd.energycommunities.dto.user.UserRegistrationDto;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {

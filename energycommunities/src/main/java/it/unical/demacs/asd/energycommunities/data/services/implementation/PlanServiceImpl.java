@@ -3,6 +3,7 @@ package it.unical.demacs.asd.energycommunities.data.services.implementation;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import javax.naming.NameNotFoundException;
 
 import org.springframework.web.server.ResponseStatusException;
@@ -90,19 +91,19 @@ public class PlanServiceImpl implements PlanService {
 
         /* Populate plan rows */
         for (CSVRecord record: records){
-            Member member = ownerPlan.getMembers().stream().filter(m -> 
+            Member member = ownerPlan.getMembers().stream().filter(m ->
                 m.getEmail().equals(record.get("email"))).findFirst().orElseGet(() -> {
                             Member m = new Member();
                             m.setFullName(record.get("full_name"));
                             m.setEmail(record.get("email"));
                             m.setPlan(ownerPlan);
                             m.setProfiles(new ArrayList<>());
-                            
+
                             ownerPlan.getMembers().add(m);
 
                             return m;
                         });
-            
+
             /* Create profile */
             Profile profile = new Profile();
             profile.setMember(member);

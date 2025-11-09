@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import it.unical.demacs.asd.energycommunities.data.dao.UserDao;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
 import it.unical.demacs.asd.energycommunities.data.services.UserService;
-import it.unical.demacs.asd.energycommunities.dto.UserDto;
-import it.unical.demacs.asd.energycommunities.dto.UserRegistrationDto;
+import it.unical.demacs.asd.energycommunities.dto.user.UserDto;
+import it.unical.demacs.asd.energycommunities.dto.user.UserRegistrationDto;
 import lombok.RequiredArgsConstructor;
 
 @Service

@@ -139,6 +139,7 @@ export class PlanManagement implements OnInit {
     this.planService.addMemberToPlan(memberData, this.ownerId).subscribe({
       next: (res) => {
         this.successMessage = `Member "${res.fullName}" saved/updated successfully!`;
+        this.authService.setUserField('plan_id', Number(this.currentUser?.id))
         console.log('Member saved:', res);
         this.resetForm();
       },

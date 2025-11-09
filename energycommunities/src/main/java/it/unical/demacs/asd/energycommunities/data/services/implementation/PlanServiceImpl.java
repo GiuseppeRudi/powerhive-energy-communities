@@ -133,14 +133,15 @@ public class PlanServiceImpl implements PlanService {
         User owner = userDao.findById(ownerId)
                 .orElseThrow(() -> new NameNotFoundException("User not found with id: " + ownerId));
 
-        Plan plan = owner.getPlan();
+        Plan plan = planDao.findByUser(owner).orElseGet(() -> {
+            Plan p = new Plan();
+            p.setMembers(new ArrayList<>());
+            p.setUser(owner);
+            return p;
+        });
 
-        if (plan == null) {
-            plan = new Plan();
-            plan.setMembers(new ArrayList<>());
-            planDao.save(plan);
+        if (owner.getPlan() == null) {
             owner.setPlan(plan);
-            userDao.save(owner);
         }
 
         Member member = plan.getMembers().stream()
@@ -163,11 +164,9 @@ public class PlanServiceImpl implements PlanService {
             plan.getMembers().add(member);
         }
 
-
         Profile profile = new Profile();
         profile.setMember(member);
         profile.setType(memberDto.getCategory().toUpperCase().equals("PRODUCER") ? ProfileType.PRODUCER : ProfileType.CONSUMER);
-
 
         ProfileGraph graph = new ProfileGraph();
         if (memberDto.getEnergyValues() != null && memberDto.getEnergyValues().size() == 24) {
@@ -177,7 +176,9 @@ public class PlanServiceImpl implements PlanService {
         }
         profile.setProfileGraph(graph);
         member.getProfiles().add(profile);
+
         planDao.save(plan);
+
         return modelMapper.map(member, MemberDetailDto.class);
     }
     @Override

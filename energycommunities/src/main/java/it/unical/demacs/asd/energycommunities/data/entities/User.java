@@ -32,8 +32,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<History> histories = new ArrayList<>();
 
-    @OneToOne
-    @JoinColumn(name = "plan_id")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Plan plan;
 
 }

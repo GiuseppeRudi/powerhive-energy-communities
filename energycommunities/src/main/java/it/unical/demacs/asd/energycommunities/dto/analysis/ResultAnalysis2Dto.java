@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class ResultAnalysis_1Dto {
+public class ResultAnalysis2Dto {
     private List<MemberDetailDto> assignments;
     List<Double> kpi1;
     List<Double> kpi2;

@@ -159,7 +159,7 @@ export class Analysis1 implements OnInit {
 
       if (consumer) {
         datasetsConsumers.push({
-          label: member.fullName + ' Profile',
+          label: member.fullName,
           data: consumer.graph,
           borderColor: colors[index % colors.length],
           backgroundColor: 'transparent',
@@ -169,7 +169,7 @@ export class Analysis1 implements OnInit {
 
       if (producer) {
         datasetsProducers.push({
-          label: member.fullName + ' Profile',
+          label: member.fullName,
           data: producer.graph,
           borderColor: colors[(index + member.profiles.filter(p => p.profileType === 'PRODUCER').length) % colors.length],
           backgroundColor: 'transparent',

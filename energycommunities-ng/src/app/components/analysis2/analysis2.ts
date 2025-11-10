@@ -39,13 +39,22 @@ export class Analysis2 implements OnInit{
   communityCompositionChart: ChartData<'pie'> | undefined;
   insights: string[] = [];
 
-  chartOptions: ChartOptions<'line'> = {
+  chartOptionsLine: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
       x: { title: { display: true, text: 'Hour (0-23)' } },
       y: { title: { display: true, text: 'Energy (kWh)' }, beginAtZero: true }
     },
+    plugins: {
+      legend: { display: true, position: 'top' },
+      tooltip: { enabled: true, mode: 'index', intersect: false }
+    }
+  };
+
+  chartOptionsPie: ChartOptions<'pie'> = {
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: { display: true, position: 'top' },
       tooltip: { enabled: true, mode: 'index', intersect: false }
@@ -204,7 +213,7 @@ export class Analysis2 implements OnInit{
 
       if (consumer) {
         datasetsConsumers.push({
-          label: member.fullName + ' Profile',
+          label: member.fullName,
           data: consumer.graph,
           borderColor: colors[index % colors.length],
           backgroundColor: 'transparent',
@@ -214,7 +223,7 @@ export class Analysis2 implements OnInit{
 
       if (producer) {
         datasetsProducers.push({
-          label: member.fullName + ' Profile',
+          label: member.fullName,
           data: producer.graph,
           borderColor: colors[(index + member.profiles.filter(p => p.profileType === 'PRODUCER').length) % colors.length],
           backgroundColor: 'transparent',

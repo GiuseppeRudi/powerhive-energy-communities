@@ -63,7 +63,7 @@
             <h4>Production/Consumption Graph</h4>
             <app-energy-chart
               [data]="chartDataMap.get(member.id)!"
-              [options]="chartOptions"
+              [options]="chartOptionsLine"
               [selectedChartType]="'line'">
             </app-energy-chart>
           </div>
@@ -87,7 +87,7 @@
     <div class="chart-wrapper" *ngIf="optConsProfChart && !isLoading">
       <app-energy-chart
         [data]="optConsProfChart!"
-        [options]="chartOptions"
+        [options]="chartOptionsLine"
         [selectedChartType]="'line'">
       </app-energy-chart>
     </div>
@@ -105,7 +105,7 @@
     <div class="chart-wrapper" *ngIf="optProdProfChart && !isLoading">
       <app-energy-chart
         [data]="optProdProfChart!"
-        [options]="chartOptions"
+        [options]="chartOptionsLine"
         [selectedChartType]="'line'">
       </app-energy-chart>
     </div>
@@ -123,7 +123,7 @@
     <div class="chart-wrapper" *ngIf="totalComparisonChart && !isLoading">
       <app-energy-chart
         [data]="totalComparisonChart!"
-        [options]="chartOptions"
+        [options]="chartOptionsLine"
         [selectedChartType]="'line'">
       </app-energy-chart>
     </div>
@@ -189,41 +189,43 @@
     </div>
   </div>
 
-  <!-- Community Composition -->
-  <div class="chart-section">
-    <h2 class="section-title">Community Composition</h2>
-    <div *ngIf="isLoading" class="loading-container">
-      <app-generation-loader></app-generation-loader>
+  <div class="chart-sections-container">
+    <!-- Community Composition -->
+    <div class="chart-section-divided">
+      <h2 class="section-title">Community Composition</h2>
+      <div *ngIf="isLoading" class="loading-container">
+        <app-generation-loader></app-generation-loader>
+      </div>
+
+      <div *ngIf="!isLoading && !communityCompositionChart">
+        <p>Click on "Generate optimal community" to visualize the community composition.</p>
+      </div>
+
+      <div class="chart-wrapper" *ngIf="communityCompositionChart && !isLoading">
+        <app-energy-chart
+          [data]="communityCompositionChart"
+          [options]="chartOptionsPie"
+          [selectedChartType]="'pie'">
+        </app-energy-chart>
+      </div>
     </div>
 
-    <div *ngIf="!isLoading && !communityCompositionChart">
-      <p>Click on "Generate optimal community" to visualize the community composition.</p>
-    </div>
+    <!-- Optimization Insights -->
+    <div class="chart-section-divided">
+      <h2 class="section-title">Optimization Insights</h2>
+      <div *ngIf="isLoading" class="loading-container">
+        <app-generation-loader></app-generation-loader>
+      </div>
 
-    <div class="chart-wrapper" *ngIf="communityCompositionChart && !isLoading">
-      <app-energy-chart
-        [data]="communityCompositionChart"
-        [options]="chartOptions"
-        [selectedChartType]="'pie'">
-      </app-energy-chart>
-    </div>
-  </div>
+      <ul class="insight-list" *ngIf="!isLoading && insights && insights.length > 0">
+        <li *ngFor="let i of insights">
+          <i class="fa-solid fa-lightbulb"></i> {{ i }}
+        </li>
+      </ul>
 
-  <!-- Optimization Insights -->
-  <div class="chart-section">
-    <h2 class="section-title">Optimization Insights</h2>
-    <div *ngIf="isLoading" class="loading-container">
-      <app-generation-loader></app-generation-loader>
-    </div>
-
-    <ul class="insight-list" *ngIf="!isLoading && insights && insights.length > 0">
-      <li *ngFor="let i of insights">
-        <i class="fa-solid fa-lightbulb"></i> {{ i }}
-      </li>
-    </ul>
-
-    <div *ngIf="!isLoading && (!insights || insights.length === 0)">
-      <p>Click on "Generate optimal community" to view optimization insights.</p>
+      <div *ngIf="!isLoading && (!insights || insights.length === 0)">
+        <p>Click on "Generate optimal community" to view optimization insights.</p>
+      </div>
     </div>
   </div>
 

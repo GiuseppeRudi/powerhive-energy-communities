@@ -8,27 +8,13 @@ import it.unical.demacs.asd.energycommunities.data.entities.User;
 import it.unical.demacs.asd.energycommunities.dto.analysis.Analysis2Dto;
 import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis1Dto;
 import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis2Dto;
-import it.unical.demacs.asd.energycommunities.data.entities.Member;
-import it.unical.demacs.asd.energycommunities.data.entities.User;
-import it.unical.demacs.asd.energycommunities.data.services.HistoryService;
 import it.unical.demacs.asd.energycommunities.data.services.MemberService;
-import it.unical.demacs.asd.energycommunities.data.services.UserService;
-import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
-import it.unical.demacs.asd.energycommunities.data.utils.ProfileUtils;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
-import it.unical.demacs.asd.energycommunities.dto.member.MemberSummaryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @RestController
@@ -68,7 +54,7 @@ public class AnalysisController {
 
     @PostMapping(value = "/start_2")
     public ResponseEntity<ResultAnalysis2Dto> startSecondAnalysis(@RequestBody Analysis2Dto request){
-        List<MemberSummaryDto> members = request.getMembers();
+        // List<MemberSummaryDto> members = request.getMembers();
         int dimCommunity = request.getDimCommunity();
         User user = MockDataGenerator2.createMockUser();
         ResultAnalysis2Dto resultAnalysis2Dto = aspService.generateOptimalCommunity(user,dimCommunity);

@@ -5,9 +5,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import javax.naming.NameNotFoundException;
 
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import it.unical.demacs.asd.energycommunities.data.dao.*;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.ManualMemberDto;
 import it.unical.demacs.asd.energycommunities.dto.user.PlanDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.csv.CSVFormat;
@@ -87,19 +90,19 @@ public class PlanServiceImpl implements PlanService {
 
         /* Populate plan rows */
         for (CSVRecord record: records){
-            Member member = ownerPlan.getMembers().stream().filter(m -> 
+            Member member = ownerPlan.getMembers().stream().filter(m ->
                 m.getEmail().equals(record.get("email"))).findFirst().orElseGet(() -> {
                             Member m = new Member();
                             m.setFullName(record.get("full_name"));
                             m.setEmail(record.get("email"));
                             m.setPlan(ownerPlan);
                             m.setProfiles(new ArrayList<>());
-                            
+
                             ownerPlan.getMembers().add(m);
 
                             return m;
                         });
-            
+
             /* Create profile */
             Profile profile = new Profile();
             profile.setMember(member);
@@ -120,7 +123,64 @@ public class PlanServiceImpl implements PlanService {
 
         return(modelMapper.map(userDao.save(owner).getPlan(), PlanDto.class));
     }
+    @Override
+    @Transactional
+    public MemberDetailDto addMember(ManualMemberDto memberDto, Long ownerId) throws NameNotFoundException {
+        if (ownerId == null) {
+            throw new IllegalArgumentException("ownerId cannot be null");
+        }
 
+        User owner = userDao.findById(ownerId)
+                .orElseThrow(() -> new NameNotFoundException("User not found with id: " + ownerId));
+
+        Plan plan = planDao.findByUser(owner).orElseGet(() -> {
+            Plan p = new Plan();
+            p.setMembers(new ArrayList<>());
+            p.setUser(owner);
+            return p;
+        });
+
+        if (owner.getPlan() == null) {
+            owner.setPlan(plan);
+        }
+
+        Member member = plan.getMembers().stream()
+                .filter(m -> m.getEmail().equals(memberDto.getEmail()))
+                .findFirst()
+                .orElse(null);
+
+        if (member != null) {
+            if (!member.getFullName().equalsIgnoreCase(memberDto.getFullName())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "Conflict: The email " + member.getEmail() +
+                                "is already associated with the full name " + member.getFullName());
+            }
+        } else {
+            member = new Member();
+            member.setFullName(memberDto.getFullName());
+            member.setEmail(memberDto.getEmail());
+            member.setPlan(plan);
+            member.setProfiles(new ArrayList<>());
+            plan.getMembers().add(member);
+        }
+
+        Profile profile = new Profile();
+        profile.setMember(member);
+        profile.setType(memberDto.getCategory().toUpperCase().equals("PRODUCER") ? ProfileType.PRODUCER : ProfileType.CONSUMER);
+
+        ProfileGraph graph = new ProfileGraph();
+        if (memberDto.getEnergyValues() != null && memberDto.getEnergyValues().size() == 24) {
+            graph.setGraph(new ArrayList<>(memberDto.getEnergyValues()));
+        } else {
+            throw new IllegalArgumentException("Exactly 24 energy values are required.");
+        }
+        profile.setProfileGraph(graph);
+        member.getProfiles().add(profile);
+
+        planDao.save(plan);
+
+        return modelMapper.map(member, MemberDetailDto.class);
+    }
     @Override
     public PlanDto getPlanById(Long planId) {
         Plan plan = planDao.findById(planId)

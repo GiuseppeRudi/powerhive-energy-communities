@@ -3,7 +3,6 @@ package it.unical.demacs.asd.energycommunities.data.services.implementation;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 import javax.naming.NameNotFoundException;
 
 import org.springframework.web.server.ResponseStatusException;

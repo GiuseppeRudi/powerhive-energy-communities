@@ -83,6 +83,7 @@ public class PlanServiceTests {
         assertNotNull(owner.getPlan().getMembers().get(0).getProfiles().get(0).getProfileGraph());
     }
 
+
     @Test
     void testGetPlanById() {
         Plan plan = new Plan();

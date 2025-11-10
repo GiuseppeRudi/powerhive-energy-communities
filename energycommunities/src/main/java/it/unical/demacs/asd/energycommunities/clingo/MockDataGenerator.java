@@ -32,6 +32,7 @@ public class MockDataGenerator {
         List<Member> members = new ArrayList<>();
         long memberId = 1;
         Random random = new Random();
+        random.setSeed(69);
 
         // Member 1 - 3 profili PRODUCER
         Member member1 = new Member();
@@ -92,7 +93,7 @@ public class MockDataGenerator {
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 0, 13));
+            graph.setGraph(generateRandomGraph(random, 1, 15));
             profile.setProfileGraph(graph);
             profiles3.add(profile);
         }
@@ -148,7 +149,7 @@ public class MockDataGenerator {
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 1, 12));
+            graph.setGraph(generateRandomGraph(random, 2, 13));
             profile.setProfileGraph(graph);
             profiles5.add(profile);
         }
@@ -203,7 +204,7 @@ public class MockDataGenerator {
 
         ProfileGraph graph7_1 = new ProfileGraph();
         graph7_1.setId((long) 1);
-        graph7_1.setGraph(generateRandomGraph(random, 1, 13));
+        graph7_1.setGraph(generateRandomGraph(random, 3, 15));
         profile7_1.setProfileGraph(graph7_1);
         profiles7.add(profile7_1);
 
@@ -270,7 +271,7 @@ public class MockDataGenerator {
 
         ProfileGraph graph9_5 = new ProfileGraph();
         graph9_5.setId((long) 5);
-        graph9_5.setGraph(generateRandomGraph(random, 0, 11));
+        graph9_5.setGraph(generateRandomGraph(random, 1, 13));
         profile9_5.setProfileGraph(graph9_5);
         profiles9.add(profile9_5);
 
@@ -292,7 +293,7 @@ public class MockDataGenerator {
 
             ProfileGraph graph = new ProfileGraph();
             graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 1, 12));
+            graph.setGraph(generateRandomGraph(random, 2, 14));
             profile.setProfileGraph(graph);
             profiles10.add(profile);
         }

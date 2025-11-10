@@ -17,7 +17,7 @@ FROM eclipse-temurin:21-jre
 # added
 RUN apt-get update && apt-get install -y libstdc++6 && rm -rf /var/lib/apt/lists/*
 # added
-COPY /asp/assign_profile.lp /app/energycommunities/asp/assign_profile.lp
+COPY /encodings/ /app/energycommunities/encodings/
 
 
 WORKDIR /app

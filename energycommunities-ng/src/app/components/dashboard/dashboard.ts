@@ -3,8 +3,8 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {PlanService} from '../../services/plan.service';
 import { User } from '../../model/User';
-import { Plan} from '../../model/Plan';
-import { AuthService} from '../../services/auth.service';
+import { Plan} from '../../model/plan/Plan';
+import { AuthService} from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-dashboard',

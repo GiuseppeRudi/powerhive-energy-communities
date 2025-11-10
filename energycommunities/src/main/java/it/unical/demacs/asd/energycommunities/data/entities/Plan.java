@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Table(name = "plans")
-@ToString(exclude = {"members"})
+@ToString(exclude = {"members", "user"})
 @EqualsAndHashCode(exclude = {"members"})
 public class Plan {
 
@@ -22,7 +22,8 @@ public class Plan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(mappedBy = "plan")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
 

@@ -5,7 +5,9 @@
 
     <li *ngIf="currentUser!=null"><a routerLink="/dashboard">Dashboard</a></li>
     <li *ngIf="currentUser==null"><a routerLink="/login">Login</a></li>
+    <li *ngIf="currentUser!=null"><a routerLink="/plan-management">Plan management</a></li>
     <li *ngIf="currentUser!=null"><a routerLink="/analysis">Analysis</a></li>
+    <li *ngIf="currentUser!=null"><a routerLink="/history">History</a></li>
     <li *ngIf="currentUser != null"><a routerLink="/login" (click)="logout()">Logout</a>
     </li>
 

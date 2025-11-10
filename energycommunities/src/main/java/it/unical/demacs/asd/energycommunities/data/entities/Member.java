@@ -44,7 +44,7 @@ public class Member {
         else return MemberType.CONSUMER;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id", nullable = false)
     @JsonIgnore
     private Plan plan;

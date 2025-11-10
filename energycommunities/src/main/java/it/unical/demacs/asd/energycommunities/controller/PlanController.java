@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import javax.naming.NameNotFoundException;
 
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.ManualMemberDto;
 import it.unical.demacs.asd.energycommunities.dto.user.PlanDto;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,14 @@ public class PlanController {
         return ResponseEntity.ok(planDto.getId().toString());
     }
 
+    @PostMapping(value = "/addMember")
+    public ResponseEntity<MemberDetailDto> addMember(
+            @RequestBody ManualMemberDto memberDto,
+            @RequestParam Long ownerId) throws NameNotFoundException
+    {
+        MemberDetailDto newMember = planService.addMember(memberDto, ownerId);
+        return ResponseEntity.ok(newMember);
+    }
     @GetMapping(value = "/{id}")
     public ResponseEntity<PlanDto> getPlanById(@PathVariable Long id){
         PlanDto plan = planService.getPlanById(id);

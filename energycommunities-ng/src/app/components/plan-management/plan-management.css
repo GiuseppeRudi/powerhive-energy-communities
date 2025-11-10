@@ -1,0 +1,118 @@
+.form-container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 2rem 2.5rem;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.form-container h3 {
+  text-align: center;
+  color: #0c751b;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: #fdfdfd;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #0c751b;
+  box-shadow: 0 0 0 4px rgba(12, 117, 27, 0.15);
+}
+
+.form-group textarea.form-control {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-group small {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.chart-preview-container {
+  height: 300px;
+  margin-top: 20px;
+  margin-bottom: 25px;
+  border: 1px dashed #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.chart-preview-container h4 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #444;
+  font-weight: 500;
+}
+
+.alert {
+  padding: 12px 18px;
+  margin-bottom: 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.alert.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.alert.alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.form-button-container {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.form-button-container .btn {
+  min-width: 220px;
+  padding: 0.8rem 1.6rem;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 0.6rem;
+  background-color: #0c751b;
+  color: white;
+  font-weight: 600;
+}
+
+.form-button-container .btn:hover {
+  transform: translateY(-2px);
+}

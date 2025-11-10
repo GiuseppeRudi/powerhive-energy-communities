@@ -9,6 +9,7 @@ import { AnalysisComponent } from './components/analysis/analysis.component';
 import {Analysis1} from './components/analysis1/analysis1';
 import { AuthGuard } from './services/auth/auth.guard';
 import {Analysis2} from './components/analysis2/analysis2';
+import {PlanManagement} from './components/plan-management/plan-management';
 
 export const routes: Routes = [
   { path: '', component: Welcome },
@@ -21,4 +22,5 @@ export const routes: Routes = [
   { path: 'analysis1', component: Analysis1, canActivate: [AuthGuard] },
   { path: 'analysis2', component: Analysis2, canActivate: [AuthGuard] },
   { path: 'csv', component: Csv, canActivate: [AuthGuard] },
+  { path: 'plan-management', component: PlanManagement}
 ];

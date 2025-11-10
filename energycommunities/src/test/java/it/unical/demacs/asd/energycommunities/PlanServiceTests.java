@@ -56,21 +56,33 @@ public class PlanServiceTests {
             "John Doe,john@example.com,producer,"
             + "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24";
 
+    @SuppressWarnings("null")
     @Test
     void testUpload() throws Exception {
-        MockMultipartFile file = new MockMultipartFile("file", "data.csv", "text/csv", csvContent.getBytes(StandardCharsets.UTF_8));
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "plan.csv",
+                "text/csv",
+                csvContent.getBytes(StandardCharsets.UTF_8)
+        );
 
         when(userDao.findById(1L)).thenReturn(Optional.of(owner));
-        when(planDao.save(any(Plan.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(userDao.save(any(User.class))).thenReturn(owner);
+        when(planDao.findByUser(owner)).thenReturn(Optional.empty());
+        when(userDao.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
         when(modelMapper.map(any(Plan.class), eq(PlanDto.class))).thenReturn(new PlanDto());
 
         PlanDto result = planService.upload(file, 1L);
 
         assertNotNull(result);
-        verify(planDao, times(1)).save(any(Plan.class));
+        verify(userDao, times(1)).findById(1L);
         verify(userDao, times(1)).save(owner);
+        assertNotNull(owner.getPlan());
+        assertNotNull(owner.getPlan().getMembers());
+        assertNotNull(owner.getPlan().getMembers().get(0));
+        assertNotNull(owner.getPlan().getMembers().get(0).getProfiles());
+        assertNotNull(owner.getPlan().getMembers().get(0).getProfiles().get(0).getProfileGraph());
     }
+
 
     @Test
     void testGetPlanById() {

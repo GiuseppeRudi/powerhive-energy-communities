@@ -11,7 +11,7 @@ import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
-public class MockDataGenerator {
+public class MockDataGenerator2 {
 
     public static User createMockUser() {
         // Creazione dello User
@@ -41,18 +41,16 @@ public class MockDataGenerator {
         member1.setPlan(plan);
 
         List<Profile> profiles1 = new ArrayList<>();
-        for (int i = 1; i <= 3; i++) {
-            Profile profile = new Profile();
-            profile.setId((long) i);
-            profile.setMember(member1);
-            profile.setType(ProfileType.PRODUCER);
+        Profile profile = new Profile();
+        profile.setId(1L);
+        profile.setMember(member1);
+        profile.setType(ProfileType.PRODUCER);
 
-            ProfileGraph graph = new ProfileGraph();
-            graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 0, 12)); // Producer: valori più bassi
-            profile.setProfileGraph(graph);
-            profiles1.add(profile);
-        }
+        ProfileGraph graph = new ProfileGraph();
+        graph.setId(1L);
+        graph.setGraph(generateRandomGraph(random, 0, 12)); // Producer: valori più bassi
+        profile.setProfileGraph(graph);
+        profiles1.add(profile);
         member1.setProfiles(profiles1);
         members.add(member1);
 
@@ -63,18 +61,15 @@ public class MockDataGenerator {
         member2.setPlan(plan);
 
         List<Profile> profiles2 = new ArrayList<>();
-        for (int i = 1; i <= 4; i++) {
-            Profile profile = new Profile();
-            profile.setId((long) i);
-            profile.setMember(member2);
-            profile.setType(ProfileType.CONSUMER);
-
-            ProfileGraph graph = new ProfileGraph();
-            graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 1, 14)); // Consumer: valori più alti
-            profile.setProfileGraph(graph);
-            profiles2.add(profile);
-        }
+        profile = new Profile();
+        profile.setId(1L);
+        profile.setMember(member2);
+        profile.setType(ProfileType.CONSUMER);
+        graph = new ProfileGraph();
+        graph.setId(1L);
+        graph.setGraph(generateRandomGraph(random, 1, 14)); // Consumer: valori più alti
+        profile.setProfileGraph(graph);
+        profiles2.add(profile);
         member2.setProfiles(profiles2);
         members.add(member2);
 
@@ -85,30 +80,25 @@ public class MockDataGenerator {
         member3.setPlan(plan);
 
         List<Profile> profiles3 = new ArrayList<>();
-        for (int i = 1; i <= 3; i++) {
-            Profile profile = new Profile();
-            profile.setId((long) i);
-            profile.setMember(member3);
-            profile.setType(ProfileType.PRODUCER);
+        profile = new Profile();
+        profile.setId(1L);
+        profile.setMember(member3);
+        profile.setType(ProfileType.PRODUCER);
+        graph = new ProfileGraph();
+        graph.setId(1L);
+        graph.setGraph(generateRandomGraph(random, 1, 15));
+        profile.setProfileGraph(graph);
+        profiles3.add(profile);
 
-            ProfileGraph graph = new ProfileGraph();
-            graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 1, 15));
-            profile.setProfileGraph(graph);
-            profiles3.add(profile);
-        }
-        for (int i = 4; i <= 5; i++) {
-            Profile profile = new Profile();
-            profile.setId((long) i);
-            profile.setMember(member3);
-            profile.setType(ProfileType.CONSUMER);
-
-            ProfileGraph graph = new ProfileGraph();
-            graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 1, 15));
-            profile.setProfileGraph(graph);
-            profiles3.add(profile);
-        }
+        profile = new Profile();
+        profile.setId(2L);
+        profile.setMember(member3);
+        profile.setType(ProfileType.CONSUMER);
+        graph = new ProfileGraph();
+        graph.setId(2L);
+        graph.setGraph(generateRandomGraph(random, 1, 15));
+        profile.setProfileGraph(graph);
+        profiles3.add(profile);
         member3.setProfiles(profiles3);
         members.add(member3);
 
@@ -119,18 +109,15 @@ public class MockDataGenerator {
         member4.setPlan(plan);
 
         List<Profile> profiles4 = new ArrayList<>();
-        for (int i = 1; i <= 3; i++) {
-            Profile profile = new Profile();
-            profile.setId((long) i);
-            profile.setMember(member4);
-            profile.setType(ProfileType.CONSUMER);
-
-            ProfileGraph graph = new ProfileGraph();
-            graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 2, 14));
-            profile.setProfileGraph(graph);
-            profiles4.add(profile);
-        }
+        profile = new Profile();
+        profile.setId(1L);
+        profile.setMember(member4);
+        profile.setType(ProfileType.CONSUMER);
+        graph = new ProfileGraph();
+        graph.setId(1L);
+        graph.setGraph(generateRandomGraph(random, 2, 14));
+        profile.setProfileGraph(graph);
+        profiles4.add(profile);
         member4.setProfiles(profiles4);
         members.add(member4);
 
@@ -141,30 +128,25 @@ public class MockDataGenerator {
         member5.setPlan(plan);
 
         List<Profile> profiles5 = new ArrayList<>();
-        for (int i = 1; i <= 2; i++) {
-            Profile profile = new Profile();
-            profile.setId((long) i);
-            profile.setMember(member5);
-            profile.setType(ProfileType.PRODUCER);
+        profile = new Profile();
+        profile.setId(1L);
+        profile.setMember(member5);
+        profile.setType(ProfileType.PRODUCER);
+        graph = new ProfileGraph();
+        graph.setId(1L);
+        graph.setGraph(generateRandomGraph(random, 2, 13));
+        profile.setProfileGraph(graph);
+        profiles5.add(profile);
 
-            ProfileGraph graph = new ProfileGraph();
-            graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 2, 13));
-            profile.setProfileGraph(graph);
-            profiles5.add(profile);
-        }
-        for (int i = 3; i <= 4; i++) {
-            Profile profile = new Profile();
-            profile.setId((long) i);
-            profile.setMember(member5);
-            profile.setType(ProfileType.CONSUMER);
-
-            ProfileGraph graph = new ProfileGraph();
-            graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 2, 13));
-            profile.setProfileGraph(graph);
-            profiles5.add(profile);
-        }
+        profile = new Profile();
+        profile.setId(2L);
+        profile.setMember(member5);
+        profile.setType(ProfileType.CONSUMER);
+        graph = new ProfileGraph();
+        graph.setId(2L);
+        graph.setGraph(generateRandomGraph(random, 2, 13));
+        profile.setProfileGraph(graph);
+        profiles5.add(profile);
         member5.setProfiles(profiles5);
         members.add(member5);
 
@@ -175,18 +157,15 @@ public class MockDataGenerator {
         member6.setPlan(plan);
 
         List<Profile> profiles6 = new ArrayList<>();
-        for (int i = 1; i <= 5; i++) {
-            Profile profile = new Profile();
-            profile.setId((long) i);
-            profile.setMember(member6);
-            profile.setType(ProfileType.PRODUCER);
-
-            ProfileGraph graph = new ProfileGraph();
-            graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 0, 11));
-            profile.setProfileGraph(graph);
-            profiles6.add(profile);
-        }
+        profile = new Profile();
+        profile.setId(1L);
+        profile.setMember(member6);
+        profile.setType(ProfileType.PRODUCER);
+        graph = new ProfileGraph();
+        graph.setId(1L);
+        graph.setGraph(generateRandomGraph(random, 0, 11));
+        profile.setProfileGraph(graph);
+        profiles6.add(profile);
         member6.setProfiles(profiles6);
         members.add(member6);
 
@@ -198,28 +177,24 @@ public class MockDataGenerator {
 
         List<Profile> profiles7 = new ArrayList<>();
         Profile profile7_1 = new Profile();
-        profile7_1.setId((long) 1);
+        profile7_1.setId(1L);
         profile7_1.setMember(member7);
         profile7_1.setType(ProfileType.PRODUCER);
-
         ProfileGraph graph7_1 = new ProfileGraph();
-        graph7_1.setId((long) 1);
+        graph7_1.setId(1L);
         graph7_1.setGraph(generateRandomGraph(random, 3, 15));
         profile7_1.setProfileGraph(graph7_1);
         profiles7.add(profile7_1);
 
-        for (int i = 2; i <= 3; i++) {
-            Profile profile = new Profile();
-            profile.setId((long) i);
-            profile.setMember(member7);
-            profile.setType(ProfileType.CONSUMER);
-
-            ProfileGraph graph = new ProfileGraph();
-            graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 3, 15));
-            profile.setProfileGraph(graph);
-            profiles7.add(profile);
-        }
+        profile = new Profile();
+        profile.setId(2L);
+        profile.setMember(member7);
+        profile.setType(ProfileType.CONSUMER);
+        graph = new ProfileGraph();
+        graph.setId(2L);
+        graph.setGraph(generateRandomGraph(random, 3, 15));
+        profile.setProfileGraph(graph);
+        profiles7.add(profile);
         member7.setProfiles(profiles7);
         members.add(member7);
 
@@ -230,18 +205,15 @@ public class MockDataGenerator {
         member8.setPlan(plan);
 
         List<Profile> profiles8 = new ArrayList<>();
-        for (int i = 1; i <= 4; i++) {
-            Profile profile = new Profile();
-            profile.setId((long) i);
-            profile.setMember(member8);
-            profile.setType(ProfileType.PRODUCER);
-
-            ProfileGraph graph = new ProfileGraph();
-            graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 0, 12));
-            profile.setProfileGraph(graph);
-            profiles8.add(profile);
-        }
+        profile = new Profile();
+        profile.setId(1L);
+        profile.setMember(member8);
+        profile.setType(ProfileType.PRODUCER);
+        graph = new ProfileGraph();
+        graph.setId(1L);
+        graph.setGraph(generateRandomGraph(random, 0, 12));
+        profile.setProfileGraph(graph);
+        profiles8.add(profile);
         member8.setProfiles(profiles8);
         members.add(member8);
 
@@ -252,25 +224,22 @@ public class MockDataGenerator {
         member9.setPlan(plan);
 
         List<Profile> profiles9 = new ArrayList<>();
-        for (int i = 1; i <= 4; i++) {
-            Profile profile = new Profile();
-            profile.setId((long) i);
-            profile.setMember(member9);
-            profile.setType(ProfileType.CONSUMER);
+        profile = new Profile();
+        profile.setId(1L);
+        profile.setMember(member9);
+        profile.setType(ProfileType.CONSUMER);
+        graph = new ProfileGraph();
+        graph.setId(1L);
+        graph.setGraph(generateRandomGraph(random, 1, 13));
+        profile.setProfileGraph(graph);
+        profiles9.add(profile);
 
-            ProfileGraph graph = new ProfileGraph();
-            graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 1, 13));
-            profile.setProfileGraph(graph);
-            profiles9.add(profile);
-        }
         Profile profile9_5 = new Profile();
-        profile9_5.setId((long) 5);
+        profile9_5.setId(2L);
         profile9_5.setMember(member9);
         profile9_5.setType(ProfileType.PRODUCER);
-
         ProfileGraph graph9_5 = new ProfileGraph();
-        graph9_5.setId((long) 5);
+        graph9_5.setId(2L);
         graph9_5.setGraph(generateRandomGraph(random, 1, 13));
         profile9_5.setProfileGraph(graph9_5);
         profiles9.add(profile9_5);
@@ -285,25 +254,22 @@ public class MockDataGenerator {
         member10.setPlan(plan);
 
         List<Profile> profiles10 = new ArrayList<>();
-        for (int i = 1; i <= 2; i++) {
-            Profile profile = new Profile();
-            profile.setId((long) i);
-            profile.setMember(member10);
-            profile.setType(ProfileType.PRODUCER);
+        profile = new Profile();
+        profile.setId(1L);
+        profile.setMember(member10);
+        profile.setType(ProfileType.PRODUCER);
+        graph = new ProfileGraph();
+        graph.setId(1L);
+        graph.setGraph(generateRandomGraph(random, 2, 14));
+        profile.setProfileGraph(graph);
+        profiles10.add(profile);
 
-            ProfileGraph graph = new ProfileGraph();
-            graph.setId((long) i);
-            graph.setGraph(generateRandomGraph(random, 2, 14));
-            profile.setProfileGraph(graph);
-            profiles10.add(profile);
-        }
         Profile profile10_3 = new Profile();
-        profile10_3.setId((long) 3);
+        profile10_3.setId(2L);
         profile10_3.setMember(member10);
         profile10_3.setType(ProfileType.CONSUMER);
-
         ProfileGraph graph10_3 = new ProfileGraph();
-        graph10_3.setId((long) 3);
+        graph10_3.setId(2L);
         graph10_3.setGraph(generateRandomGraph(random, 2, 14));
         profile10_3.setProfileGraph(graph10_3);
         profiles10.add(profile10_3);
@@ -315,9 +281,9 @@ public class MockDataGenerator {
 
         for(Member member : members){
             System.out.println("Member " + member.getId() + " " + member.getMemberType());
-            for(Profile profile : member.getProfiles()){
-                System.out.println("  Profile " + profile.getId() + " " + profile.getType());
-                System.out.println("    ProfileGraph " + profile.getProfileGraph().getId() + ": " + profile.getProfileGraph().getGraph());
+            for(Profile p : member.getProfiles()){
+                System.out.println("  Profile " + p.getId() + " " + p.getType());
+                System.out.println("    ProfileGraph " + p.getProfileGraph().getId() + ": " + p.getProfileGraph().getGraph());
             }
             System.out.println();
         }
@@ -353,5 +319,12 @@ public class MockDataGenerator {
 
         return graph;
     }
+
+    public static void main(String[] args) {
+        User user = MockDataGenerator2.createMockUser();
+        Analysis2 analysis2 = new Analysis2();
+        analysis2.generate(user,5);
+    }
 }
+
 

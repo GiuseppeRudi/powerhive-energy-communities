@@ -11,8 +11,13 @@ export class AnalysisService {
   constructor(private readonly http: HttpClient) {}
 
 
-  getResultAnalysis_1() : Observable<ResultAnalysis_1>{
+  getResultAnalysis_1(memberIds?: number[]): Observable<ResultAnalysis_1> {
+    if (memberIds && memberIds.length > 0) {
+      const params = { memberIds: memberIds.join(',') };
+      return this.http.get<ResultAnalysis_1>(`${this.baseUrl}/start_1`, { params });
+    }
     return this.http.get<ResultAnalysis_1>(`${this.baseUrl}/start_1`);
   }
+
 
 }

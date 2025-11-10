@@ -85,7 +85,7 @@ export class Login {
           this.registerErrorMessage = 'Invalid input: please check your data.';
         } else if (err.status === 409) {
           this.registerErrorMessage = 'Username or email already exists.';
-        } else if (err.status ===403) {
+        } else if (err.status === 403) {
           this.registerErrorMessage = 'Wrong email format';
         } else {
           this.registerErrorMessage = 'Registration failed. Please try again.';

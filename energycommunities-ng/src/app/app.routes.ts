@@ -8,11 +8,12 @@ import { HistoryComponent } from './components/history/history';
 import { AnalysisComponent } from './components/analysis/analysis.component';
 import {Analysis1} from './components/analysis1/analysis1';
 import { AuthGuard } from './services/auth/auth.guard';
-import {PlanManagement} from './components/plan-management/plan-management';
+import { PlanManagement } from './components/plan-management/plan-management';
+import { MemberChooser } from './components/member-chooser/member-chooser';
 
 export const routes: Routes = [
   { path: '', component: Welcome },
-  { path: 'login', component: Login, canActivate: [AuthGuard] },
+  { path: 'login', component: Login },
   //protected routes
   { path: 'dashboard', component: Dashboard, canActivate: [AuthGuard] },
   { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
@@ -20,5 +21,6 @@ export const routes: Routes = [
   { path: 'analysis', component: AnalysisComponent, canActivate: [AuthGuard] },
   { path: 'analysis1', component: Analysis1, canActivate: [AuthGuard] },
   { path: 'csv', component: Csv, canActivate: [AuthGuard] },
-  { path: 'plan-management', component: PlanManagement}
+  { path: 'plan-management', component: PlanManagement, canActivate: [AuthGuard]},
+  { path: 'member-chooser', component: MemberChooser, canActivate: [AuthGuard]}
 ];

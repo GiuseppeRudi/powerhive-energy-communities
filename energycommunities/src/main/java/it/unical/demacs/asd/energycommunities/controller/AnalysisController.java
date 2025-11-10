@@ -38,8 +38,20 @@ public class AnalysisController {
 
 
     @GetMapping(value = "/start_1")
-    public ResponseEntity<ResultAnalysis_1Dto> startFirstAnalysis(){
+    public ResponseEntity<ResultAnalysis_1Dto> startFirstAnalysis(
+            @RequestParam(required = false) List<Long> memberIds) {
+
         User user = MockDataGenerator.createMockUser();
+
+        // Se memberIds è fornito, filtra i membri
+        if (memberIds != null && !memberIds.isEmpty()) {
+            List<Member> filteredMembers = user.getPlan().getMembers().stream()
+                    .filter(member -> memberIds.contains(member.getId()))
+                    .collect(Collectors.toList());
+
+            user.getPlan().setMembers(filteredMembers);
+        }
+
         ResultAnalysis_1Dto resultAnalysis1Dto = aspService.chooseBestProfiles(user);
 
         System.out.println("Best Profiles per members:");
@@ -55,14 +67,13 @@ public class AnalysisController {
             }
             System.out.println("\n");
         }
-        // System.out.println("KPI_1: " + resultAnalysis1Dto.getKpi1());
-        // System.out.println("KPI_2: " + resultAnalysis1Dto.getKpi2());
 
         return ResponseEntity.ok(resultAnalysis1Dto);
     }
 
+
     @GetMapping(value = "/start_2")
-    public ResponseEntity<ResultAnalysis_2Dto> startFirstAnalysis(
+    public ResponseEntity<ResultAnalysis_2Dto> startSecondAnalysis(
             @RequestParam List<Long> memberIds) {
 
         // Recupera i membri completi dal DB

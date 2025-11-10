@@ -86,3 +86,53 @@ button:disabled {
   background-color: #aaa;
   cursor: not-allowed;
 }
+
+.kpi-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-around;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.kpi-card {
+  background: #f4f6fa;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  min-width: 180px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+.kpi-card:hover {
+  transform: scale(1.03);
+}
+.kpi-label {
+  color: #666;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.kpi-value {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: darkgreen;
+}
+
+.insight-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+.insight-list li {
+  background: #f9fafb;
+  border-left: 4px solid #1d4ed8;
+  margin: 0.5rem 0;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.insight-list i {
+  color: #f59e0b;
+}

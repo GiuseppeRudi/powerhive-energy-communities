@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Table(name = "plans")
-@ToString(exclude = {"members"})
+@ToString(exclude = {"members", "user"})
 @EqualsAndHashCode(exclude = {"members"})
 public class Plan {
 

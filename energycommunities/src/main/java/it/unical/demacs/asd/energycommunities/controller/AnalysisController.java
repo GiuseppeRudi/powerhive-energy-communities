@@ -15,8 +15,6 @@ import it.unical.demacs.asd.energycommunities.data.services.MemberService;
 import it.unical.demacs.asd.energycommunities.data.services.UserService;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileUtils;
-import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis_1Dto;
-import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis_2Dto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberSummaryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;

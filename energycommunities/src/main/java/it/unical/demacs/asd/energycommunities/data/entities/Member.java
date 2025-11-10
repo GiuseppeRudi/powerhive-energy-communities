@@ -20,8 +20,6 @@ import java.util.List;
 @EqualsAndHashCode(exclude = {"plan", "profiles"})
 public class Member {
 
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

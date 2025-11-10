@@ -67,6 +67,42 @@ const profile4: Profile = {
   graph: generateConsumptionProfile().map(v => v * 1.2)
 };
 
+const profile5: Profile = {
+  id: 5,
+  profileType: 'CONSUMER',
+  graph: generateConsumptionProfile().map(v => v * 0.5) // Basso consumo
+};
+
+const profile6: Profile = {
+  id: 6,
+  profileType: 'PRODUCER',
+  graph: generateProductionProfile().map(v => v * 1.5) // Alta produzione
+};
+
+const profile7: Profile = {
+  id: 7,
+  profileType: 'CONSUMER',
+  graph: generateConsumptionProfile().map(v => v * 0.9) // Consumo leggermente inferiore
+};
+
+const profile8: Profile = {
+  id: 8,
+  profileType: 'PRODUCER',
+  graph: generateProductionProfile().map(v => v * 0.2) // Bassa produzione
+};
+
+const profile9: Profile = {
+  id: 9,
+  profileType: 'CONSUMER',
+  graph: generateConsumptionProfile().map(v => v * 1.5) // Alto consumo
+};
+
+const profile10: Profile = {
+  id: 10,
+  profileType: 'PRODUCER',
+  graph: generateProductionProfile().map(v => v * 1.1) // Produzione leggermente superiore
+};
+
 // Membri mock
 export const member1: MemberDetail = {
   id: 1,
@@ -96,9 +132,65 @@ export const member4: MemberDetail = {
   profiles: [profile3, profile4]
 };
 
+export const member5: MemberDetail = {
+  id: 5,
+  fullName: 'Francesca Gialli',
+  memberType: 'CONSUMER',
+  profiles: [profile5]
+};
+
+export const member6: MemberDetail = {
+  id: 6,
+  fullName: 'Roberto Marroni',
+  memberType: 'PRODUCER',
+  profiles: [profile6]
+};
+
+export const member7: MemberDetail = {
+  id: 7,
+  fullName: 'Silvia Viola',
+  memberType: 'PROSUMER',
+  profiles: [profile6, profile7]
+};
+
+export const member8: MemberDetail = {
+  id: 8,
+  fullName: 'Andrea Arancioni',
+  memberType: 'PROSUMER',
+  profiles: [profile8, profile9]
+};
+
+export const member9: MemberDetail = {
+  id: 9,
+  fullName: 'Paolo Bianchi',
+  memberType: 'CONSUMER',
+  profiles: [profile7]
+};
+
+export const member10: MemberDetail = {
+  id: 10,
+  fullName: 'Elena Neri',
+  memberType: 'PRODUCER',
+  profiles: [profile10]
+};
+
+export const member11: MemberDetail = {
+  id: 11,
+  fullName: 'Davide Azzurri',
+  memberType: 'PROSUMER',
+  profiles: [profile10, profile5]
+};
+
+export const member12: MemberDetail = {
+  id: 12,
+  fullName: 'Chiara Rosa',
+  memberType: 'CONSUMER',
+  profiles: [profile9]
+};
+
 export const mockPlan: PlanDetail = {
   id: 100,
-  members: [member1, member2, member3, member4]
+  members: [member1, member2, member3, member4, member5, member6, member7, member8, member9, member10, member11, member12]
 };
 
 export const mockUser: User = {
@@ -109,24 +201,3 @@ export const mockUser: User = {
   email: 'test@example.com',
   plan_id: 1,
 };
-
-export function calculateTotals() {
-  const totalProduction = new Array(24).fill(0);
-  const totalConsumption = new Array(24).fill(0);
-
-  mockPlan.members.forEach(member => {
-    member.profiles.forEach(profile => {
-      if (profile.profileType === 'PRODUCER') {
-        profile.graph.forEach((value, hour) => {
-          totalProduction[hour] += value;
-        });
-      } else if (profile.profileType === 'CONSUMER') {
-        profile.graph.forEach((value, hour) => {
-          totalConsumption[hour] += value;
-        });
-      }
-    });
-  });
-
-  return { totalProduction, totalConsumption };
-}

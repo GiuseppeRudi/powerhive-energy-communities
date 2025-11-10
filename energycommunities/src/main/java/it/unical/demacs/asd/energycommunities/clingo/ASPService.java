@@ -4,7 +4,8 @@ import it.unical.demacs.asd.energycommunities.data.entities.Member;
 import it.unical.demacs.asd.energycommunities.data.entities.Profile;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
-import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis_1Dto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis1Dto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis2Dto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class ASPService {
 
-    public ResultAnalysis_1Dto chooseBestProfiles(User user) {
+    public ResultAnalysis1Dto chooseBestProfiles(User user) {
         String facts = ASPFactMapper.toFacts(user,1);
         String bestModelStr = null;
         long[] bestCost = null;
@@ -71,14 +72,70 @@ public class ASPService {
             e.printStackTrace();
         }
         if (bestModel != null) {
-            return createBestModelDto(user, bestModel);
+            return createBestModel1Dto(user, bestModel);
         }  else {
             return null;
         }
     }
 
-    private ResultAnalysis_1Dto createBestModelDto(User user, String[] bestModel) {
-        ResultAnalysis_1Dto resultAnalysis1Dto = new ResultAnalysis_1Dto();
+    public ResultAnalysis2Dto generateOptimalCommunity(User user, int dim){
+        String facts = ASPFactMapper.toFacts(user,2,dim);
+
+        String bestModelStr = null;
+        long[] bestCost = null;
+        String[] bestModel = null;
+
+        try (Control ctl = new Control("0", "--opt-mode=opt")) {
+
+            ctl.load(Path.of("energycommunities/encodings/analysis2.lp"));
+            ctl.add(facts);
+            ctl.ground();
+
+            try (SolveHandle handle = ctl.solve(SolveMode.YIELD)) {
+                while (handle.hasNext()) {
+                    Model model = handle.next();
+                    System.out.println(model);
+                    long[] cost = model.getCost();
+
+                    for (int i = 0; i < cost.length; i++) {
+                        System.out.print(cost[i] + "@" + (cost.length - i) + " ");
+                    }
+                    System.out.println();
+
+                    if (bestCost == null || isBetter(cost, bestCost)) {
+                        // clone dei costi perché l'array potrebbe essere riutilizzato internamente
+                        bestCost = cost.clone();
+                        bestModelStr = model.toString();
+                    }
+                }
+            }
+
+            if (bestModelStr != null) {
+                System.out.println("=== Modello ottimale ===");
+                System.out.println(bestModelStr);
+                System.out.print("Costo (Weight@Priority): ");
+                for (int i = 0; i < bestCost.length; i++) {
+                    System.out.print(bestCost[i] + "@" + (bestCost.length - i) + " ");
+                }
+                System.out.println();
+                bestModel = bestModelStr.split(" ");
+            } else {
+                System.out.println("Nessun modello trovato.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (bestModel != null) {
+            return createBestModel2Dto(user, bestModel);
+        }  else {
+            return null;
+        }
+    }
+
+    private ResultAnalysis1Dto createBestModel1Dto(User user, String[] bestModel) {
+        ResultAnalysis1Dto resultAnalysis1Dto = new ResultAnalysis1Dto();
         List<MemberDetailDto> memberDtos = new ArrayList<>();
         // List<Integer> kpi1List = new ArrayList<>();
         // List<Integer> kpi2List = new ArrayList<>();
@@ -147,6 +204,67 @@ public class ASPService {
         return resultAnalysis1Dto;
     }
 
+    private ResultAnalysis2Dto createBestModel2Dto(User user, String[] bestModel) {
+        ResultAnalysis2Dto resultAnalysis2Dto = new ResultAnalysis2Dto();
+        List<MemberDetailDto> memberDtos = new ArrayList<>();
+        // List<Integer> kpi1List = new ArrayList<>();
+        // List<Integer> kpi2List = new ArrayList<>();
+
+
+
+        Pattern assignPattern = Pattern.compile("assign\\((\\d+)\\)");
+        // Pattern kpi1Pattern = Pattern.compile("kpi_1\\((\\d+),(\\d+)\\)");
+        // Pattern kpi2Pattern = Pattern.compile("kpi_2\\((\\d+),(\\d+)\\)");
+
+        for (String a : bestModel) {
+            Matcher assignMatcher = assignPattern.matcher(a);
+            // Matcher kpi1Matcher = kpi1Pattern.matcher(atom);
+            // Matcher kpi2Matcher = kpi2Pattern.matcher(atom);
+
+            if (assignMatcher.find()) {
+                long memberId = Long.parseLong(assignMatcher.group(1));
+                MemberDetailDto memberDto;
+                memberDto = new MemberDetailDto();
+                memberDto.setId(memberId);
+                memberDtos.add(memberDto);
+
+                Member member = user.getPlan().getMembers().get((int) (memberId - 1));
+                memberDto.setFullName(member.getFullName());
+                memberDto.setMemberType(member.getMemberType());
+
+                List<Profile> profile = member.getProfiles();
+                for (Profile p : profile) {
+                    ProfileDto profileDto = new ProfileDto();
+                    profileDto.setId(p.getId());
+                    profileDto.setProfileType(p.getType());
+                    profileDto.setGraph(p.getProfileGraph().getGraph());
+                    memberDto.getProfiles().add(profileDto);
+                }
+            }
+//            else if (kpi1Matcher.find()) {
+//                int percentage = Integer.parseInt(kpi1Matcher.group(2));
+//                kpi1List.add(percentage);
+//            }
+//            else if (kpi2Matcher.find()) {
+//                int percentage = Integer.parseInt(kpi2Matcher.group(2));
+//                kpi2List.add(percentage);
+//            }
+        }
+
+        resultAnalysis2Dto.setAssignments(memberDtos);
+        List<Double> totalProduction = calculateTotal(memberDtos, ProfileType.PRODUCER);
+        List<Double> totalConsumption = calculateTotal(memberDtos, ProfileType.CONSUMER);
+
+        resultAnalysis2Dto.setKpi1(calculateKpi(totalConsumption, totalProduction));
+        resultAnalysis2Dto.setKpi2(calculateKpi(totalProduction, totalConsumption));
+
+        resultAnalysis2Dto.setTotalProduction(totalProduction);
+        resultAnalysis2Dto.setTotalConsumption(totalConsumption);
+
+        // resultAnalysis1Dto.setKpi1(kpi1List);
+        // resultAnalysis1Dto.setKpi2(kpi2List);
+        return resultAnalysis2Dto;
+    }
 
     private List<Double> calculateTotal(List<MemberDetailDto> members, ProfileType type) {
         List<Double> totals = new ArrayList<>(Collections.nCopies(24, 0.0));

@@ -72,3 +72,10 @@ desktop.ini
 *.temp
 *.bak
 *.swp
+
+# =====================================
+# Other files
+# =====================================
+template.csv
+template2.csv
+template3.csv

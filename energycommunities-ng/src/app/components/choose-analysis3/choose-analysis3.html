@@ -1,0 +1,80 @@
+
+  <!-- Member Profiles -->
+  <div class="chart-section">
+    <h2 class="section-title">Members Chosen</h2>
+    <div *ngIf="isLoading" class="loading-container">
+      <app-generation-loader></app-generation-loader>
+    </div>
+
+    <div *ngIf="!members && !isLoading">
+      <p>Click on "Generate optimal community" to visualize the chosen members.</p>
+    </div>
+    <div class="members-list">
+
+      <div *ngFor="let member of members" class="member-card">
+        <div class="member-header" (click)="toggleMember(member.id)">
+          <div class="member-info">
+            <h3 class="member-name">{{ member.fullName }}</h3>
+            <span class="member-badge" [class]="getMemberTypeLabel(member).toLowerCase()">
+        {{ getMemberTypeLabel(member) }}
+      </span>
+          </div>
+
+          <div class="member-actions">
+            <!-- Default -->
+            <label class="action-checkbox">
+              <input
+                type="checkbox"
+                [checked]="communityMembers.includes(member.id)"
+                (change)="onMemberStatusChange(member,'default')"
+              />
+              <span>Community Default</span>
+            </label>
+
+            <!-- Want to Add -->
+            <label class="action-checkbox">
+              <input
+                type="checkbox"
+                [disabled]="communityMembers.includes(member.id)"
+                [checked]="wantToAdd.includes(member.id)"
+                (change)="onMemberStatusChange(member, 'add')"
+              />
+              <span>Want to Add</span>
+            </label>
+
+            <!-- Want to Remove -->
+            <label class="action-checkbox">
+              <input
+                type="checkbox"
+                [disabled]="!communityMembers.includes(member.id)"
+                [checked]="wantToRemove.includes(member.id)"
+                (change)="onMemberStatusChange(member, 'remove')"
+              />
+              <span>Want to Remove</span>
+            </label>
+          </div>
+
+
+          <div class="expand-icon" [class.expanded]="isMemberExpanded(member.id)">
+            <i class="fa-solid fa-square-caret-down"></i>
+          </div>
+        </div>
+
+        <div class="member-content" [class.expanded]="isMemberExpanded(member.id)">
+          <div *ngIf="chartDataMap.get(member.id)">
+            <h4>Production/Consumption Graph</h4>
+            <app-energy-chart
+              [data]="chartDataMap.get(member.id)!"
+              [options]="chartOptionsLine"
+              [selectedChartType]="'line'">
+            </app-energy-chart>
+          </div>
+          <div *ngIf="!chartDataMap.get(member.id)" class="no-data">
+            <p>No energy profiles available for this member.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>

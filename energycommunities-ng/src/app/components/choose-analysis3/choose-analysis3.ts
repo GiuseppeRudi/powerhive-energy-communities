@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
 import { GenerationLoader } from '../generation-loader/generation-loader';
 import { FormsModule } from '@angular/forms';
+import {AnalysisService} from '../../services/analysis.service';
 
 @Component({
   selector: 'app-choose-analysis3',
@@ -55,7 +56,8 @@ export class ChooseAnalysis3 implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private planService: PlanService,
-    private authService: AuthService
+    private authService: AuthService,
+    private analysisService: AnalysisService,
   ) {}
 
   ngOnInit() {
@@ -93,9 +95,9 @@ export class ChooseAnalysis3 implements OnInit {
     if (type == 'default'){
       if(this.wantToAdd.includes(memberId)) return;
 
-      // if(this.wantToAdd.includes(memberId)){
-      //   this.wantToAdd.
-      // }
+      // Se clicco "default", rimuovo da add
+      this.wantToAdd = this.wantToAdd.filter(id => id !== memberId);
+
 
       // Toggle
       if (this.communityMembers.includes(memberId)) {
@@ -178,5 +180,30 @@ export class ChooseAnalysis3 implements OnInit {
     if (hasProducer && hasConsumer) return 'Prosumer';
     if (hasProducer) return 'Producer';
     return 'Consumer';
+  }
+
+  startAnalysis3(){
+
+    const chooseMembers : MemberDetail[] = [];
+    for (const member of this.members) {
+      if(this.communityMembers.includes(member.id)) {
+        members.push(member);
+      }
+
+      if(this.wantToRemove.includes(member.id)) {
+        members.push(member);
+      }
+      if(this.wantToAdd.includes(member.id)) {
+        members.push(member);
+      }
+    }
+
+    this.analysisService.getResultAnalysis_3(chooseMembers,this.wantToRemove, this.wantToAdd);
+
+    this.wantToAdd = []
+    this.wantToRemove = []
+    this.communityMembers = []
+
+    this.router.navigate(['/analysis3']);
   }
 }

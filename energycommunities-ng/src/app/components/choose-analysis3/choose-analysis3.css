@@ -23,6 +23,147 @@ h2 {
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   transition: transform 0.2s ease;
 }
+
+/* === Layout generale === */
+.chart-section {
+  padding: 1.5rem;
+  background: #f9fafc;
+  border-radius: 12px;
+}
+
+.section-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #1e293b;
+}
+
+/* === Card membro === */
+.member-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1rem;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.member-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* === Header del membro === */
+.member-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.2rem;
+  background-color: #f1f5f9;
+  cursor: default;
+}
+
+.member-info {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.member-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #0f172a;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out;
+}
+
+.member-name:hover {
+  color: #2563eb;
+}
+
+.member-badge {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+.member-badge.producer {
+  background-color: #22c55e;
+}
+
+.member-badge.consumer {
+  background-color: #ef4444;
+}
+
+/* === Azioni (checkbox) === */
+.member-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.action-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: #334155;
+  cursor: pointer;
+  user-select: none;
+}
+
+.action-checkbox input {
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+
+/* === Icona di espansione === */
+.expand-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  color: #475569;
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
+  color: #2563eb;
+}
+
+/* === Contenuto toggle === */
+.member-content {
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 1.2rem;
+  background: #ffffff;
+  border-top: 1px solid #e2e8f0;
+  transition: max-height 0.35s ease, padding 0.35s ease;
+}
+
+.member-content.expanded {
+  padding: 1.2rem;
+  max-height: 600px; /* limite per animazione fluida */
+}
+
+.member-content h4 {
+  font-size: 1rem;
+  color: #1e293b;
+  margin-bottom: 0.8rem;
+}
+
+/* === Nessun dato === */
+.no-data {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  padding: 1rem 0;
+}
+
 .member-initial-card:hover {
   transform: scale(1.03);
 }
@@ -30,8 +171,8 @@ h2 {
 .member-actions {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-right: 12px;
+  gap: 6px;
+  margin-right: 8px;
 }
 
 .action-checkbox {

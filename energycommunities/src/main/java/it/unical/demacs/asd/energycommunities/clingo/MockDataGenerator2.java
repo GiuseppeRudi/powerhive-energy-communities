@@ -323,7 +323,9 @@ public class MockDataGenerator2 {
     public static void main(String[] args) {
         User user = MockDataGenerator2.createMockUser();
         ASPService aspService = new ASPService();
-        aspService.generateOptimalCommunity(user,5);
+        List<Long> wantToAdd = new ArrayList<>();
+        List<Long> wantToRemove = new ArrayList<>();
+        aspService.generateOptimalCommunity(user, wantToAdd, wantToRemove);
     }
 }
 

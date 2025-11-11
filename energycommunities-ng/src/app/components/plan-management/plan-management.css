@@ -1,12 +1,38 @@
+.plan-management-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
 .form-container {
-  max-width: 800px;
-  margin: 30px auto;
+  flex: 2;
+  min-width: 400px;
   padding: 2rem 2.5rem;
   background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
 }
+
+.table-container {
+  flex: 1;
+  min-width: 300px;
+  box-sizing: border-box;
+}
+
+.table-container h2 {
+  text-align: center;
+  color: #333;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+
 
 .form-container h3 {
   text-align: center;
@@ -111,8 +137,205 @@
   background-color: #0c751b;
   color: white;
   font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .form-button-container .btn:hover {
   transform: translateY(-2px);
+  background-color: #a2f194;
+}
+
+
+
+.members-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+.members-table thead {
+  background: linear-gradient(135deg, #0c751b, #0a5f16);
+  color: white;
+}
+
+.members-table th {
+  padding: 1.2rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.members-table tbody tr {
+  border-bottom: 1px solid #e6fde3;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.members-table tbody tr:hover {
+  background-color: #f7f9fb;
+  transform: translateX(5px);
+}
+
+.members-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.members-table td {
+  padding: 1rem 1.5rem;
+  color: #1a1a1a;
+  font-size: 1rem;
+  vertical-align: middle;
+}
+
+.members-table td a {
+  text-decoration: none;
+  color: #0c751b;
+  font-weight: 600;
+  transition: color 0.3s ease, text-decoration 0.3s ease;
+}
+
+.members-table td a:hover {
+  color: #0a5f16;
+  text-decoration: underline;
+}
+
+.members-table td:nth-child(2) {
+  color: #444;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.members-table th:last-child,
+.members-table td.action-cell {
+  text-align: center;
+  width: 80px;
+}
+
+.btn-edit {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffc107;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  margin-right: 4px;
+}
+
+.btn-edit:hover {
+  background-color: #fff8e1;
+  color: #b38600;
+}
+
+.btn-edit .edit-icon {
+  width: 18px;
+  height: 18px;
+}
+
+
+.btn-delete {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #dc3545;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.btn-delete:hover {
+  background-color: #f8d7da;
+  color: #a71d2a;
+}
+
+.btn-delete .trash-icon {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 768px) {
+  .plan-management-container {
+    flex-direction: column;
+  }
+
+  .form-container,
+  .table-container {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  .members-table {
+    font-size: 0.9rem;
+  }
+
+  .members-table th,
+  .members-table td {
+    padding: 0.8rem 1rem;
+  }
+
+  .members-table th {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .members-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .members-table th,
+  .members-table td {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .form-container {
+    padding: 1.5rem;
+  }
+}
+.disclaimer {
+  background: linear-gradient(135deg, greenyellow 0%, darkgreen 100%);
+  color: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  margin: 30px 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  font-size: 17px;
+}
+
+
+.content-div {
+  min-height: 100vh;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #f7f9fb, #e6fde3);
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  color: #1a1a1a;
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

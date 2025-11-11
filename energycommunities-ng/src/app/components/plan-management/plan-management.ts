@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PlanService } from '../../services/plan.service';
@@ -9,15 +9,18 @@ import { User } from '../../model/User';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
 import { ChartData, ChartOptions } from 'chart.js';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Plan } from '../../model/plan/Plan';
+
 @Component({
   selector: 'app-plan-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, EnergyChartComponent],
+  imports: [CommonModule, FormsModule, EnergyChartComponent, RouterLink],
   templateUrl: './plan-management.html',
   styleUrl: './plan-management.css',
 })
 export class PlanManagement implements OnInit {
   currentUser: User | null = null;
+  plan?: Plan;
   ownerId: number = 0;
   errorMessage = '';
   successMessage = '';
@@ -39,7 +42,6 @@ export class PlanManagement implements OnInit {
       legend: { display: true, position: 'top' }
     }
   };
-  // ---
 
   constructor(
     private planService: PlanService,
@@ -50,9 +52,25 @@ export class PlanManagement implements OnInit {
   ngOnInit() {
     this.authService.user$.subscribe(user => {
       this.currentUser = user;
-      if (this.currentUser != null) {
+      if (this.currentUser) {
         this.ownerId = this.currentUser.id;
+        if (this.currentUser.plan_id) {
+          this.loadPlan(this.currentUser.plan_id);
+        }
       }
+    });
+  }
+
+  loadPlan(planId: number): void {
+    this.planService.getPlan(planId).subscribe({
+      next: (plan: Plan) => {
+        this.plan = plan;
+        console.log('Plan loaded:', this.plan);
+      },
+      error: (error: Error) => {
+        console.error('Error loading plan:', error);
+        this.errorMessage = 'Could not load existing plan details.';
+      },
     });
   }
 
@@ -95,6 +113,14 @@ export class PlanManagement implements OnInit {
         tension: 0.25
       }]
     };
+
+
+    setTimeout(() => {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+      });
+    }, 100);
   }
 
   saveMember(): void {
@@ -119,10 +145,11 @@ export class PlanManagement implements OnInit {
       .filter(v => v !== '')
       .map(Number);
 
-    if (energyValuesArray.some(isNaN)) {
-      this.errorMessage = 'Error: Energy values must be valid numbers.';
+    if (energyValuesArray.some(value => isNaN(value) || !Number.isInteger(Number(value)))) {
+      this.errorMessage = 'Error: Energy values must be valid integers.';
       return;
     }
+
 
     if (energyValuesArray.length !== 24) {
       this.errorMessage = `Error: Exactly 24 energy values are required. You provided ${energyValuesArray.length}.`;
@@ -139,9 +166,12 @@ export class PlanManagement implements OnInit {
     this.planService.addMemberToPlan(memberData, this.ownerId).subscribe({
       next: (res) => {
         this.successMessage = `Member "${res.fullName}" saved/updated successfully!`;
-        this.authService.setUserField('plan_id', Number(this.currentUser?.id))
         console.log('Member saved:', res);
         this.resetForm();
+
+        this.loadPlan(this.ownerId);
+
+        this.authService.setUserField('plan_id', this.ownerId);
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage = `Conflict: The email ${this.memberEmail} is already associated with an account. Update the member with new production/consumption profiles.`;
@@ -154,5 +184,34 @@ export class PlanManagement implements OnInit {
     this.memberFullName = '';
     this.memberCategory = '';
     this.memberEnergyValues = '';
+    this.previewChartData = null;
+  }
+
+  loadMemberForEdit(member: any): void {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    });
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.memberFullName = member.fullName;
+
+    this.memberEmail = member.email;
+
+    this.memberCategory = '';
+    this.memberEnergyValues = '';
+    this.previewChartData = null;
+
+  }
+
+  deleteMember(memberId: number): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+
+
+    console.log(`Richiesta eliminazione per membro con ID: ${memberId}`);
+    this.errorMessage = `Delete functionality for member ${memberId} is not fully implemented in the component.`;
   }
 }

@@ -1,67 +1,117 @@
 <div class="content-div">
-
-  <hr>
-
-  <div class="form-container">
-
-    <h3>Add New Member to the Plan</h3>
-
-    <div *ngIf="errorMessage" class="alert alert-danger">
-      {{ errorMessage }}
-    </div>
-    <div *ngIf="successMessage" class="alert alert-success">
-      {{ successMessage }}
-    </div>
-
-    <form (ngSubmit)="saveMember()">
-
-      <div class="form-group">
-        <label for="memberFullName">Full Name</label>
-        <input type="text" id="memberFullName" class="form-control"
-               [(ngModel)]="memberFullName" name="memberFullName" required>
-      </div>
-
-      <div class="form-group">
-        <label for="memberEmail">Email</label>
-        <input type="email" id="memberEmail" class="form-control"
-               [(ngModel)]="memberEmail" name="memberEmail" required>
-      </div>
-
-      <div class="form-group">
-        <label for="memberCategory">Category</label>
-        <select id="memberCategory" class="form-control"
-                [(ngModel)]="memberCategory" name="memberCategory"
-                (ngModelChange)="updatePreviewChart()" required>
-          <option value="" disabled>Select a category...</option>
-          <option value="producer">Producer</option>
-          <option value="consumer">Consumer</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="memberEnergy">24 Energy Values (t0–t23)</label>
-        <textarea id="memberEnergy" class="form-control" rows="4"
-                  [(ngModel)]="memberEnergyValues" name="memberEnergyValues"
-                  (ngModelChange)="updatePreviewChart()"
-                  placeholder="Enter 24 values separated by commas or spaces (e.g. 1.5, 2, 3.0...)."
-                  required></textarea>
-        <small>Enter 24 numbers separated by commas or spaces.</small>
-      </div>
-
-      <div *ngIf="previewChartData" class="chart-preview-container">
-        <h4>Profile Preview</h4>
-        <app-energy-chart
-          [data]="previewChartData"
-          [options]="chartOptions">
-        </app-energy-chart>
-      </div>
-
-      <div class="form-button-container">
-        <button type="submit" class="btn">
-          Save Member
-        </button>
-      </div>
-
-    </form>
+  <div class="disclaimer">
+    <p><strong>Energy Community Plan Management</strong></p>
+    <p>
+      In this section, the user can add new members by filling out the form.
+      It is also possible to add or edit energy consumption and/or production profiles by clicking on the pencil icon. When doing so, the form will be partially pre-filled with the data of the member being updated.
+      Members can be removed from the plan using the Delete button.
+    </p>
   </div>
+
+  <div class="plan-management-container">
+
+    <div class="form-container">
+
+      <h3>Add New Member to the Plan</h3>
+
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+      <div *ngIf="successMessage" class="alert alert-success">
+        {{ successMessage }}
+      </div>
+
+      <form (ngSubmit)="saveMember()">
+
+        <div class="form-group">
+          <label for="memberFullName">Full Name</label>
+          <input type="text" id="memberFullName" class="form-control"
+                 [(ngModel)]="memberFullName" name="memberFullName" required>
+        </div>
+
+        <div class="form-group">
+          <label for="memberEmail">Email</label>
+          <input type="email" id="memberEmail" class="form-control"
+                 [(ngModel)]="memberEmail" name="memberEmail" required>
+        </div>
+
+        <div class="form-group">
+          <label for="memberCategory">Category</label>
+          <select id="memberCategory" class="form-control"
+                  [(ngModel)]="memberCategory" name="memberCategory"
+                  (ngModelChange)="updatePreviewChart()" required>
+            <option value="" disabled>Select a category...</option>
+            <option value="producer">Producer</option>
+            <option value="consumer">Consumer</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="memberEnergy">24 Energy Values (t0–t23)</label>
+          <textarea id="memberEnergy" class="form-control" rows="4"
+                    [(ngModel)]="memberEnergyValues" name="memberEnergyValues"
+                    (ngModelChange)="updatePreviewChart()"
+                    placeholder="Enter 24 integer values separated by commas or spaces (e.g., 1, 2, 3...)."
+                    required></textarea>
+          <small>Enter 24 numbers separated by commas or spaces.</small>
+        </div>
+
+        <div *ngIf="previewChartData" class="chart-preview-container">
+          <h4>Profile Preview</h4>
+          <app-energy-chart
+            [data]="previewChartData"
+            [options]="chartOptions">
+          </app-energy-chart>
+        </div>
+
+        <div class="form-button-container">
+          <button type="submit" class="btn">
+            Save Member
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <div class="table-container" *ngIf="plan && plan.members && plan.members.length > 0">
+      <h2>Your Members</h2>
+      <table class="members-table">
+        <thead>
+        <tr>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let member of plan.members">
+          <td>
+            <a [routerLink]="['/member', member.id]">
+              {{ member.fullName }}
+            </a>
+          </td>
+          <td>{{ member.memberType }}</td>
+          <td class="action-cell">
+
+            <button (click)="loadMemberForEdit(member)" class="btn-edit" title="Load {{member.fullName}}">
+              <svg class="edit-icon" xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px" fill="currentColor">
+                <path d="M0 0h24v24H0V0z" fill="none"/>
+                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+              </svg>
+            </button>
+
+            <button (click)="deleteMember(member.id)" class="btn-delete" title="Delete {{member.fullName}}">
+              <svg class="trash-icon" xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 0 24 24" width="18px" fill="currentColor">
+                <path d="M0 0h24v24H0V0z" fill="none"/>
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+              </svg>
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
 </div>

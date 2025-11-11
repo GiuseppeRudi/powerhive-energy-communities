@@ -6,7 +6,8 @@ import it.unical.demacs.asd.energycommunities.dto.history.HistorySummaryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberSummaryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
-import it.unical.demacs.asd.energycommunities.dto.user.PlanDto;
+import it.unical.demacs.asd.energycommunities.dto.plan.PlanDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.plan.PlanSummaryDto;
 import it.unical.demacs.asd.energycommunities.dto.user.UserDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
@@ -39,10 +40,10 @@ public class ModelMapperConfig {
                             return dto;
                         });
 
-        modelMapper.createTypeMap(Plan.class, PlanDto.class)
+        modelMapper.createTypeMap(Plan.class, PlanSummaryDto.class)
                         .setConverter( context -> {
                             Plan source = context.getSource();
-                            PlanDto dto = new PlanDto();
+                            PlanSummaryDto dto = new PlanSummaryDto();
                             dto.setId(source.getId());
 
                             if (source.getMembers() != null) {
@@ -52,6 +53,21 @@ public class ModelMapperConfig {
                             }
                             return dto;
                         });
+
+        modelMapper.createTypeMap(Plan.class, PlanDetailDto.class)
+                .setConverter( context -> {
+                    Plan source = context.getSource();
+                    PlanDetailDto dto = new PlanDetailDto();
+                    dto.setId(source.getId());
+
+                    if (source.getMembers() != null) {
+                        dto.setMembers(source.getMembers().stream()
+                                .map(member -> modelMapper.map(member, MemberDetailDto.class))
+                                .collect(Collectors.toList()));
+                    }
+                    return dto;
+                });
+
 
         modelMapper.createTypeMap(History.class, HistoryDetailDto.class)
                 .setConverter( context -> {

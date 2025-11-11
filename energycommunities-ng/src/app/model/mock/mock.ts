@@ -1,6 +1,6 @@
 import { Profile } from '../member/Profile';
 import { User } from '../User';
-import { Plan } from '../plan/Plan';
+import { PlanSummary } from '../plan/PlanSummary';
 import { MemberDetail } from '../member/MemberDetail';
 import { PlanDetail } from '../plan/PlanDetail';
 

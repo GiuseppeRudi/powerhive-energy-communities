@@ -7,13 +7,16 @@ import javax.naming.NameNotFoundException;
 
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.ManualMemberDto;
-import it.unical.demacs.asd.energycommunities.dto.user.PlanDto;
+import it.unical.demacs.asd.energycommunities.dto.plan.PlanDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.plan.PlanSummaryDto;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface PlanService {
-    PlanDto upload(MultipartFile file, Long ownerId) throws UnsupportedEncodingException, IOException, NameNotFoundException;
+    PlanSummaryDto upload(MultipartFile file, Long ownerId) throws UnsupportedEncodingException, IOException, NameNotFoundException;
 
-    PlanDto getPlanById(Long planId);
+    PlanSummaryDto getSummaryPlanById(Long planId);
+
+    PlanDetailDto getDetailPlanById(Long planId);
 
     MemberDetailDto getMember(Long planId, Long memberId);
 

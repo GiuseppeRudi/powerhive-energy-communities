@@ -24,13 +24,6 @@
     </div>
   </div>
 
-  <div class="input-section">
-    <label for="dim">Community Size</label>
-    <input type="number" id="dim" [(ngModel)]="selectedDim" min="1" [max]="members.length" placeholder="Ex. 3" />
-    <button (click)="generateCommunity()" [disabled]="isLoading">
-      {{ isLoading ? 'Generation...' : 'Generate optimal community' }}
-    </button>
-  </div>
   <br>
 
   <!-- Member Profiles -->

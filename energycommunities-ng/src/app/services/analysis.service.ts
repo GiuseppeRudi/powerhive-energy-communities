@@ -13,6 +13,8 @@ export class AnalysisService {
 
   private readonly baseUrl = 'http://localhost:8080/analysis';
 
+  private currentResultAnalysis: any ;
+
   constructor(private readonly http: HttpClient) {
   }
 
@@ -21,12 +23,21 @@ export class AnalysisService {
     return this.http.get<ResultAnalysis_1>(`${this.baseUrl}/start_1`);
   }
 
-  getResultAnalysis_2(members: MemberSummary[], dimCommunity: number ) : Observable<ResultAnalysis_2>{
+  getResultAnalysis_2(members: MemberDetail[], dimCommunity: number ) : Observable<ResultAnalysis_2>{
     const body = {
       members: members,
       dimCommunity: dimCommunity
     };
     return this.http.post<ResultAnalysis_2>(`${this.baseUrl}/start_2`,body);
+  }
+
+  setAnalysisResult(result: any) {
+    this.currentResultAnalysis = result;
+  }
+
+  // Recupera il risultato
+  getAnalysisResult() {
+    return this.currentResultAnalysis;
   }
 
   getResultAnalysis_3(members: MemberDetail[], wantToAdd: number[], wantToRemove: number[] ) : Observable<ResultAnalysis_3>{

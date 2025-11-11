@@ -2,6 +2,8 @@ package it.unical.demacs.asd.energycommunities.clingo;
 
 import it.unical.demacs.asd.energycommunities.data.entities.*;
 
+import java.util.List;
+
 public class ASPFactMapper {
 
     public static String toFactsWithUser(User user) {
@@ -29,13 +31,26 @@ public class ASPFactMapper {
         return toFacts(user, analysis, null); // valore di default, ad esempio 0
     }
 
+    public static String toFacts(User user, List<Long> wantToAdd, List<Long> wantToRemove) {
+        StringBuilder facts = new StringBuilder();
+
+        for (Member member : user.getPlan().getMembers()) {
+            if (wantToAdd.contains(member.getId())) facts.append(String.format("wantToAdd(%d).\n", member.getId()));
+            else if (wantToRemove.contains(member.getId())) facts.append(String.format("wantToRemove(%d).\n", member.getId()));
+            facts.append(String.format("member(%d, %d, %s).\n",
+                    member.getId(), user.getPlan().getId(), member.getMemberType().name().toLowerCase()));
+
+            profilesAndGraphsToFacts(facts, member);
+        }
+        return facts.toString();
+    }
+
     public static String toFacts(User user, int analysis, Integer dim) {
         StringBuilder facts = new StringBuilder();
 
         for (Member member : user.getPlan().getMembers()) {
             facts.append(String.format("member(%d, %d, %s).\n",
                     member.getId(), user.getPlan().getId(), member.getMemberType().name().toLowerCase()));
-
             profilesAndGraphsToFacts(facts, member);
         }
         if (analysis == 2) facts.append(String.format("dimCommunity(%d).\n", dim));

@@ -19,8 +19,6 @@ producers_production_per_hour(T,V) :-
 energy_snapshot(T,A,B-A) :- consumers_consumption_per_hour(T,A), producers_production_per_hour(T,B), A <= B.
 energy_snapshot(T,B,A-B) :- consumers_consumption_per_hour(T,A), producers_production_per_hour(T,B), A > B.
 
-max_gap(K) :- K = #max{0; Z : energy_snapshot(_,_,Z)}.
-
 surplus_energy_per_member(M,T,Value2-Value1) :-
     assign(M,P1), assign(M,P2), P1<P2,
     profileGraph(M,P1,T,Value1),
@@ -33,7 +31,6 @@ surplus_energy_per_member(M,T,Value1-Value2) :-
     Value1>Value2.
 
 % vincoli deboli per minimizzare gap
-:~ max_gap(K). [K@4] % minimizza il gap maggiore
 :~ energy_snapshot(T,_,K). [K@3,T] % minimizza il bilancio totale (efficienza)
 :~ producers_production_per_hour(T,P), consumers_consumption_per_hour(T,C). [C-P@2,T]
 :~ surplus_energy_per_member(M,T,S). [S@1,M,T] % massimizzare l'autoconsumo

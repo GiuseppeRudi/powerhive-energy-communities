@@ -7,13 +7,13 @@ h2 {
   margin-bottom: 2rem;
 }
 
-.members-grid {
+.communities-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 1rem;
 }
 
-.member-initial-card {
+.community-initial-card {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -23,7 +23,7 @@ h2 {
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   transition: transform 0.2s ease;
 }
-.member-initial-card:hover {
+.community-initial-card:hover {
   transform: scale(1.03);
 }
 
@@ -45,7 +45,7 @@ h2 {
   transform: scale(1.1);
 }
 
-.member-avatar {
+.community-avatar {
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -57,16 +57,16 @@ h2 {
   margin-bottom: 0.5rem;
 }
 
-.member-initial-info {
+.community-initial-info {
   text-align: center;
 }
 
-.member-initial-info .name {
+.community-initial-info .name {
   font-weight: 500;
   margin: 0;
 }
 
-.member-initial-info .type {
+.community-initial-info .type {
   font-size: 0.9em;
 }
 

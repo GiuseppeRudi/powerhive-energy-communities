@@ -29,7 +29,7 @@ export class AnalysisService {
     return this.http.post<ResultAnalysis_2>(`${this.baseUrl}/start_2`,body);
   }
 
-  getResultAnalysis_3(members: MemberDetail[], wantToAdd: number[], wantToRemove: number[] ) : Observable<ResultAnalysis_3>{
+  getResultAnalysis_3(members: MemberDetail[] | undefined, wantToAdd: number[] | undefined, wantToRemove: number[] | undefined) : Observable<ResultAnalysis_3>{
     const body = {
       members: members,
       wantToAdd: wantToAdd,

@@ -1,1 +1,234 @@
-<p>analysis3 works!</p>
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title></title>
+</head>
+
+<div class="content-div">
+  <div class="disclaimer">
+    <p><strong>Energy Community Analysis 3 Dashboard</strong></p>
+    <p>
+      For each member, given a set of production and consumption profiles,
+      our app applies a decision-making algorithm to select the optimal production
+      and consumption profile for each member, in order to optimize the shared energy
+      within the energy community.
+    </p>
+    <p>
+      In this analysis, you can select an initial set of members (default community),
+      choose who to remove and who to add,
+      and compare the resulting communities:
+    </p>
+    <ul>
+      <li>Default: members initially selected</li>
+      <li>Wanted: selected members after applying your add/remove choices</li>
+      <li>Optimal: the best combination computed by the algorithm</li>
+    </ul>
+  </div>
+
+  <div class="chart-section">
+    <h2 class="section-title">Communities</h2>
+    <div class="communities-list">
+      <div *ngIf="!resultAnalysis" class="loading-container">
+        <app-generation-loader></app-generation-loader>
+      </div>
+      <div class="community-card">
+        <div class="community-header" *ngIf="resultAnalysis?.defaultCommunity as defaultCommunity" (click)="toggleCommunity(defaultCommunity)">
+          <div class="community-info">
+            <i class="fa-solid fa-users"></i>
+            <h3 class="community-name">Default Community</h3>
+          </div>
+          <div class="expand-icon" [class.expanded]="isCommunityExpanded(defaultCommunity)">
+            <i class="fa-solid fa-square-caret-down"></i>
+          </div>
+        </div>
+
+        <div class="community-content" *ngIf="resultAnalysis?.defaultCommunity as defaultCommunity" [class.expanded]="isCommunityExpanded(defaultCommunity)">
+          <div class="members-section">
+            <h3>Community composition</h3>
+            <div class="communities-grid">
+              <div class="community-initial-card" *ngFor="let m of defaultCommunity.assignments">
+                <div class="community-avatar" [ngClass]="'default-avatar'">{{ m.fullName[0] }}</div>
+                <div class="community-initial-info">
+                  <p class="name">{{ m.fullName }}</p>
+                  <p class="type" [class.producer]="m.memberType === 'PRODUCER'" [class.consumer]="m.memberType === 'CONSUMER'">
+                    {{ m.memberType }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="community-card">
+        <div class="community-header" *ngIf="resultAnalysis?.optimalCommunity as optimalCommunity" (click)="toggleCommunity(optimalCommunity)">
+          <div class="community-info">
+            <i class="fa-solid fa-gem"></i>
+            <h3 class="community-name">Optimal Community</h3>
+          </div>
+          <div class="expand-icon" [class.expanded]="isCommunityExpanded(optimalCommunity)">
+            <i class="fa-solid fa-square-caret-down"></i>
+          </div>
+        </div>
+
+        <div class="community-content" *ngIf="resultAnalysis?.optimalCommunity as optimalCommunity" [class.expanded]="isCommunityExpanded(optimalCommunity)">
+          <div class="members-section">
+            <h3>Community composition</h3>
+            <div class="communities-grid">
+              <div class="community-initial-card" *ngFor="let m of optimalCommunity.assignments">
+                <div class="community-avatar" [ngClass]="{'to-remove': isInRemovalList(m),'to-add': isInAdditionList(m),'default-avatar': !isInRemovalList(m) && !isInAdditionList(m)}">{{ m.fullName[0] }}</div>
+                <div class="community-initial-info">
+                  <p class="name">{{ m.fullName }}</p>
+                  <p class="type" [class.producer]="m.memberType === 'PRODUCER'" [class.consumer]="m.memberType === 'CONSUMER'">
+                    {{ m.memberType }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="composition-legend">
+              <div class="composition-item">
+                <span class="composition-color" style="background-color: #e53935;"></span>
+                Members you wanted to remove
+              </div>
+              <div class="composition-item">
+                <span class="composition-color" style="background-color: #43a047;"></span>
+                Members you wanted to add
+              </div>
+              <div class="composition-item">
+                <span class="composition-color" style="background-color: #ddd;"></span>
+                Members already in the community
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="community-card">
+        <div class="community-header" *ngIf="resultAnalysis?.wantedCommunity as wantedCommunity" (click)="toggleCommunity(wantedCommunity)">
+          <div class="community-info">
+            <i class="fa-solid fa-heart"></i>
+            <h3 class="community-name">Wanted Community</h3>
+          </div>
+          <div class="expand-icon" [class.expanded]="isCommunityExpanded(wantedCommunity)">
+            <i class="fa-solid fa-square-caret-down"></i>
+          </div>
+        </div>
+
+        <div class="community-content" *ngIf="resultAnalysis?.wantedCommunity as wantedCommunity" [class.expanded]="isCommunityExpanded(wantedCommunity)">
+          <div class="members-section">
+            <h3>Community composition</h3>
+            <div class="communities-grid">
+
+              <div class="community-initial-card" *ngFor="let m of wantedCommunity.assignments">
+                <div class="community-avatar" [ngClass]="{'to-remove': isInRemovalList(m),'to-add': isInAdditionList(m),'default-avatar': !isInRemovalList(m) && !isInAdditionList(m)}">{{ m.fullName[0] }}</div>
+                <div class="community-initial-info">
+                  <p class="name">{{ m.fullName }}</p>
+                  <p class="type" [class.producer]="m.memberType === 'PRODUCER'" [class.consumer]="m.memberType === 'CONSUMER'">
+                    {{ m.memberType }}
+                  </p>
+                </div>
+              </div>
+              <div class="community-initial-card" *ngFor="let m of members">
+                <div *ngIf="isInRemovalList(m)">
+                  <div class="overlay">
+                    <i class="fa-solid fa-xmark"></i>
+                  </div>
+                  <div class="community-avatar">{{ m.fullName[0] }}</div>
+                  <div class="community-initial-info">
+                    <p class="name">{{ m.fullName }}</p>
+                    <p class="type" [class.producer]="m.memberType === 'PRODUCER'" [class.consumer]="m.memberType === 'CONSUMER'">
+                      {{ m.memberType }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="composition-legend">
+              <div class="composition-item">
+                <i class="fa-solid fa-xmark" style="color: #e53935; font-size: 25px"></i>
+                Members removed from the default community
+              </div>
+              <div class="composition-item">
+                <span class="composition-color" style="background-color: #43a047;"></span>
+                Members you wanted to add
+              </div>
+              <div class="composition-item">
+                <span class="composition-color" style="background-color: #ddd;"></span>
+                Members already in the community
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Optimal Consumption Profiles -->
+  <!--
+  <div class="chart-section">
+    <h2 class="section-title">Optimal Consumption Profiles</h2>
+    <div *ngIf="!optConsProfChart" class="loading-container">
+      <app-generation-loader></app-generation-loader>
+    </div>
+    <div class="chart-wrapper" *ngIf="optConsProfChart">
+      <app-energy-chart
+        [data]="optConsProfChart"
+        [options]="chartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <h2 class="section-title">Optimal Production Profiles</h2>
+    <div *ngIf="!optProdProfChart" class="loading-container">
+      <app-generation-loader></app-generation-loader>
+    </div>
+    <div class="chart-wrapper" *ngIf="optProdProfChart">
+      <app-energy-chart
+        [data]="optProdProfChart"
+        [options]="chartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <h2 class="section-title">Total Production vs Consumption</h2>
+    <div *ngIf="!totalComparisonChart" class="loading-container">
+      <app-generation-loader></app-generation-loader>
+    </div>
+    <div class="chart-wrapper" *ngIf="totalComparisonChart">
+      <app-energy-chart
+        [data]="totalComparisonChart"
+        [options]="chartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <h2 class="section-title">Key Performance Indicators (KPIs)</h2>
+    <div *ngIf="!kpiChart" class="loading-container">
+      <app-generation-loader></app-generation-loader>
+    </div>
+    <div class="chart-wrapper" *ngIf="kpiChart">
+      <app-energy-chart
+        [data]="kpiChart"
+        [options]="kpiChartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+
+    <div class="kpi-legend" *ngIf="kpiChart">
+      <div class="kpi-item">
+        <span class="kpi-color" style="background-color: blue;"></span>
+        <strong>Shared Energy:</strong> Percentage of produced energy shared within the community
+      </div>
+      <div class="kpi-item">
+        <span class="kpi-color" style="background-color: yellow;"></span>
+        <strong>Self-Sufficiency:</strong> Percentage of energy demand met by local production
+      </div>
+    </div>
+  </div>
+  -->
+</div>

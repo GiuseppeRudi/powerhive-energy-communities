@@ -162,9 +162,9 @@ public class ASPService {
             if (analysis == 1) {
                 ctl.load(Path.of("energycommunities/encodings/analysis1.lp"));
             } else if (analysis == 2) {
-                ctl.load(Path.of("energycommunities/encodings/analysis2_dim.lp"));
-            } else {
                 ctl.load(Path.of("energycommunities/encodings/analysis2.lp"));
+            } else {
+                ctl.load(Path.of("energycommunities/encodings/analysis3.lp"));
             }
             ctl.add(facts);
             ctl.ground();

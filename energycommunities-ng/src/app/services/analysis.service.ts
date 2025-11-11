@@ -5,6 +5,8 @@ import {Observable} from 'rxjs';
 import {Analysis1} from '../components/analysis1/analysis1';
 import {ResultAnalysis_2} from '../model/analysis/ResultAnalysis_2';
 import { MemberSummary } from "../model/member/MemberSummary";
+import {MemberDetail} from '../model/member/MemberDetail';
+import {ResultAnalysis_3} from '../model/analysis/ResultAnalysis_3';
 
 @Injectable({providedIn: 'root'})
 export class AnalysisService {
@@ -24,7 +26,15 @@ export class AnalysisService {
       members: members,
       dimCommunity: dimCommunity
     };
-    return this.http.post<ResultAnalysis_1>(`${this.baseUrl}/start_2`,body);
+    return this.http.post<ResultAnalysis_2>(`${this.baseUrl}/start_2`,body);
   }
 
+  getResultAnalysis_3(members: MemberDetail[], wantToAdd: number[], wantToRemove: number[] ) : Observable<ResultAnalysis_3>{
+    const body = {
+      members: members,
+      wantToAdd: wantToAdd,
+      wantToRemove: wantToRemove
+    };
+    return this.http.post<ResultAnalysis_3>(`${this.baseUrl}/start_3`,body);
+  }
 }

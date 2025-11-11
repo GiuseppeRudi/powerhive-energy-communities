@@ -81,7 +81,7 @@ public class AnalysisController {
     }
 
     @PostMapping(value = "/start_3")
-    public ResponseEntity<ResultAnalysis3Dto> startSecondAnalysis(@RequestBody Analysis3Dto request){
+    public ResponseEntity<ResultAnalysis3Dto> startThirdAnalysis(@RequestBody Analysis3Dto request){
         // List<MemberDetailDto> members = request.getMembers();
         List<Long> wantToRemove = request.getWantToRemove();
         List<Long> wantToAdd = request.getWantToAdd();
@@ -91,12 +91,12 @@ public class AnalysisController {
         User user = MockDataGenerator2.createMockUser();
         ResultAnalysis3Dto resultAnalysis3Dto = aspService.generateOptimalCommunity(user,wantToAdd,wantToRemove);
 
-        System.out.print("Optimal community: ");
-        for(MemberDetailDto m: resultAnalysis3Dto.getOptimalCommunity().getAssignments()) System.out.print(m.getId() + " ");
-        System.out.println();
-
         System.out.print("Default community: ");
         for(MemberDetailDto m: resultAnalysis3Dto.getDefaultCommunity().getAssignments()) System.out.print(m.getId() + " ");
+        System.out.println();
+
+        System.out.print("Optimal community: ");
+        for(MemberDetailDto m: resultAnalysis3Dto.getOptimalCommunity().getAssignments()) System.out.print(m.getId() + " ");
         System.out.println();
 
         System.out.print("Wanted community: ");

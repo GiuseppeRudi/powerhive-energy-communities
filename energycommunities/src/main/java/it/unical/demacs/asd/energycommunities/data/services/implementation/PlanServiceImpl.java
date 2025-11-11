@@ -5,13 +5,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import javax.naming.NameNotFoundException;
 
+import it.unical.demacs.asd.energycommunities.dto.plan.PlanDetailDto;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import it.unical.demacs.asd.energycommunities.data.dao.*;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.ManualMemberDto;
-import it.unical.demacs.asd.energycommunities.dto.user.PlanDto;
+import it.unical.demacs.asd.energycommunities.dto.plan.PlanSummaryDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -43,7 +44,7 @@ public class PlanServiceImpl implements PlanService {
 
     @Override
     @Transactional
-    public PlanDto upload(MultipartFile file, Long ownerId) throws NameNotFoundException {
+    public PlanSummaryDto upload(MultipartFile file, Long ownerId) throws NameNotFoundException {
 
         if (file.isEmpty()) {
             throw new IllegalArgumentException("CSV file is empty");
@@ -121,7 +122,7 @@ public class PlanServiceImpl implements PlanService {
 
         owner.setPlan(ownerPlan);
 
-        return(modelMapper.map(userDao.save(owner).getPlan(), PlanDto.class));
+        return(modelMapper.map(userDao.save(owner).getPlan(), PlanSummaryDto.class));
     }
     @Override
     @Transactional
@@ -182,10 +183,17 @@ public class PlanServiceImpl implements PlanService {
         return modelMapper.map(member, MemberDetailDto.class);
     }
     @Override
-    public PlanDto getPlanById(Long planId) {
+    public PlanSummaryDto getSummaryPlanById(Long planId) {
         Plan plan = planDao.findById(planId)
                 .orElseThrow(() -> new RuntimeException("Plan not found with id: " + planId));
-        return modelMapper.map(plan, PlanDto.class);
+        return modelMapper.map(plan, PlanSummaryDto.class);
+    }
+
+    @Override
+    public PlanDetailDto getDetailPlanById(Long planId) {
+        Plan plan = planDao.findById(planId)
+                .orElseThrow(() -> new RuntimeException("Plan not found with id: " + planId));
+        return modelMapper.map(plan, PlanDetailDto.class);
     }
 
 

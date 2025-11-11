@@ -29,7 +29,7 @@ import it.unical.demacs.asd.energycommunities.data.entities.Plan;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
 import it.unical.demacs.asd.energycommunities.data.services.implementation.PlanServiceImpl;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
-import it.unical.demacs.asd.energycommunities.dto.user.PlanDto;
+import it.unical.demacs.asd.energycommunities.dto.plan.PlanSummaryDto;
 
 @ExtendWith(MockitoExtension.class)
 public class PlanServiceTests {
@@ -69,9 +69,9 @@ public class PlanServiceTests {
         when(userDao.findById(1L)).thenReturn(Optional.of(owner));
         when(planDao.findByUser(owner)).thenReturn(Optional.empty());
         when(userDao.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(modelMapper.map(any(Plan.class), eq(PlanDto.class))).thenReturn(new PlanDto());
+        when(modelMapper.map(any(Plan.class), eq(PlanSummaryDto.class))).thenReturn(new PlanSummaryDto());
 
-        PlanDto result = planService.upload(file, 1L);
+        PlanSummaryDto result = planService.upload(file, 1L);
 
         assertNotNull(result);
         verify(userDao, times(1)).findById(1L);
@@ -85,14 +85,14 @@ public class PlanServiceTests {
 
 
     @Test
-    void testGetPlanById() {
+    void testGetSummaryPlanById() {
         Plan plan = new Plan();
         plan.setId(1L);
 
         when(planDao.findById(1L)).thenReturn(Optional.of(plan));
-        when(modelMapper.map(plan, PlanDto.class)).thenReturn(new PlanDto());
+        when(modelMapper.map(plan, PlanSummaryDto.class)).thenReturn(new PlanSummaryDto());
 
-        PlanDto result = planService.getPlanById(1L);
+        PlanSummaryDto result = planService.getSummaryPlanById(1L);
 
         assertNotNull(result);
         verify(planDao).findById(1L);

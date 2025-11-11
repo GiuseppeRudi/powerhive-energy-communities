@@ -110,11 +110,31 @@ public class ASPService {
                     alreadyAdded.put(memberId, count++);
                 }
 
-                Member member = user.getPlan().getMembers().get((int) (memberId - 1));
+                Member member = user.getPlan().getMembers()
+                        .stream()
+                        .filter(m -> Objects.equals(m.getId(), memberId))
+                        .findFirst()
+                        .orElse(null);
+
+                if (member == null) {
+                    System.err.println("Member ID " + memberId + " not found in user's plan");
+                    continue; // salta questo ciclo, evita crash
+                }
+
                 memberDto.setFullName(member.getFullName());
                 memberDto.setMemberType(member.getMemberType());
 
-                Profile profile = member.getProfiles().get((int) (profileId - 1));
+                Profile profile = member.getProfiles()
+                        .stream()
+                        .filter(p -> Objects.equals(p.getId(), profileId))
+                        .findFirst()
+                        .orElse(null);
+
+                if (profile == null) {
+                    System.err.println("⚠️ Profile ID " + profileId + " not found for member " + memberId);
+                    continue;
+                }
+
                 ProfileDto profileDto = new ProfileDto();
                 profileDto.setId(profileId);
                 profileDto.setProfileType(profile.getType());

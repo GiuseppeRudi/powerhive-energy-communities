@@ -187,18 +187,30 @@ export class ChooseAnalysis3 implements OnInit {
     const chooseMembers : MemberDetail[] = [];
     for (const member of this.members) {
       if(this.communityMembers.includes(member.id)) {
-        members.push(member);
+        chooseMembers.push(member);
       }
 
       if(this.wantToRemove.includes(member.id)) {
-        members.push(member);
+        chooseMembers.push(member);
       }
       if(this.wantToAdd.includes(member.id)) {
-        members.push(member);
+        chooseMembers.push(member);
       }
     }
 
-    this.analysisService.getResultAnalysis_3(chooseMembers,this.wantToRemove, this.wantToAdd);
+    this.analysisService.getResultAnalysis_3(this.members, this.wantToAdd, this.wantToRemove)
+      .subscribe({
+        next: (result) => {
+          console.log('Analisi completata:', result);
+        },
+        error: (err) => {
+          console.error('Errore durante la richiesta:', err);
+          alert('Si è verificato un errore durante l\'analisi. Riprova più tardi.');
+        },
+        complete: () => {
+          console.log('Richiesta completata.');
+        }
+      });
 
     this.wantToAdd = []
     this.wantToRemove = []

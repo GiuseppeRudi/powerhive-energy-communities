@@ -14,8 +14,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -32,8 +30,8 @@ public class AnalysisController {
 
     @GetMapping(value = "/start_1")
     public ResponseEntity<ResultAnalysis1Dto> startFirstAnalysis(){
-        User user = MockDataGenerator.createMockUser();
-        ResultAnalysis1Dto resultAnalysis1Dto = aspService.chooseBestProfiles(user);
+        List<MemberDetailDto> members  = MockDataGenerator.createMockUser();
+        ResultAnalysis1Dto resultAnalysis1Dto = aspService.chooseBestProfiles(members);
 
         System.out.println("Best Profiles per members:");
         for(MemberDetailDto m: resultAnalysis1Dto.getAssignments()) {
@@ -48,8 +46,8 @@ public class AnalysisController {
             }
             System.out.println("\n");
         }
-        // System.out.println("KPI_1: " + resultAnalysis1Dto.getKpi1());
-        // System.out.println("KPI_2: " + resultAnalysis1Dto.getKpi2());
+         System.out.println("KPI_1: " + resultAnalysis1Dto.getKpi1());
+         System.out.println("KPI_2: " + resultAnalysis1Dto.getKpi2());
 
         return ResponseEntity.ok(resultAnalysis1Dto);
     }
@@ -58,8 +56,8 @@ public class AnalysisController {
     public ResponseEntity<ResultAnalysis2Dto> startSecondAnalysis(@RequestBody Analysis2Dto request){
         // List<MemberSummaryDto> members = request.getMembers();
         int dimCommunity = request.getDimCommunity();
-        User user = MockDataGenerator2.createMockUser();
-        ResultAnalysis2Dto resultAnalysis2Dto = aspService.generateOptimalCommunityDim(user,dimCommunity);
+        List<MemberDetailDto> members  = MockDataGenerator2.generateListOfMembers();
+        ResultAnalysis2Dto resultAnalysis2Dto = aspService.generateOptimalCommunityDim(members,dimCommunity);
 
         System.out.println("Optimal community of " + dimCommunity + " members:");
         for(MemberDetailDto m: resultAnalysis2Dto.getAssignments()) {
@@ -82,14 +80,22 @@ public class AnalysisController {
 
     @PostMapping(value = "/start_3")
     public ResponseEntity<ResultAnalysis3Dto> startThirdAnalysis(@RequestBody Analysis3Dto request){
-        // List<MemberDetailDto> members = request.getMembers();
+        System.out.println("Request :" + request.toString() );
+
+        List<MemberDetailDto> members = request.getMembers();
         List<Long> wantToRemove = request.getWantToRemove();
         List<Long> wantToAdd = request.getWantToAdd();
+
+        System.out.println("Members:" + members.toString());
+
+        System.out.println("Want to add:" + wantToAdd.toString());
+        System.out.println("Want to remove:" + wantToRemove.toString());
+
         wantToAdd.add(1L);
         wantToAdd.add(2L);
         wantToRemove.add(8L);
-        User user = MockDataGenerator2.createMockUser();
-        ResultAnalysis3Dto resultAnalysis3Dto = aspService.generateOptimalCommunity(user,wantToAdd,wantToRemove);
+        List<MemberDetailDto> mockMembers = MockDataGenerator2.generateListOfMembers();
+        ResultAnalysis3Dto resultAnalysis3Dto = aspService.generateOptimalCommunity(mockMembers,wantToAdd,wantToRemove);
 
         System.out.print("Default community: ");
         for(MemberDetailDto m: resultAnalysis3Dto.getDefaultCommunity().getAssignments()) System.out.print(m.getId() + " ");

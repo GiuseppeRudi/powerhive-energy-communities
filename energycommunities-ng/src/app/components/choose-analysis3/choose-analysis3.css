@@ -1,0 +1,156 @@
+h2 {
+  margin-bottom: 1.5rem;
+  color: #222;
+}
+
+.members-section {
+  margin-bottom: 2rem;
+}
+
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.member-initial-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+.member-initial-card:hover {
+  transform: scale(1.03);
+}
+
+.member-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-right: 12px;
+}
+
+.action-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+.action-checkbox input[type="checkbox"] {
+  transform: scale(1.1);
+}
+
+.member-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.member-initial-info {
+  text-align: center;
+}
+
+.member-initial-info .name {
+  font-weight: 500;
+  margin: 0;
+}
+
+.member-initial-info .type {
+  font-size: 0.9em;
+}
+
+/* Input & button */
+.input-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+input[type="number"] {
+  width: 100px;
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  text-align: center;
+}
+
+button {
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  background-color: #2ecc71;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:hover {
+  background-color: #27ae60;
+}
+button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.kpi-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-around;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.kpi-card {
+  background: #f4f6fa;
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  min-width: 180px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+.kpi-card:hover {
+  transform: scale(1.03);
+}
+.kpi-label {
+  color: #666;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.kpi-value {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: darkgreen;
+}
+
+.insight-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+.insight-list li {
+  background: #f9fafb;
+  border-left: 4px solid #1d4ed8;
+  margin: 0.5rem 0;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.insight-list i {
+  color: #f59e0b;
+}

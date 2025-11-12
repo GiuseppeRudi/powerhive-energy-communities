@@ -79,7 +79,7 @@
         <thead>
         <tr>
           <th>Name</th>
-          <th>Category</th>
+          <th>Email</th> <th>Category</th>
           <th>Actions</th>
         </tr>
         </thead>
@@ -90,7 +90,7 @@
               {{ member.fullName }}
             </a>
           </td>
-          <td>{{ member.memberType }}</td>
+          <td>{{ member.email }}</td> <td>{{ member.memberType }}</td>
           <td class="action-cell">
 
             <button (click)="loadMemberForEdit(member)" class="btn-edit" title="Load {{member.fullName}}">

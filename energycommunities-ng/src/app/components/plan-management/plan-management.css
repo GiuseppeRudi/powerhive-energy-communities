@@ -9,7 +9,7 @@
 .form-container {
   flex: 2;
   min-width: 400px;
-  padding: 2rem 2.5rem;
+  padding: 2rem 1rem;
   background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 12px;
@@ -18,7 +18,7 @@
 }
 
 .table-container {
-  flex: auto;
+  flex-grow: 0;
   min-width: 300px;
   box-sizing: border-box;
 }
@@ -186,7 +186,7 @@
 }
 
 .members-table td {
-  padding: 1rem 1.5rem;
+  padding: 1rem 1rem;
   color: #1a1a1a;
   font-size: 1rem;
   vertical-align: middle;

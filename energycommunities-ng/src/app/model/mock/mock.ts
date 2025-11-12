@@ -108,6 +108,7 @@ export const member1: MemberDetail = {
   id: 1,
   fullName: 'Mario Rossi',
   memberType: 'PROSUMER',
+  email: 'aa@gmail.com',
   profiles: [profile1, profile2]
 };
 
@@ -115,6 +116,7 @@ export const member2: MemberDetail = {
   id: 2,
   fullName: 'Luigi Bianchi',
   memberType: 'CONSUMER',
+  email: 'ab@gmail.com',
   profiles: [profile2]
 };
 
@@ -122,6 +124,7 @@ export const member3: MemberDetail = {
   id: 3,
   fullName: 'Anna Verdi',
   memberType: 'PRODUCER',
+  email: 'ac@gmail.com',
   profiles: [profile3]
 };
 
@@ -129,6 +132,7 @@ export const member4: MemberDetail = {
   id: 4,
   fullName: 'Giuseppe Neri',
   memberType: 'PROSUMER',
+  email: 'ad@gmail.com',
   profiles: [profile3, profile4]
 };
 
@@ -136,6 +140,7 @@ export const member5: MemberDetail = {
   id: 5,
   fullName: 'Francesca Gialli',
   memberType: 'CONSUMER',
+  email: 'ae@gmail.com',
   profiles: [profile5]
 };
 
@@ -143,6 +148,7 @@ export const member6: MemberDetail = {
   id: 6,
   fullName: 'Roberto Marroni',
   memberType: 'PRODUCER',
+  email: 'af@gmail.com',
   profiles: [profile6]
 };
 
@@ -150,6 +156,7 @@ export const member7: MemberDetail = {
   id: 7,
   fullName: 'Silvia Viola',
   memberType: 'PROSUMER',
+  email: 'ag@gmail.com',
   profiles: [profile6, profile7]
 };
 
@@ -157,6 +164,7 @@ export const member8: MemberDetail = {
   id: 8,
   fullName: 'Andrea Arancioni',
   memberType: 'PROSUMER',
+  email: 'ah@gmail.com',
   profiles: [profile8, profile9]
 };
 
@@ -164,6 +172,7 @@ export const member9: MemberDetail = {
   id: 9,
   fullName: 'Paolo Bianchi',
   memberType: 'CONSUMER',
+  email: 'ai@gmail.com',
   profiles: [profile7]
 };
 
@@ -171,6 +180,7 @@ export const member10: MemberDetail = {
   id: 10,
   fullName: 'Elena Neri',
   memberType: 'PRODUCER',
+  email: 'al@gmail.com',
   profiles: [profile10]
 };
 
@@ -178,6 +188,7 @@ export const member11: MemberDetail = {
   id: 11,
   fullName: 'Davide Azzurri',
   memberType: 'PROSUMER',
+  email: 'am@gmail.com',
   profiles: [profile10, profile5]
 };
 
@@ -185,6 +196,7 @@ export const member12: MemberDetail = {
   id: 12,
   fullName: 'Chiara Rosa',
   memberType: 'CONSUMER',
+  email: 'an@gmail.com',
   profiles: [profile9]
 };
 

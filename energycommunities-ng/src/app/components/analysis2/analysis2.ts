@@ -1,47 +1,60 @@
-import {Component, Input, OnInit} from '@angular/core';
-import { ChartData, ChartOptions } from 'chart.js';
-import { CommonModule } from '@angular/common';
-import { EnergyChartComponent } from '../energy-chart/energy-chart';
-import { MemberDetail } from '../../model/member/MemberDetail';
-import { ResultAnalysis_1 } from '../../model/analysis/ResultAnalysis_1';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AnalysisService } from '../../services/analysis.service';
-import { AuthService } from '../../services/auth/auth.service';
-import { GenerationLoader } from '../generation-loader/generation-loader';
-import { HistoryService } from '../../services/history.service';
-import { User } from '../../model/User';
-import { SaveAnalysisRequest } from '../../model/SaveAnalysisRequest';
-import {HistoryDetail} from '../../model/history/HistoryDetail';
-import {HistorySummary} from '../../model/history/HistorySummary';
+import {Component, OnInit} from '@angular/core';
+import {MemberSummary} from '../../model/member/MemberSummary';
+import {ActivatedRoute, Router} from '@angular/router';
+import {AnalysisService} from '../../services/analysis.service';
+import {AuthService} from '../../services/auth/auth.service';
+import {mockPlan} from '../../model/mock/mock';
+import {ResultAnalysis_2} from '../../model/analysis/ResultAnalysis_2';
+import {GenerationLoader} from '../generation-loader/generation-loader';
 import {FormsModule} from '@angular/forms';
+import {EnergyChartComponent} from '../energy-chart/energy-chart';
+import {ChartData, ChartOptions} from 'chart.js';
+import {MemberDetail} from '../../model/member/MemberDetail';
+import {NgForOf, NgIf} from '@angular/common';
 
 @Component({
-  selector: 'app-analisys1',
-  templateUrl: './analysis1.html',
+  selector: 'app-analysis2',
+  templateUrl: './analysis2.html',
   standalone: true,
-  imports: [CommonModule, EnergyChartComponent, GenerationLoader, FormsModule],
-  styleUrls: ['./analysis1.css', '../welcome/welcome.css']
+  imports: [GenerationLoader, FormsModule, EnergyChartComponent, NgForOf, NgIf],
+  styleUrls: ['./analysis2.css', '../analysis1/analysis1.css', '../welcome/welcome.css']
 })
-export class Analysis1 implements OnInit {
-
-  analysisName: string = '';
-  history : HistorySummary | undefined = undefined ;
-  typeAnalisys : number | null = null;
-  resultAnalysis: ResultAnalysis_1 | null = null;
+export class Analysis2 implements OnInit{
+  members: MemberSummary[] = [];
+  selectedDim: number | null = null;
+  isLoading = false;
+  resultAnalysis: ResultAnalysis_2 | null = null;
   memberExpandedState: Map<number, boolean> = new Map();
   chartDataMap: Map<number, ChartData<'line'>> = new Map();
   optConsProfChart?: ChartData<'line'>;
   optProdProfChart?: ChartData<'line'>;
   totalComparisonChart?: ChartData<'line'>;
   kpiChart?: ChartData<'line'>;
+  summary: {
+    totalProduction: number;
+    totalConsumption: number;
+    sharedEnergy: number;
+    efficiency: number;
+  } | null = null;
+  communityCompositionChart: ChartData<'pie'> | undefined;
+  insights: string[] = [];
 
-  chartOptions: ChartOptions<'line'> = {
+  chartOptionsLine: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
       x: { title: { display: true, text: 'Hour (0-23)' } },
       y: { title: { display: true, text: 'Energy (kWh)' }, beginAtZero: true }
     },
+    plugins: {
+      legend: { display: true, position: 'top' },
+      tooltip: { enabled: true, mode: 'index', intersect: false }
+    }
+  };
+
+  chartOptionsPie: ChartOptions<'pie'> = {
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: { display: true, position: 'top' },
       tooltip: { enabled: true, mode: 'index', intersect: false }
@@ -61,66 +74,60 @@ export class Analysis1 implements OnInit {
     }
   };
 
-  constructor(
-    private router: Router,
-    private route : ActivatedRoute,
-    private analysisService: AnalysisService,
-    private authService: AuthService,
-    private historyService: HistoryService
-  ) {}
-
-  @Input() historyId?: number;
+  constructor(private router: Router,
+              private route : ActivatedRoute,
+              private analysisService: AnalysisService,
+              private authService: AuthService) {}
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      const historyId = +params['historyId'];
-      const memberIdsParam = params['memberIds'];
 
-      if (historyId) {
-        // Caricamento da history (come prima)
-        this.typeAnalisys = 1;
-        this.historyService.getHistoryById(historyId).subscribe({
-          next: history => {
-            this.history = history;
-            this.resultAnalysis = history.analysisData as ResultAnalysis_1;
-            this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
-            this.buildAllCharts();
-          },
-          error: err => console.error('Errore caricamento history:', err)
-        });
-      } else {
-        // Nuova analisi
-        this.typeAnalisys = 0;
+    this.resultAnalysis = this.analysisService.getAnalysisResult();
 
-        // Se ci sono memberIds nei query params, passali al backend
-        if (memberIdsParam) {
-          const memberIds = memberIdsParam.split(',').map((id: string) => +id);
-          console.log('Running analysis with member IDs:', memberIds);
+    this.isLoading = true;
 
-          // Chiama il servizio con i memberIds
-          this.analysisService.getResultAnalysis_1(memberIds).subscribe({
-            next: (data) => {
-              this.resultAnalysis = data;
-              this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
-              this.buildAllCharts();
-            },
-            error: (err) => console.error(err)
-          });
-        } else {
-          // Fallback: analisi con tutti i membri
-          this.analysisService.getResultAnalysis_1().subscribe({
-            next: (data) => {
-              this.resultAnalysis = data;
-              this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
-              this.buildAllCharts();
-            },
-            error: (err) => console.error(err)
-          });
-        }
-      }
-    });
+    if(this.resultAnalysis)
+    {
+      this.members = this.resultAnalysis?.assignments
+      this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+      this.summary = this.calculateEnergyStats(this.resultAnalysis.totalProduction,this.resultAnalysis.totalConsumption);
+      this.insights = [
+        "Members 3, 5, and 8 form the most balanced mix between production and consumption.",
+        "Excluding member 2 improves efficiency by 10%.",
+        "The selected community minimizes total energy gap to 4.2%."
+      ];
+      this.buildAllCharts();
+      this.isLoading = false;
+    }
   }
 
+
+  calculateEnergyStats(production: number[], consumption: number[]) {
+    if (production.length !== consumption.length) {
+      throw new Error('Production and consumption arrays must have the same length');
+    }
+
+    let totalProduction = 0;
+    let totalConsumption = 0;
+    let sharedEnergy = 0;
+
+    for (let i = 0; i < production.length; i++) {
+      const p = production[i];
+      const c = consumption[i];
+
+      totalProduction += p;
+      totalConsumption += c;
+      sharedEnergy += Math.min(p, c);
+    }
+
+    const efficiency = totalProduction > 0 ? sharedEnergy / totalProduction * 100 : 0;
+
+    return {
+      totalProduction,
+      totalConsumption,
+      sharedEnergy,
+      efficiency,
+    };
+  }
 
   toggleMember(memberId: number) {
     const currentState = this.memberExpandedState.get(memberId) || false;
@@ -143,6 +150,9 @@ export class Analysis1 implements OnInit {
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
     const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'black', 'brown'];
 
+    var numP = 0;
+    var numC = 0;
+
     this.resultAnalysis.assignments.forEach(member => {
       const producers = member.profiles.filter(p => p.profileType === 'PRODUCER');
       const consumers = member.profiles.filter(p => p.profileType === 'CONSUMER');
@@ -164,7 +174,18 @@ export class Analysis1 implements OnInit {
       }));
 
       this.chartDataMap.set(member.id, { labels, datasets: [...datasetsProducers, ...datasetsConsumers] });
+      numP+=producers.length;
+      numC+=consumers.length;
     });
+    this.communityCompositionChart = {
+      labels: ['Producers', 'Consumers'],
+      datasets: [
+        {
+          data: [numP, numC],
+          backgroundColor: ['green', 'yellow']
+        }
+      ]
+    };
   }
 
   buildOptConsProdProfChart() {
@@ -262,61 +283,5 @@ export class Analysis1 implements OnInit {
     if (hasProducer) return 'Producer';
     return 'Consumer';
   }
-
-  saveAnalysis() {
-    const userJson = sessionStorage.getItem('currentUser');
-    if (!userJson) {
-      console.log('Nessun utente loggato');
-      return;
-    }
-
-    const user: User = JSON.parse(userJson);
-
-    // Controllo nome analisi
-    if (!this.analysisName.trim()) {
-      alert('Please enter a name for the analysis before saving.');
-      return;
-    }
-
-    const saveAnalysisRequest: SaveAnalysisRequest = {
-      userId: user.id,
-      analysisName: this.analysisName.trim(),
-      analysisNumber: 1,
-      analysisData: this.resultAnalysis
-    };
-
-    console.log(saveAnalysisRequest);
-
-    this.historyService.saveAnalysis(saveAnalysisRequest).subscribe({
-      next: res => {
-        console.log('Analisi salvata:', res);
-        this.router.navigate(['/dashboard']);
-      },
-      error: err => console.error('Errore nel salvataggio:', err)
-    });
-  }
-
-
-  discardAnalysis() {
-    this.resetAnalysisData();
-    this.router.navigate(['/dashboard']);
-  }
-
-  resetAnalysisData() {
-    if (this.resultAnalysis) {
-      this.resultAnalysis.assignments = [];
-      this.resultAnalysis.kpi1 = [];
-      this.resultAnalysis.kpi2 = [];
-      this.resultAnalysis.totalConsumption = [];
-      this.resultAnalysis.totalProduction = [];
-    }
-
-    this.memberExpandedState.clear();
-    this.chartDataMap.clear();
-    this.optConsProfChart = undefined;
-    this.optProdProfChart = undefined;
-    this.totalComparisonChart = undefined;
-    this.kpiChart = undefined;
-  }
-
 }
+

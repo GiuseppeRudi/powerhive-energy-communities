@@ -25,7 +25,7 @@ public class Profile {
     @JsonIgnore
     private Member member;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "profile_graph_id", referencedColumnName = "id")
     private ProfileGraph profileGraph;
 

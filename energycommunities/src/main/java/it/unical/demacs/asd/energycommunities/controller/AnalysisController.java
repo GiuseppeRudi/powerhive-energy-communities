@@ -1,15 +1,11 @@
 package it.unical.demacs.asd.energycommunities.controller;
 
 import it.unical.demacs.asd.energycommunities.clingo.ASPService;
-import it.unical.demacs.asd.energycommunities.data.entities.Member;
-import it.unical.demacs.asd.energycommunities.data.entities.Plan;
+import it.unical.demacs.asd.energycommunities.clingo.MockDataGenerator;
+import it.unical.demacs.asd.energycommunities.clingo.MockDataGenerator2;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
+import it.unical.demacs.asd.energycommunities.dto.analysis.*;
 import it.unical.demacs.asd.energycommunities.data.services.MemberService;
-import it.unical.demacs.asd.energycommunities.data.services.UserService;
-import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
-import it.unical.demacs.asd.energycommunities.data.utils.ProfileUtils;
-import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis_1Dto;
-import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis_2Dto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/analysis")
@@ -48,6 +40,18 @@ public class AnalysisController {
 
                 if (selectedMembers.isEmpty()) {
                     return ResponseEntity.badRequest().body(null);
+    public ResponseEntity<ResultAnalysis1Dto> startFirstAnalysis(){
+        List<MemberDetailDto> members  = MockDataGenerator.createMockUser();
+        ResultAnalysis1Dto resultAnalysis1Dto = aspService.chooseBestProfiles(members);
+
+        System.out.println("Best Profiles per members:");
+        for(MemberDetailDto m: resultAnalysis1Dto.getAssignments()) {
+            System.out.println(m.getFullName());
+            System.out.println("Member " + m.getId() + " " + m.getMemberType() + ": ");
+            for(ProfileDto p : m.getProfiles()) {
+                System.out.print("  Profile " + p.getId() + " " + p.getProfileType() + ": ");
+                for(int i=0; i<p.getGraph().size(); i++){
+                    System.out.print(p.getGraph().get(i) + " ");
                 }
             } else {
                 // Se non ci sono memberIds, carica tutti i membri
@@ -95,8 +99,118 @@ public class AnalysisController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+            System.out.println("\n");
+        }
+         System.out.println("KPI_1: " + resultAnalysis1Dto.getKpi1());
+         System.out.println("KPI_2: " + resultAnalysis1Dto.getKpi2());
+
+        return ResponseEntity.ok(resultAnalysis1Dto);
     }
 
+    @PostMapping(value = "/start_2")
+    public ResponseEntity<ResultAnalysis2Dto> startSecondAnalysis(@RequestBody Analysis2Dto request){
+        // List<MemberSummaryDto> members = request.getMembers();
+        int dimCommunity = request.getDimCommunity();
+        List<MemberDetailDto> members  = MockDataGenerator2.generateListOfMembers();
+        ResultAnalysis2Dto resultAnalysis2Dto = aspService.generateOptimalCommunityDim(members,dimCommunity);
+
+        System.out.println("Optimal community of " + dimCommunity + " members:");
+        for(MemberDetailDto m: resultAnalysis2Dto.getAssignments()) {
+            System.out.println(m.getFullName());
+            System.out.println("Member " + m.getId() + " " + m.getMemberType() + ": ");
+            for(ProfileDto p : m.getProfiles()) {
+                System.out.print("  Profile " + p.getId() + " " + p.getProfileType() + ": ");
+                for(int i=0; i<p.getGraph().size(); i++){
+                    System.out.print(p.getGraph().get(i) + " ");
+                }
+                System.out.println();
+            }
+            System.out.println("\n");
+        }
+        // System.out.println("KPI_1: " + resultAnalysis1Dto.getKpi1());
+        // System.out.println("KPI_2: " + resultAnalysis1Dto.getKpi2());
+
+        return ResponseEntity.ok(resultAnalysis2Dto);
+    }
+
+    @PostMapping(value = "/start_3")
+    public ResponseEntity<ResultAnalysis3Dto> startThirdAnalysis(@RequestBody Analysis3Dto request){
+        System.out.println("Request :" + request.toString() );
+
+        List<MemberDetailDto> members = request.getMembers();
+        List<Long> wantToRemove = request.getWantToRemove();
+        List<Long> wantToAdd = request.getWantToAdd();
+
+        System.out.println("Members:" + members.toString());
+
+        System.out.println("Want to add:" + wantToAdd.toString());
+        System.out.println("Want to remove:" + wantToRemove.toString());
+
+        wantToAdd.add(1L);
+        wantToAdd.add(2L);
+        wantToRemove.add(8L);
+        List<MemberDetailDto> mockMembers = MockDataGenerator2.generateListOfMembers();
+        ResultAnalysis3Dto resultAnalysis3Dto = aspService.generateOptimalCommunity(mockMembers,wantToAdd,wantToRemove);
+
+        System.out.print("Default community: ");
+        for(MemberDetailDto m: resultAnalysis3Dto.getDefaultCommunity().getAssignments()) System.out.print(m.getId() + " ");
+        System.out.println();
+
+        System.out.print("Optimal community: ");
+        for(MemberDetailDto m: resultAnalysis3Dto.getOptimalCommunity().getAssignments()) System.out.print(m.getId() + " ");
+        System.out.println();
+
+        System.out.print("Wanted community: ");
+        for(MemberDetailDto m: resultAnalysis3Dto.getWantedCommunity().getAssignments()) System.out.print(m.getId() + " ");
+        System.out.println();
+        /*
+        System.out.println("Optimal community:");
+        for(MemberDetailDto m: resultAnalysis3Dto.getOptimalCommunity().getAssignments()) {
+            System.out.println(m.getFullName());
+            System.out.println("Member " + m.getId() + " " + m.getMemberType() + ": ");
+            for(ProfileDto p : m.getProfiles()) {
+                System.out.print("  Profile " + p.getId() + " " + p.getProfileType() + ": ");
+                for(int i=0; i<p.getGraph().size(); i++){
+                    System.out.print(p.getGraph().get(i) + " ");
+                }
+                System.out.println();
+            }
+            System.out.println("\n");
+        }
+
+        System.out.println("Default community:");
+        for(MemberDetailDto m: resultAnalysis3Dto.getDefaultCommunity().getAssignments()) {
+            System.out.println(m.getFullName());
+            System.out.println("Member " + m.getId() + " " + m.getMemberType() + ": ");
+            for(ProfileDto p : m.getProfiles()) {
+                System.out.print("  Profile " + p.getId() + " " + p.getProfileType() + ": ");
+                for(int i=0; i<p.getGraph().size(); i++){
+                    System.out.print(p.getGraph().get(i) + " ");
+                }
+                System.out.println();
+            }
+            System.out.println("\n");
+        }
+        System.out.println("Wanted community:");
+        for(MemberDetailDto m: resultAnalysis3Dto.getWantedCommunity().getAssignments()) {
+            System.out.println(m.getFullName());
+            System.out.println("Member " + m.getId() + " " + m.getMemberType() + ": ");
+            for(ProfileDto p : m.getProfiles()) {
+                System.out.print("  Profile " + p.getId() + " " + p.getProfileType() + ": ");
+                for(int i=0; i<p.getGraph().size(); i++){
+                    System.out.print(p.getGraph().get(i) + " ");
+                }
+                System.out.println();
+            }
+            System.out.println("\n");
+        }
+        */
+        // System.out.println("KPI_1: " + resultAnalysis1Dto.getKpi1());
+        // System.out.println("KPI_2: " + resultAnalysis1Dto.getKpi2());
+
+        return ResponseEntity.ok(resultAnalysis3Dto);
+    }
+/*
     @GetMapping(value = "/start_2")
     public ResponseEntity<ResultAnalysis_2Dto> startSecondAnalysis(
             @RequestParam List<Long> memberIds) {
@@ -138,6 +252,9 @@ public class AnalysisController {
             // Crea il risultato finale
             ResultAnalysis_2Dto result = new ResultAnalysis_2Dto();
             result.setAssignments(averagedMembers);
+        return ResponseEntity.ok(result);
+    }
+*/
 
             return ResponseEntity.ok(result);
 

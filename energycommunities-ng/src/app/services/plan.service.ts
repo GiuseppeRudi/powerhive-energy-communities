@@ -45,4 +45,8 @@ export class PlanService {
     return this.http.get<MemberDetail>(`${this.baseUrl}/${planID}/${memberId}`);
   }
 
+  deleteMemberFromPlan(memberId: number, ownerId: number): Observable<void> {
+    const params = new HttpParams().set('ownerId', ownerId.toString());
+    return this.http.delete<void>(`${this.baseUrl}/member/${memberId}`, { params });
+  }
 }

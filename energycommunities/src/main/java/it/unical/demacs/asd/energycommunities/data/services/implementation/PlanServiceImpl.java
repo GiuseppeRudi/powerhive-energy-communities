@@ -198,4 +198,25 @@ public class PlanServiceImpl implements PlanService {
         return modelMapper.map(member, MemberDetailDto.class);
     }
 
+    @Override
+    @Transactional
+    public void deleteMemberFromPlan(Long memberId, Long ownerId) throws NameNotFoundException {
+        if (ownerId == null) {
+            throw new IllegalArgumentException("ownerId cannot be null");
+        }
+
+        User owner = userDao.findById(ownerId)
+                .orElseThrow(() -> new NameNotFoundException("User not found with id: " + ownerId));
+
+        Plan plan = owner.getPlan();
+        if (plan == null) {
+            throw new EntityNotFoundException("No plan found for user: " + ownerId);
+        }
+
+        Member member = memberDao.findByIdAndPlanId(memberId, plan.getId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Member with id " + memberId + " not found in plan " + plan.getId()));
+
+        memberDao.delete(member);
+    }
 }

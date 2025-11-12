@@ -48,6 +48,8 @@ export class PlanManagement implements OnInit {
     private router: Router,
     private authService: AuthService
   ) {}
+  isDeleteModalVisible = false;
+  memberToDelete: { id: number, fullName: string } | null = null;
 
   ngOnInit() {
     this.authService.user$.subscribe(user => {
@@ -206,12 +208,64 @@ export class PlanManagement implements OnInit {
 
   }
 
-  deleteMember(memberId: number): void {
+  openDeleteModal(member: { id: number, fullName: string }): void {
     this.errorMessage = '';
     this.successMessage = '';
 
+    this.memberToDelete = member;
+    this.isDeleteModalVisible = true;
+  }
 
-    console.log(`Richiesta eliminazione per membro con ID: ${memberId}`);
-    this.errorMessage = `Delete functionality for member ${memberId} is not fully implemented in the component.`;
+  closeDeleteModal(): void {
+    this.isDeleteModalVisible = false;
+    this.memberToDelete = null;
+  }
+
+  confirmDelete(): void {
+    if (!this.memberToDelete) {
+      this.errorMessage = 'Error: no member selected for deletion.';
+      this.closeDeleteModal();
+      return;
+    }
+
+    const memberId = this.memberToDelete.id;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    console.log(`Deletion request for member with ID: ${memberId}`);
+
+
+    if (!this.ownerId || this.ownerId === 0) {
+      this.errorMessage = 'Error: user not authenticated. Deletion failed.';
+      this.closeDeleteModal();
+      return;
+    }
+
+    this.planService.deleteMemberFromPlan(memberId, this.ownerId).subscribe({
+      next: () => {
+        this.successMessage = 'Member successfully deleted!';
+
+        if (typeof this.loadPlan === 'function') {
+          this.loadPlan(this.ownerId);
+        } else {
+          console.warn('Method loadPlan() not found. The table will not update automatically.');
+        }
+
+        this.closeDeleteModal();
+      },
+      error: (err: HttpErrorResponse) => {
+        console.error('Error while deleting member:', err);
+
+        let detail = err.error?.message || 'Please try again later.';
+        if (err.status === 404) {
+          detail = 'Member or plan not found.';
+        } else if (err.status === 401 || err.status === 403) {
+          detail = 'You do not have permission to perform this action.';
+        }
+
+        this.errorMessage = `Error during deletion.${detail}`;
+        this.closeDeleteModal();
+      }
+    });
   }
 }

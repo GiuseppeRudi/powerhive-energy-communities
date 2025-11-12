@@ -18,4 +18,6 @@ public interface PlanService {
     MemberDetailDto getMember(Long planId, Long memberId);
 
     MemberDetailDto addMember(ManualMemberDto memberDto, Long ownerId) throws NameNotFoundException;
+
+    void deleteMemberFromPlan(Long memberId, Long ownerId) throws NameNotFoundException;
 }

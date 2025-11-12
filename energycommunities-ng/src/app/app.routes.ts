@@ -8,6 +8,7 @@ import { HistoryComponent } from './components/history/history';
 import { AnalysisComponent } from './components/analysis/analysis.component';
 import {Analysis1} from './components/analysis1/analysis1';
 import { AuthGuard } from './services/auth/auth.guard';
+import { MemberChooser } from './components/member-chooser/member-chooser';
 import {Analysis2} from './components/analysis2/analysis2';
 import {PlanManagement} from './components/plan-management/plan-management';
 import {ChooseAnalysis3} from './components/choose-analysis3/choose-analysis3';
@@ -28,5 +29,6 @@ export const routes: Routes = [
   { path: 'choose-analysis3', component: ChooseAnalysis3, canActivate: [AuthGuard] },
   { path: 'analysis3', component: Analysis3, canActivate: [AuthGuard] },
   { path: 'csv', component: Csv, canActivate: [AuthGuard] },
-  { path: 'plan-management', component: PlanManagement}
+  { path: 'plan-management', component: PlanManagement, canActivate: [AuthGuard]},
+  { path: 'member-chooser', component: MemberChooser, canActivate: [AuthGuard]}
 ];

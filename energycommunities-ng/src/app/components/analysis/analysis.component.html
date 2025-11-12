@@ -10,19 +10,18 @@
     </span>
   </div>
   <div class="analysis-row">
-    <a class="btn btn-analysis" routerLink="/choose-analysis2">Community analysis</a>
+    <a class="btn btn-analysis" routerLink="/choose-analysis2">Optimal Community Formation</a>
     <span>
-      Given a list of potential members,
-      each with one or more consumption and production profiles,
-      the community analysis selects the optimal subset of members
-      — according to the specified community size —
-      that together form the most efficient and balanced energy community.
+     This analysis allows the energy community manager to build a new energy-sharing group from a list of available members. Each member is represented by an average energy profile (production and/or consumption).
+      The manager selects which members can participate and specifies the desired community size (number of members). The system then calculates all possible member combinations of that size and evaluates them to identify the optimal energy community configuration — the one that maximizes total energy sharing efficiency within the group.
     </span>
   </div>
   <div class="analysis-row">
-    <a class="btn btn-analysis" routerLink="/choose-analysis3">Battery problem</a>
+    <a class="btn btn-analysis" routerLink="/choose-analysis3">Community Adjustment Optimization</a>
     <span>
-      [PLACEHOLDER]
+      This analysis focuses on improving an existing energy community. The manager is presented with a list of members and their average energy profiles. Each member may be part of the current community or not.
+The manager can mark community members as “willing to be removed” and non-members as “willing to be added.” These preferences are sent to the system, which explores all feasible combinations — including partial or no changes — to determine the most efficient configuration.
+The final result identifies whether adding or removing certain members (or keeping the current setup unchanged) leads to the maximum possible energy sharing and community balance.
     </span>
   </div>
 </div>

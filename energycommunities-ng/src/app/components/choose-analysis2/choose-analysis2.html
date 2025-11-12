@@ -17,7 +17,7 @@
 
       <!-- Pulsante selezione -->
       <button
-        class="select-button"
+        class="select-button-1"
         [class.selected]="energyCommunities.includes(member.id)"
         (click)="toggleSelection(member.id)"
       >
@@ -51,7 +51,6 @@
     </div>
   </div>
 
-  <!-- 🔢 Sezione dimensione community -->
   <div class="community-size-section">
     <h3>Community Size</h3>
     <p>Members selected: <strong>{{ energyCommunities.length }}</strong></p>

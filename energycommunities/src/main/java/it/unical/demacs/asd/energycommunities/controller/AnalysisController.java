@@ -24,25 +24,24 @@ public class AnalysisController {
 
     private final ASPService aspService;
     private final MemberService memberService;
-    private final UserService userService;
     private final ModelMapper modelMapper;
 
     @GetMapping(value = "/start_1")
-    public ResponseEntity<ResultAnalysis_1Dto> startFirstAnalysis(
-            @RequestParam(required = false) List<Long> memberIds) {
+    public ResponseEntity<ResultAnalysis1Dto> startFirstAnalysis(@RequestParam(required = false) List<Long> memberIds) {
 
-        try {
-            // 1. Recupera i membri selezionati dal database con tutti i loro profili
-            List<Member> selectedMembers;
+        List<MemberDetailDto> selectedMembers;
 
-            if (memberIds != null && !memberIds.isEmpty()) {
-                selectedMembers = memberService.findMemberEntitiesById(memberIds);
+        ResultAnalysis1Dto resultAnalysis1Dto;
 
-                if (selectedMembers.isEmpty()) {
-                    return ResponseEntity.badRequest().body(null);
-    public ResponseEntity<ResultAnalysis1Dto> startFirstAnalysis(){
-        List<MemberDetailDto> members  = MockDataGenerator.createMockUser();
-        ResultAnalysis1Dto resultAnalysis1Dto = aspService.chooseBestProfiles(members);
+        if (memberIds != null && !memberIds.isEmpty()) {
+            selectedMembers = memberService.findAllById(memberIds);
+            resultAnalysis1Dto = aspService.chooseBestProfiles(selectedMembers);
+        }
+        else {
+            List<MemberDetailDto> members  = MockDataGenerator.createMockUser();
+            resultAnalysis1Dto = aspService.chooseBestProfiles(members);
+        }
+
 
         System.out.println("Best Profiles per members:");
         for(MemberDetailDto m: resultAnalysis1Dto.getAssignments()) {
@@ -53,59 +52,13 @@ public class AnalysisController {
                 for(int i=0; i<p.getGraph().size(); i++){
                     System.out.print(p.getGraph().get(i) + " ");
                 }
-            } else {
-                // Se non ci sono memberIds, carica tutti i membri
-                // Questo caso non dovrebbe verificarsi con il nuovo flusso, ma è un fallback
-                return ResponseEntity.badRequest().body(null);
             }
-
-            // 2. Recupera il Plan dal primo membro (tutti i membri appartengono allo stesso Plan)
-            Plan plan = selectedMembers.get(0).getPlan();
-
-            if (plan == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
-
-            // 3. Recupera l'User dal Plan
-            User user = plan.getUser();
-
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
-
-            // 4. Imposta i membri selezionati nel plan dell'utente
-            plan.setMembers(selectedMembers);
-            user.setPlan(plan);
-
-            // 5. Chiama il servizio ASP con i dati reali
-            ResultAnalysis_1Dto resultAnalysis1Dto = aspService.chooseBestProfiles(user);
-
-            // 6. Log dei risultati (opzionale)
-            System.out.println("=== Analysis 1 Results ===");
-            System.out.println("User: " + user.getUsername());
-            System.out.println("Selected Members: " + selectedMembers.size());
-            System.out.println("Best Profiles per members:");
-            for (MemberDetailDto m : resultAnalysis1Dto.getAssignments()) {
-                System.out.println("Member " + m.getId() + " - " + m.getFullName() + " (" + m.getMemberType() + ")");
-                for (ProfileDto p : m.getProfiles()) {
-                    System.out.println("  Profile " + p.getId() + " (" + p.getProfileType() + ")");
-                }
-            }
-
-            return ResponseEntity.ok(resultAnalysis1Dto);
-
-        } catch (Exception e) {
-            System.err.println("Error in startFirstAnalysis: " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
-            System.out.println("\n");
-        }
-         System.out.println("KPI_1: " + resultAnalysis1Dto.getKpi1());
-         System.out.println("KPI_2: " + resultAnalysis1Dto.getKpi2());
+
 
         return ResponseEntity.ok(resultAnalysis1Dto);
     }
+
 
     @PostMapping(value = "/start_2")
     public ResponseEntity<ResultAnalysis2Dto> startSecondAnalysis(@RequestBody Analysis2Dto request){
@@ -256,12 +209,5 @@ public class AnalysisController {
     }
 */
 
-            return ResponseEntity.ok(result);
 
-        } catch (Exception e) {
-            System.err.println("Error in startSecondAnalysis: " + e.getMessage());
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
 }

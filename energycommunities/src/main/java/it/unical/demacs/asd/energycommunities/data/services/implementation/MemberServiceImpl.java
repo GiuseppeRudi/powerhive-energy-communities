@@ -30,10 +30,5 @@ public class MemberServiceImpl implements MemberService {
                 .toList();
     }
 
-    public List<Member> findMemberEntitiesById(List<Long> memberIds) {
-        return memberDao.findAllById(memberIds);
-    }
-
-
 }
 

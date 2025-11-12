@@ -9,8 +9,6 @@ import java.util.List;
 public interface MemberService {
 
     List<MemberDetailDto> findAllById(List<Long> memberIds);
-
-    List<Member> findMemberEntitiesById(List<Long> memberIds);
 }
 
 

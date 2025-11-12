@@ -9,7 +9,7 @@ import { User } from '../../model/User';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
 import { ChartData, ChartOptions } from 'chart.js';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Plan } from '../../model/plan/Plan';
+import {PlanSummary} from '../../model/plan/PlanSummary';
 
 @Component({
   selector: 'app-plan-management',
@@ -20,7 +20,7 @@ import { Plan } from '../../model/plan/Plan';
 })
 export class PlanManagement implements OnInit {
   currentUser: User | null = null;
-  plan?: Plan;
+  plan?: PlanSummary;
   ownerId: number = 0;
   errorMessage = '';
   successMessage = '';
@@ -64,8 +64,8 @@ export class PlanManagement implements OnInit {
   }
 
   loadPlan(planId: number): void {
-    this.planService.getPlan(planId).subscribe({
-      next: (plan: Plan) => {
+    this.planService.getSummaryPlan(planId).subscribe({
+      next: (plan: PlanSummary) => {
         this.plan = plan;
         console.log('Plan loaded:', this.plan);
       },

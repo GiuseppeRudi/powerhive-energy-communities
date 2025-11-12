@@ -5,9 +5,8 @@ import { PlanService } from '../../services/plan.service';
 import { AnalysisService } from '../../services/analysis.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { User } from '../../model/User';
-import { Plan } from '../../model/plan/Plan';
-import { MemberDetail } from '../../model/member/MemberDetail';
-import {MemberSummary} from '../../model/member/MemberSummary';
+import {PlanSummary} from '../../model/plan/PlanSummary';
+
 
 @Component({
   selector: 'app-member-chooser',
@@ -17,7 +16,7 @@ import {MemberSummary} from '../../model/member/MemberSummary';
   styleUrls: ['./member-chooser.css', '../welcome/welcome.css']
 })
 export class MemberChooser implements OnInit {
-  plan?: Plan;
+  plan?: PlanSummary;
   currentUser: User | null = null;
   selectedMembers: Set<number> = new Set();
   showError: boolean = false;
@@ -33,8 +32,8 @@ export class MemberChooser implements OnInit {
     this.authService.user$.subscribe(user => this.currentUser = user);
 
     if (this.currentUser?.plan_id != null) {
-      this.planService.getPlan(this.currentUser.plan_id).subscribe({
-        next: (plan: Plan) => {
+      this.planService.getSummaryPlan(this.currentUser.plan_id).subscribe({
+        next: (plan: PlanSummary) => {
           this.plan = plan;
           console.log('Plan loaded:', this.plan);
         },

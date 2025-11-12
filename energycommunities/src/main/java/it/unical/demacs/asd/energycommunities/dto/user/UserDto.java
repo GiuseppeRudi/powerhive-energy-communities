@@ -14,5 +14,5 @@ public class UserDto {
     
     private String email;
 
-    private String plan_id;
+    private Long plan_id;
 }

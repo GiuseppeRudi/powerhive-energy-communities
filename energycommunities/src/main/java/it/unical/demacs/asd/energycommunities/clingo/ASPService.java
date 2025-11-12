@@ -212,11 +212,17 @@ public class ASPService {
                     alreadyAdded.put(memberId, count++);
                 }
 
+
+
+
                 MemberDetailDto member = members.get((int) (memberId - 1));
                 memberDto.setFullName(member.getFullName());
                 memberDto.setMemberType(member.getMemberType());
 
-                ProfileDto profile = member.getProfiles().get((int) (profileId - 1));
+                ProfileDto profile = member.getProfiles().stream()
+                        .filter(p -> p.getId().equals(profileId))
+                        .findFirst()
+                        .orElse(null);
 
                 memberDto.getProfiles().add(profile);
             }

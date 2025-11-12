@@ -25,6 +25,8 @@ export class Dashboard implements OnInit {
 
     this.authService.user$.subscribe(user => this.currentUser = user);
 
+
+    console.log(this.currentUser);
     if(this.currentUser?.plan_id != null) {
       this.planService.getSummaryPlan(this.currentUser.plan_id).subscribe({
           next: (plan: PlanSummary) => {

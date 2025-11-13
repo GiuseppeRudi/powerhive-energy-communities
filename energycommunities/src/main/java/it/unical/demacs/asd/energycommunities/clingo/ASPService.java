@@ -125,8 +125,8 @@ public class ASPService {
         List<Double> totalProduction = calculateTotal(memberDtos, ProfileType.PRODUCER);
         List<Double> totalConsumption = calculateTotal(memberDtos, ProfileType.CONSUMER);
 
-        community.setKpi1(totalConsumption);
-        community.setKpi2(totalProduction);
+        community.setKpi1(calculateKpi(totalConsumption, totalProduction));
+        community.setKpi2(calculateKpi(totalProduction, totalConsumption));
 
         community.setTotalProduction(totalProduction);
         community.setTotalConsumption(totalConsumption);

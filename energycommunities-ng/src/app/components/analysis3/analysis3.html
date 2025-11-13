@@ -1,1 +1,200 @@
-<p>analysis3 works!</p>
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title>Energy Community Analysis 3</title>
+</head>
+
+<div class="content-div">
+  <div class="disclaimer">
+    <p><strong>📊 Energy Community Analysis 3 Dashboard</strong></p>
+    <p>
+      For each member, given a set of production and consumption profiles,
+      our app applies a decision-making algorithm to select the optimal production
+      and consumption profile for each member, in order to optimize the shared energy
+      within the energy community.
+    </p>
+    <p>
+      In this analysis, you can select an initial set of members (default community),
+      choose who to remove and who to add, and compare the resulting communities:
+    </p>
+    <ul>
+      <li><strong>Default:</strong> members initially selected</li>
+      <li><strong>Wanted:</strong> selected members after applying your add/remove choices</li>
+      <li><strong>Optimal:</strong> the best combination computed by the algorithm</li>
+    </ul>
+  </div>
+
+  <div class="chart-section">
+    <h2 class="section-title">
+      <span class="icon">🏘️</span>
+      Communities Comparison
+    </h2>
+
+    <div *ngIf="!resultAnalysis" class="loading-container">
+      <app-generation-loader></app-generation-loader>
+    </div>
+
+    <div class="communities-list" *ngIf="resultAnalysis">
+      <div
+        *ngFor="let communityData of communities; let i = index"
+        class="community-card"
+        #communityCard
+        (click)="toggleCommunity(communityData.community, communityCard)">
+
+        <div class="community-header">
+          <div class="community-info">
+            <i class="fa-solid" [ngClass]="communityData.icon" [style.color]="communityData.iconColor"></i>
+            <h3 class="community-name">{{ communityData.title }}</h3>
+          </div>
+          <div class="expand-icon" [class.expanded]="isCommunityExpanded(communityData.community)">
+            <i class="fa-solid fa-square-caret-down"></i>
+          </div>
+        </div>
+
+        <div class="community-content" [class.expanded]="isCommunityExpanded(communityData.community)">
+
+          <div class="communities-section">
+            <h3 class="section-title">
+              <span class="icon">👥</span>
+              Community Composition
+            </h3>
+
+            <div class="communities-grid">
+              <div class="community-initial-card" *ngFor="let m of communityData.community.assignments">
+                <div class="community-avatar" [ngClass]="getAvatarClass(m, communityData.showLegend)">
+                  {{ m.fullName[0] }}
+                </div>
+                <div class="community-initial-info">
+                  <p class="name">{{ m.fullName }}</p>
+                  <p class="type"
+                     [class.producer]="m.memberType === 'PRODUCER'"
+                     [class.consumer]="m.memberType === 'CONSUMER'"
+                     [class.prosumer]="m.memberType === 'PROSUMER'">
+                    {{ m.memberType }}
+                  </p>
+                </div>
+              </div>
+
+              <ng-container *ngIf="communityData.showRemoved">
+                <div class="community-initial-card" *ngFor="let m of members">
+                  <div *ngIf="isInRemovalList(m)">
+                    <div class="overlay">
+                      <i class="fa-solid fa-xmark"></i>
+                    </div>
+                    <div class="community-avatar">{{ m.fullName[0] }}</div>
+                    <div class="community-initial-info">
+                      <p class="name">{{ m.fullName }}</p>
+                      <p class="type"
+                         [class.producer]="m.memberType === 'PRODUCER'"
+                         [class.consumer]="m.memberType === 'CONSUMER'"
+                         [class.prosumer]="m.memberType === 'PROSUMER'">
+                        {{ m.memberType }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+
+            <div class="composition-legend" *ngIf="communityData.showLegend">
+              <div class="composition-item" *ngIf="communityData.showRemoved">
+                <i class="fa-solid fa-xmark" style="color: #e53935; font-size: 25px"></i>
+                Members removed from the default community
+              </div>
+              <div class="composition-item" *ngIf="!communityData.showRemoved">
+                <span class="composition-color" style="background-color: #e53935;"></span>
+                Members you wanted to remove but included in the optimal community
+              </div>
+              <div class="composition-item">
+                <span class="composition-color" style="background-color: #43a047;"></span>
+                Members you wanted to add
+              </div>
+              <div class="composition-item">
+                <span class="composition-color" style="background-color: #ddd;"></span>
+                Members already in the community
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-section">
+            <h3 class="section-title">
+              <span class="icon">🏠</span>
+              Optimal Consumption Profiles
+            </h3>
+            <div *ngIf="!optConsProfChart.get(communityData.community)" class="loading-container">
+              <app-generation-loader></app-generation-loader>
+            </div>
+            <div class="chart-wrapper" *ngIf="optConsProfChart.get(communityData.community)">
+              <app-energy-chart
+                [data]="optConsProfChart.get(communityData.community) ?? { labels: [], datasets: [] }"
+                [options]="chartOptions"
+                [selectedChartType]="'line'">
+              </app-energy-chart>
+            </div>
+          </div>
+
+          <div class="chart-section">
+            <h3 class="section-title">
+              <span class="icon">☀️</span>
+              Optimal Production Profiles
+            </h3>
+            <div *ngIf="!optProdProfChart.get(communityData.community)" class="loading-container">
+              <app-generation-loader></app-generation-loader>
+            </div>
+            <div class="chart-wrapper" *ngIf="optProdProfChart.get(communityData.community)">
+              <app-energy-chart
+                [data]="optProdProfChart.get(communityData.community) ?? { labels: [], datasets: [] }"
+                [options]="chartOptions"
+                [selectedChartType]="'line'">
+              </app-energy-chart>
+            </div>
+          </div>
+
+          <div class="chart-section">
+            <h3 class="section-title">
+              <span class="icon">📈</span>
+              Total Production vs Consumption
+            </h3>
+            <div *ngIf="!totalComparisonChart.get(communityData.community)" class="loading-container">
+              <app-generation-loader></app-generation-loader>
+            </div>
+            <div class="chart-wrapper" *ngIf="totalComparisonChart.get(communityData.community)">
+              <app-energy-chart
+                [data]="totalComparisonChart.get(communityData.community) ?? { labels: [], datasets: [] }"
+                [options]="chartOptions"
+                [selectedChartType]="'line'">
+              </app-energy-chart>
+            </div>
+          </div>
+
+          <div class="chart-section">
+            <h3 class="section-title">
+              <span class="icon">🎯</span>
+              Key Performance Indicators (KPIs)
+            </h3>
+            <div *ngIf="!kpiChart.get(communityData.community)" class="loading-container">
+              <app-generation-loader></app-generation-loader>
+            </div>
+            <div class="chart-wrapper" *ngIf="kpiChart.get(communityData.community)">
+              <app-energy-chart
+                [data]="kpiChart.get(communityData.community) ?? { labels: [], datasets: [] }"
+                [options]="kpiChartOptions"
+                [selectedChartType]="'line'">
+              </app-energy-chart>
+            </div>
+
+            <div class="kpi-legend" *ngIf="kpiChart.get(communityData.community)">
+              <div class="kpi-item">
+                <span class="kpi-color" style="background-color: blue;"></span>
+                <strong>Shared Energy:</strong> Percentage of produced energy shared within the community
+              </div>
+              <div class="kpi-item">
+                <span class="kpi-color" style="background-color: orange;"></span>
+                <strong>Self-Sufficiency:</strong> Percentage of energy demand met by local production
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

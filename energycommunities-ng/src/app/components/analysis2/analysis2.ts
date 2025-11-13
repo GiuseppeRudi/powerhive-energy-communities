@@ -267,7 +267,7 @@ export class Analysis2 implements OnInit{
         {
           label: 'Self-Sufficiency (KPI2)',
           data: this.resultAnalysis.kpi2,
-          borderColor: 'yellow',
+          borderColor: 'orange',
           backgroundColor: 'transparent',
           tension: 0.25,
         }

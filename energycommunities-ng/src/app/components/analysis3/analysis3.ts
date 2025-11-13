@@ -114,11 +114,13 @@ export class Analysis3 implements OnInit {
         .filter((m): m is MemberDetail => m !== undefined);
     }
 
+    /*
     if (this.members && this.wantToAdd) {
       this.addedMembers = this.wantToAdd
         .map(id => this.members!.find(m => m.id === id))
         .filter((m): m is MemberDetail => m !== undefined);
     }
+    */
 
     if(this.members && this.members.length > 0 && this.wantToAdd  && this.wantToRemove) {
       this.analysisService.getResultAnalysis_3(this.members,this.wantToAdd,this.wantToRemove).subscribe({

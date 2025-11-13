@@ -252,7 +252,7 @@ public class ASPService {
             if (assignMatcher.find()) {
                 long memberId = Long.parseLong(assignMatcher.group(1));
 
-                MemberDetailDto memberDto = members.get((int) (memberId - 1));
+                MemberDetailDto memberDto = members.stream().filter(m -> m.getId().equals(memberId)).findFirst().orElse(null);
 
                 memberDtos.add(memberDto);
 

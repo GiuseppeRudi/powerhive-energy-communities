@@ -7,6 +7,7 @@ import it.unical.demacs.asd.energycommunities.data.entities.User;
 import it.unical.demacs.asd.energycommunities.dto.analysis.*;
 import it.unical.demacs.asd.energycommunities.data.services.MemberService;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.member.MemberSummaryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -62,9 +63,9 @@ public class AnalysisController {
 
     @PostMapping(value = "/start_2")
     public ResponseEntity<ResultAnalysis2Dto> startSecondAnalysis(@RequestBody Analysis2Dto request){
-        // List<MemberSummaryDto> members = request.getMembers();
+         List<MemberDetailDto> members = request.getMembers();
         int dimCommunity = request.getDimCommunity();
-        List<MemberDetailDto> members  = MockDataGenerator2.generateListOfMembers();
+//        List<MemberDetailDto> members  = MockDataGenerator2.generateListOfMembers();
         ResultAnalysis2Dto resultAnalysis2Dto = aspService.generateOptimalCommunityDim(members,dimCommunity);
 
         System.out.println("Optimal community of " + dimCommunity + " members:");

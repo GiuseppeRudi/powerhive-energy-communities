@@ -1,0 +1,70 @@
+<div class="chart-section">
+  <h2 class="section-title">Members</h2>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-generation-loader></app-generation-loader>
+  </div>
+
+  <!-- Lista membri -->
+  <div *ngFor="let member of members" class="member-card">
+    <div class="member-header">
+      <div class="member-info" (click)="toggleMember(member.id)">
+        <h3 class="member-name">{{ member.fullName }}</h3>
+        <span class="member-badge" [class]="getMemberTypeLabel(member).toLowerCase()">
+          {{ getMemberTypeLabel(member) }}
+        </span>
+      </div>
+
+      <!-- Pulsante selezione -->
+      <button
+        class="select-button-1"
+        [class.selected]="energyCommunities.includes(member.id)"
+        (click)="toggleSelection(member.id)"
+      >
+        {{ energyCommunities.includes(member.id) ? 'Selected' : 'Select' }}
+      </button>
+
+      <div
+        class="expand-icon"
+        [class.expanded]="isMemberExpanded(member.id)"
+        (click)="toggleMember(member.id)"
+      >
+        <i class="fa-solid fa-square-caret-down"></i>
+      </div>
+    </div>
+
+    <div class="member-content" [class.expanded]="isMemberExpanded(member.id)">
+      <div *ngIf="chartDataMap.get(member.id); else noData">
+        <h4>Production / Consumption Graph</h4>
+        <app-energy-chart
+          [data]="chartDataMap.get(member.id)!"
+          [options]="chartOptionsLine"
+          [selectedChartType]="'line'"
+        ></app-energy-chart>
+      </div>
+
+      <ng-template #noData>
+        <div class="no-data">
+          <p>No energy profiles available for this member.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <div class="community-size-section">
+    <h3>Community Size</h3>
+    <p>Members selected: <strong>{{ energyCommunities.length }}</strong></p>
+    <input
+      type="number"
+      [(ngModel)]="communitySize"
+      [max]="energyCommunities.length"
+      [min]="0"
+      (change)="onCommunitySizeChange($event)"
+      placeholder="Enter community size"
+    />
+  </div>
+
+  <div class="action-buttons">
+    <button class="start-button" (click)="startAnalysis3()">Start</button>
+  </div>
+</div>

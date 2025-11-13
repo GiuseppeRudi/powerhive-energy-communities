@@ -80,37 +80,26 @@ export class Analysis2 implements OnInit{
               private authService: AuthService) {}
 
   ngOnInit() {
-    // Mock di membri
-    this.members = mockPlan.members
-  }
 
-  generateCommunity() {
-    if (!this.selectedDim || this.selectedDim <= 0 || this.selectedDim > this.members.length) {
-      alert('Inserisci una dimensione valida per la comunità.');
-      return;
-    }
+    this.resultAnalysis = this.analysisService.getAnalysisResult();
 
     this.isLoading = true;
 
-    this.analysisService.getResultAnalysis_2(this.members,this.selectedDim).subscribe({
-      next: (data) => {
-        this.resultAnalysis = data;
-        this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
-        this.summary = this.calculateEnergyStats(this.resultAnalysis.totalProduction,this.resultAnalysis.totalConsumption);
-        this.insights = [
-          "Members 3, 5, and 8 form the most balanced mix between production and consumption.",
-          "Excluding member 2 improves efficiency by 10%.",
-          "The selected community minimizes total energy gap to 4.2%."
-        ];
-        this.buildAllCharts();
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error(err)
-        this.isLoading = false;
-      }
-    });
+    if(this.resultAnalysis)
+    {
+      this.members = this.resultAnalysis?.assignments
+      this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+      this.summary = this.calculateEnergyStats(this.resultAnalysis.totalProduction,this.resultAnalysis.totalConsumption);
+      this.insights = [
+        "Members 3, 5, and 8 form the most balanced mix between production and consumption.",
+        "Excluding member 2 improves efficiency by 10%.",
+        "The selected community minimizes total energy gap to 4.2%."
+      ];
+      this.buildAllCharts();
+      this.isLoading = false;
+    }
   }
+
 
   calculateEnergyStats(production: number[], consumption: number[]) {
     if (production.length !== consumption.length) {

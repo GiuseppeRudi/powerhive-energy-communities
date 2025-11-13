@@ -120,5 +120,14 @@ public class PlanController {
 
         return ResponseEntity.ok(memberDetailDto);
     }
+
+    @DeleteMapping("/member/{memberId}")
+    public ResponseEntity<Void> deleteMember(
+            @PathVariable Long memberId,
+            @RequestParam Long ownerId) throws NameNotFoundException {
+
+        planService.deleteMemberFromPlan(memberId, ownerId);
+        return ResponseEntity.ok().build();
+    }
 }
 

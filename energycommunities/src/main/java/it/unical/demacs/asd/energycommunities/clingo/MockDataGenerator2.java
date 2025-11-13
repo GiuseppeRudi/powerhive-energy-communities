@@ -1,7 +1,9 @@
 package it.unical.demacs.asd.energycommunities.clingo;
 
-import it.unical.demacs.asd.energycommunities.data.entities.*;
+import it.unical.demacs.asd.energycommunities.data.utils.MemberType;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
+import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,282 +15,223 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class MockDataGenerator2 {
 
-    public static User createMockUser() {
-        // Creazione dello User
-        User user = new User();
-        user.setId((long) 1);
-        user.setFirstName("Francesco");
-        user.setLastName("Cristiano");
-        user.setUsername("fcristiano");
-        user.setEmail("francesco.cristiano@example.com");
-        user.setPassword("securePassword123");
+    public static List<MemberDetailDto> generateListOfMembers() {
+      
 
-        // Creazione del Plan
-        Plan plan = new Plan();
-        plan.setId(10L);
-        plan.setUser(user);
-        user.setPlan(plan);
-
-        List<Member> members = new ArrayList<>();
+        List<MemberDetailDto> members = new ArrayList<>();
         long memberId = 1;
         Random random = new Random();
         random.setSeed(69);
 
-        // Member 1 - 3 profili PRODUCER
-        Member member1 = new Member();
+        // MemberDetailDto 1 - 3 profili PRODUCER
+        MemberDetailDto member1 = new MemberDetailDto();
         member1.setId(memberId++);
         member1.setFullName("Mario Rossi");
-        member1.setPlan(plan);
+        member1.setMemberType(MemberType.PRODUCER);
 
-        List<Profile> profiles1 = new ArrayList<>();
-        Profile profile = new Profile();
-        profile.setId(1L);
-        profile.setMember(member1);
-        profile.setType(ProfileType.PRODUCER);
-
-        ProfileGraph graph = new ProfileGraph();
-        graph.setId(1L);
-        graph.setGraph(generateRandomGraph(random, 0, 12)); // Producer: valori più bassi
-        profile.setProfileGraph(graph);
-        profiles1.add(profile);
+        List<ProfileDto> profiles1 = new ArrayList<>();
+        ProfileDto ProfileDto = new ProfileDto();
+        ProfileDto.setId(1L);
+        ProfileDto.setProfileType(ProfileType.PRODUCER);
+        
+        ProfileDto.setGraph(generateRandomGraph(random, 0, 12));
+        profiles1.add(ProfileDto);
         member1.setProfiles(profiles1);
         members.add(member1);
 
-        // Member 2 - 4 profili CONSUMER
-        Member member2 = new Member();
+        // MemberDetailDto 2 - 4 profili CONSUMER
+        MemberDetailDto member2 = new MemberDetailDto();
         member2.setId(memberId++);
         member2.setFullName("Lucia Bianchi");
-        member2.setPlan(plan);
+        member2.setMemberType(MemberType.CONSUMER);
 
-        List<Profile> profiles2 = new ArrayList<>();
-        profile = new Profile();
-        profile.setId(1L);
-        profile.setMember(member2);
-        profile.setType(ProfileType.CONSUMER);
-        graph = new ProfileGraph();
-        graph.setId(1L);
-        graph.setGraph(generateRandomGraph(random, 1, 14)); // Consumer: valori più alti
-        profile.setProfileGraph(graph);
-        profiles2.add(profile);
+        List<ProfileDto> profiles2 = new ArrayList<>();
+        ProfileDto = new ProfileDto();
+        ProfileDto.setId(1L);
+        ProfileDto.setProfileType(ProfileType.CONSUMER);
+
+        ProfileDto.setGraph(generateRandomGraph(random, 1, 14));
+        profiles2.add(ProfileDto);
         member2.setProfiles(profiles2);
         members.add(member2);
 
-        // Member 3 - 5 profili misti (3 PRODUCER, 2 CONSUMER)
-        Member member3 = new Member();
+        // MemberDetailDto 3 - 5 profili misti (3 PRODUCER, 2 CONSUMER)
+        MemberDetailDto member3 = new MemberDetailDto();
         member3.setId(memberId++);
         member3.setFullName("Giovanni Verdi");
-        member3.setPlan(plan);
+        member3.setMemberType(MemberType.PROSUMER);
 
-        List<Profile> profiles3 = new ArrayList<>();
-        profile = new Profile();
-        profile.setId(1L);
-        profile.setMember(member3);
-        profile.setType(ProfileType.PRODUCER);
-        graph = new ProfileGraph();
-        graph.setId(1L);
-        graph.setGraph(generateRandomGraph(random, 1, 15));
-        profile.setProfileGraph(graph);
-        profiles3.add(profile);
 
-        profile = new Profile();
-        profile.setId(2L);
-        profile.setMember(member3);
-        profile.setType(ProfileType.CONSUMER);
-        graph = new ProfileGraph();
-        graph.setId(2L);
-        graph.setGraph(generateRandomGraph(random, 1, 15));
-        profile.setProfileGraph(graph);
-        profiles3.add(profile);
+        List<ProfileDto> profiles3 = new ArrayList<>();
+        ProfileDto = new ProfileDto();
+        ProfileDto.setId(1L);
+        ProfileDto.setProfileType(ProfileType.PRODUCER);
+
+        ProfileDto.setGraph(generateRandomGraph(random, 1, 15));
+        profiles3.add(ProfileDto);
+
+        ProfileDto = new ProfileDto();
+        ProfileDto.setId(2L);
+        ProfileDto.setProfileType(ProfileType.CONSUMER);
+        ProfileDto.setGraph(generateRandomGraph(random, 1, 15));
+        profiles3.add(ProfileDto);
         member3.setProfiles(profiles3);
         members.add(member3);
 
-        // Member 4 - 3 profili tutti CONSUMER
-        Member member4 = new Member();
+        // MemberDetailDto 4 - 3 profili tutti CONSUMER
+        MemberDetailDto member4 = new MemberDetailDto();
         member4.setId(memberId++);
         member4.setFullName("Anna Ferrari");
-        member4.setPlan(plan);
+        member4.setMemberType(MemberType.CONSUMER);
 
-        List<Profile> profiles4 = new ArrayList<>();
-        profile = new Profile();
-        profile.setId(1L);
-        profile.setMember(member4);
-        profile.setType(ProfileType.CONSUMER);
-        graph = new ProfileGraph();
-        graph.setId(1L);
-        graph.setGraph(generateRandomGraph(random, 2, 14));
-        profile.setProfileGraph(graph);
-        profiles4.add(profile);
+
+        List<ProfileDto> profiles4 = new ArrayList<>();
+        ProfileDto = new ProfileDto();
+        ProfileDto.setId(1L);
+        ProfileDto.setProfileType(ProfileType.CONSUMER);
+        ProfileDto.setGraph(generateRandomGraph(random, 2, 14));
+        profiles4.add(ProfileDto);
         member4.setProfiles(profiles4);
         members.add(member4);
 
-        // Member 5 - 4 profili misti (2 PRODUCER, 2 CONSUMER)
-        Member member5 = new Member();
+        // MemberDetailDto 5 - 4 profili misti (2 PRODUCER, 2 CONSUMER)
+        MemberDetailDto member5 = new MemberDetailDto();
         member5.setId(memberId++);
         member5.setFullName("Marco Colombo");
-        member5.setPlan(plan);
+        member5.setMemberType(MemberType.PROSUMER);
 
-        List<Profile> profiles5 = new ArrayList<>();
-        profile = new Profile();
-        profile.setId(1L);
-        profile.setMember(member5);
-        profile.setType(ProfileType.PRODUCER);
-        graph = new ProfileGraph();
-        graph.setId(1L);
-        graph.setGraph(generateRandomGraph(random, 2, 13));
-        profile.setProfileGraph(graph);
-        profiles5.add(profile);
+        List<ProfileDto> profiles5 = new ArrayList<>();
+        ProfileDto = new ProfileDto();
+        ProfileDto.setId(1L);
+        ProfileDto.setProfileType(ProfileType.PRODUCER);
 
-        profile = new Profile();
-        profile.setId(2L);
-        profile.setMember(member5);
-        profile.setType(ProfileType.CONSUMER);
-        graph = new ProfileGraph();
-        graph.setId(2L);
-        graph.setGraph(generateRandomGraph(random, 2, 13));
-        profile.setProfileGraph(graph);
-        profiles5.add(profile);
+        ProfileDto.setGraph(generateRandomGraph(random, 2, 13));
+        profiles5.add(ProfileDto);
+
+        ProfileDto = new ProfileDto();
+        ProfileDto.setId(2L);
+        ProfileDto.setProfileType(ProfileType.CONSUMER);
+
+        ProfileDto.setGraph(generateRandomGraph(random, 2, 13));
+        profiles5.add(ProfileDto);
         member5.setProfiles(profiles5);
         members.add(member5);
 
-        // Member 6 - 5 profili tutti PRODUCER
-        Member member6 = new Member();
+        // MemberDetailDto 6 - 5 profili tutti PRODUCER
+        MemberDetailDto member6 = new MemberDetailDto();
         member6.setId(memberId++);
         member6.setFullName("Francesca Esposito");
-        member6.setPlan(plan);
+        member6.setMemberType(MemberType.PRODUCER);
 
-        List<Profile> profiles6 = new ArrayList<>();
-        profile = new Profile();
-        profile.setId(1L);
-        profile.setMember(member6);
-        profile.setType(ProfileType.PRODUCER);
-        graph = new ProfileGraph();
-        graph.setId(1L);
-        graph.setGraph(generateRandomGraph(random, 0, 11));
-        profile.setProfileGraph(graph);
-        profiles6.add(profile);
+        List<ProfileDto> profiles6 = new ArrayList<>();
+        ProfileDto = new ProfileDto();
+        ProfileDto.setId(1L);
+        ProfileDto.setProfileType(ProfileType.PRODUCER);
+
+        ProfileDto.setGraph(generateRandomGraph(random, 0, 11));
+        profiles6.add(ProfileDto);
         member6.setProfiles(profiles6);
         members.add(member6);
 
-        // Member 7 - 3 profili misti (1 PRODUCER, 2 CONSUMER)
-        Member member7 = new Member();
+        // MemberDetailDto 7 - 3 profili misti (1 PRODUCER, 2 CONSUMER)
+        MemberDetailDto member7 = new MemberDetailDto();
         member7.setId(memberId++);
         member7.setFullName("Alessandro Ricci");
-        member7.setPlan(plan);
+        member7.setMemberType(MemberType.PROSUMER);
 
-        List<Profile> profiles7 = new ArrayList<>();
-        Profile profile7_1 = new Profile();
+        List<ProfileDto> profiles7 = new ArrayList<>();
+        ProfileDto profile7_1 = new ProfileDto();
         profile7_1.setId(1L);
-        profile7_1.setMember(member7);
-        profile7_1.setType(ProfileType.PRODUCER);
-        ProfileGraph graph7_1 = new ProfileGraph();
-        graph7_1.setId(1L);
-        graph7_1.setGraph(generateRandomGraph(random, 3, 15));
-        profile7_1.setProfileGraph(graph7_1);
+        profile7_1.setProfileType(ProfileType.PRODUCER);
+
+
+        profile7_1.setGraph(generateRandomGraph(random, 3, 15));
         profiles7.add(profile7_1);
 
-        profile = new Profile();
-        profile.setId(2L);
-        profile.setMember(member7);
-        profile.setType(ProfileType.CONSUMER);
-        graph = new ProfileGraph();
-        graph.setId(2L);
-        graph.setGraph(generateRandomGraph(random, 3, 15));
-        profile.setProfileGraph(graph);
-        profiles7.add(profile);
+        ProfileDto = new ProfileDto();
+        ProfileDto.setId(2L);
+        ProfileDto.setProfileType(ProfileType.CONSUMER);
+
+        ProfileDto.setGraph(generateRandomGraph(random, 3, 15));
+        profiles7.add(ProfileDto);
         member7.setProfiles(profiles7);
         members.add(member7);
 
-        // Member 8 - 4 profili tutti PRODUCER
-        Member member8 = new Member();
+        // MemberDetailDto 8 - 4 profili tutti PRODUCER
+        MemberDetailDto member8 = new MemberDetailDto();
         member8.setId(memberId++);
         member8.setFullName("Giulia Marino");
-        member8.setPlan(plan);
+        member8.setMemberType(MemberType.PRODUCER);
 
-        List<Profile> profiles8 = new ArrayList<>();
-        profile = new Profile();
-        profile.setId(1L);
-        profile.setMember(member8);
-        profile.setType(ProfileType.PRODUCER);
-        graph = new ProfileGraph();
-        graph.setId(1L);
-        graph.setGraph(generateRandomGraph(random, 0, 12));
-        profile.setProfileGraph(graph);
-        profiles8.add(profile);
+        List<ProfileDto> profiles8 = new ArrayList<>();
+        ProfileDto = new ProfileDto();
+        ProfileDto.setId(1L);
+        ProfileDto.setProfileType(ProfileType.PRODUCER);
+
+        ProfileDto.setGraph(generateRandomGraph(random, 0, 12));
+        profiles8.add(ProfileDto);
         member8.setProfiles(profiles8);
         members.add(member8);
 
-        // Member 9 - 5 profili misti (4 CONSUMER, 1 PRODUCER)
-        Member member9 = new Member();
+        // MemberDetailDto 9 - 5 profili misti (4 CONSUMER, 1 PRODUCER)
+        MemberDetailDto member9 = new MemberDetailDto();
         member9.setId(memberId++);
         member9.setFullName("Roberto Gallo");
-        member9.setPlan(plan);
+        member9.setMemberType(MemberType.PROSUMER);
 
-        List<Profile> profiles9 = new ArrayList<>();
-        profile = new Profile();
-        profile.setId(1L);
-        profile.setMember(member9);
-        profile.setType(ProfileType.CONSUMER);
-        graph = new ProfileGraph();
-        graph.setId(1L);
-        graph.setGraph(generateRandomGraph(random, 1, 13));
-        profile.setProfileGraph(graph);
-        profiles9.add(profile);
+        List<ProfileDto> profiles9 = new ArrayList<>();
+        ProfileDto = new ProfileDto();
+        ProfileDto.setId(1L);
+        ProfileDto.setProfileType(ProfileType.CONSUMER);
 
-        Profile profile9_5 = new Profile();
+        ProfileDto.setGraph(generateRandomGraph(random, 1, 13));
+        profiles9.add(ProfileDto);
+
+        ProfileDto profile9_5 = new ProfileDto();
         profile9_5.setId(2L);
-        profile9_5.setMember(member9);
-        profile9_5.setType(ProfileType.PRODUCER);
-        ProfileGraph graph9_5 = new ProfileGraph();
-        graph9_5.setId(2L);
-        graph9_5.setGraph(generateRandomGraph(random, 1, 13));
-        profile9_5.setProfileGraph(graph9_5);
+        profile9_5.setProfileType(ProfileType.PRODUCER);
+
+        profile9_5.setGraph(generateRandomGraph(random, 1, 13));
         profiles9.add(profile9_5);
 
         member9.setProfiles(profiles9);
         members.add(member9);
 
-        // Member 10 - 3 profili misti (2 PRODUCER, 1 CONSUMER)
-        Member member10 = new Member();
+        // MemberDetailDto 10 - 3 profili misti (2 PRODUCER, 1 CONSUMER)
+        MemberDetailDto member10 = new MemberDetailDto();
         member10.setId(memberId);
         member10.setFullName("Elena Romano");
-        member10.setPlan(plan);
+        member10.setMemberType(MemberType.PROSUMER);
 
-        List<Profile> profiles10 = new ArrayList<>();
-        profile = new Profile();
-        profile.setId(1L);
-        profile.setMember(member10);
-        profile.setType(ProfileType.PRODUCER);
-        graph = new ProfileGraph();
-        graph.setId(1L);
-        graph.setGraph(generateRandomGraph(random, 2, 14));
-        profile.setProfileGraph(graph);
-        profiles10.add(profile);
+        List<ProfileDto> profiles10 = new ArrayList<>();
+        ProfileDto = new ProfileDto();
+        ProfileDto.setId(1L);
+        ProfileDto.setProfileType(ProfileType.PRODUCER);
 
-        Profile profile10_3 = new Profile();
+        ProfileDto.setGraph(generateRandomGraph(random, 2, 14));
+        profiles10.add(ProfileDto);
+
+        ProfileDto profile10_3 = new ProfileDto();
         profile10_3.setId(2L);
-        profile10_3.setMember(member10);
-        profile10_3.setType(ProfileType.CONSUMER);
-        ProfileGraph graph10_3 = new ProfileGraph();
-        graph10_3.setId(2L);
-        graph10_3.setGraph(generateRandomGraph(random, 2, 14));
-        profile10_3.setProfileGraph(graph10_3);
+        profile10_3.setProfileType(ProfileType.CONSUMER);
+
+        profile10_3.setGraph(generateRandomGraph(random, 2, 14));
         profiles10.add(profile10_3);
 
         member10.setProfiles(profiles10);
         members.add(member10);
 
-        plan.setMembers(members);
 
-        for(Member member : members){
-            System.out.println("Member " + member.getId() + " " + member.getMemberType());
-            for(Profile p : member.getProfiles()){
-                System.out.println("  Profile " + p.getId() + " " + p.getType());
-                System.out.println("    ProfileGraph " + p.getProfileGraph().getId() + ": " + p.getProfileGraph().getGraph());
+        for(MemberDetailDto MemberDetailDto : members){
+            System.out.println("MemberDetailDto " + MemberDetailDto.getId() );
+            for(ProfileDto p : MemberDetailDto.getProfiles()){
+                System.out.println("  ProfileDto " + p.getId() + " " + p.getProfileType());
+                System.out.println("    ProfileGraph " + p.getId() + ": " + p.getGraph());
             }
             System.out.println();
         }
 
-        return user;
+        return members;
     }
 
     private static List<Integer> generateRandomGraph(Random random, int minValue, int maxValue) {
@@ -321,11 +264,13 @@ public class MockDataGenerator2 {
     }
 
     public static void main(String[] args) {
-        User user = MockDataGenerator2.createMockUser();
+        List<MemberDetailDto> members = MockDataGenerator2.generateListOfMembers();
+
+
         ASPService aspService = new ASPService();
         List<Long> wantToAdd = new ArrayList<>();
         List<Long> wantToRemove = new ArrayList<>();
-        aspService.generateOptimalCommunity(user, wantToAdd, wantToRemove);
+        aspService.generateOptimalCommunity(members, wantToAdd, wantToRemove);
     }
 }
 

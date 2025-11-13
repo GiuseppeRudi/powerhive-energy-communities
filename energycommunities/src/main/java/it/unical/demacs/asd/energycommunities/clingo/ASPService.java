@@ -26,41 +26,41 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class ASPService {
 
-    public ResultAnalysis1Dto chooseBestProfiles(User user) {
+    public ResultAnalysis1Dto chooseBestProfiles(List<MemberDetailDto> members) {
         int analysis = 1;
-        String facts = ASPFactMapper.toFacts(user,analysis);
+        String facts = ASPFactMapper.toFacts1(members,analysis);
         String[] bestModel = calculateBestModel(facts,analysis);
 
         if (bestModel != null) {
-            return createBestModel1Dto(user, bestModel);
+            return createBestModel1Dto(members, bestModel);
         }  else {
             return null;
         }
     }
 
-    public ResultAnalysis2Dto generateOptimalCommunityDim(User user, int dim){
+    public ResultAnalysis2Dto generateOptimalCommunityDim(List<MemberDetailDto> members, int dim){
         int analysis = 2;
-        String facts = ASPFactMapper.toFacts(user,analysis,dim);
+        String facts = ASPFactMapper.toFacts2(members,analysis,dim);
 
         String[] bestModel = calculateBestModel(facts,analysis);
 
         if (bestModel != null) {
-            return createBestModel2Dto(user, bestModel);
+            return createBestModel2Dto(members, bestModel);
         }  else {
             return null;
         }
     }
 
-    public ResultAnalysis3Dto generateOptimalCommunity(User user, List<Long> wantToAdd, List<Long> wantToRemove){
+    public ResultAnalysis3Dto generateOptimalCommunity(List<MemberDetailDto> members , List<Long> wantToAdd, List<Long> wantToRemove){
         int analysis = 3;
-        String facts = ASPFactMapper.toFacts(user,wantToAdd,wantToRemove);
+        String facts = ASPFactMapper.toFacts3(members,wantToAdd,wantToRemove);
 
         String[] bestModel = calculateBestModel(facts,analysis);
         ResultAnalysis3Dto resultAnalysis3Dto = new ResultAnalysis3Dto();
 
-        SingleAnalysis optimalCommunity = createBestModel3Dto(user,bestModel);
-        SingleAnalysis defaultComunity = createCommunity(user,wantToAdd);
-        SingleAnalysis wantedCommunity = createCommunity(user,wantToRemove);
+        SingleAnalysis optimalCommunity = createBestModel3Dto(members,bestModel);
+        SingleAnalysis defaultComunity = createCommunity(members,wantToAdd);
+        SingleAnalysis wantedCommunity = createCommunity(members,wantToRemove);
 
         resultAnalysis3Dto.setOptimalCommunity(optimalCommunity);
         resultAnalysis3Dto.setWantedCommunity(wantedCommunity);
@@ -69,7 +69,7 @@ public class ASPService {
         return resultAnalysis3Dto;
     }
 
-    private SingleAnalysis createBestModel3Dto(User user, String[] bestModel) {
+    private SingleAnalysis createBestModel3Dto(List<MemberDetailDto> members, String[] bestModel) {
         SingleAnalysis optimalCommunity = new SingleAnalysis();
         List<MemberDetailDto> memberDtos = new ArrayList<>();
 
@@ -80,23 +80,13 @@ public class ASPService {
 
             if (assignMatcher.find()) {
                 long memberId = Long.parseLong(assignMatcher.group(1));
-                MemberDetailDto memberDto;
-                memberDto = new MemberDetailDto();
-                memberDto.setId(memberId);
+
+                MemberDetailDto memberDto = members.stream()
+                        .filter(m -> m.getId() == (memberId))
+                        .findFirst()
+                        .orElse(null);
+
                 memberDtos.add(memberDto);
-
-                Member member = user.getPlan().getMembers().get((int) (memberId - 1));
-                memberDto.setFullName(member.getFullName());
-                memberDto.setMemberType(member.getMemberType());
-
-                List<Profile> profile = member.getProfiles();
-                for (Profile p : profile) {
-                    ProfileDto profileDto = new ProfileDto();
-                    profileDto.setId(p.getId());
-                    profileDto.setProfileType(p.getType());
-                    profileDto.setGraph(p.getProfileGraph().getGraph());
-                    memberDto.getProfiles().add(profileDto);
-                }
             }
         }
 
@@ -114,31 +104,21 @@ public class ASPService {
         return optimalCommunity;
     }
 
-    private SingleAnalysis createCommunity(User user, List<Long> wantToAR) {
+    private SingleAnalysis createCommunity(List<MemberDetailDto> members , List<Long> wantToAR) {
         SingleAnalysis community = new SingleAnalysis();
-        List<Member> members = user.getPlan().getMembers();
         List<MemberDetailDto> memberDtos = new ArrayList<>();
 
-        for (Member m : members) {
-            if(wantToAR.contains(m.getId())) continue;
-            long memberId = m.getId();
-            MemberDetailDto memberDto;
-            memberDto = new MemberDetailDto();
-            memberDto.setId(memberId);
+        for (MemberDetailDto member : members) {
+            if(wantToAR.contains(member.getId())) continue;
+            long memberId = member.getId();
+
+            MemberDetailDto memberDto = members.stream()
+                    .filter(m -> m.getId() == (memberId))
+                    .findFirst()
+                    .orElse(null);
+
+
             memberDtos.add(memberDto);
-
-            Member member = user.getPlan().getMembers().get((int) (memberId - 1));
-            memberDto.setFullName(member.getFullName());
-            memberDto.setMemberType(member.getMemberType());
-
-            List<Profile> profile = member.getProfiles();
-            for (Profile p : profile) {
-                ProfileDto profileDto = new ProfileDto();
-                profileDto.setId(p.getId());
-                profileDto.setProfileType(p.getType());
-                profileDto.setGraph(p.getProfileGraph().getGraph());
-                memberDto.getProfiles().add(profileDto);
-            }
         }
 
         community.setAssignments(memberDtos);
@@ -207,7 +187,7 @@ public class ASPService {
         return bestModel;
     }
 
-    private ResultAnalysis1Dto createBestModel1Dto(User user, String[] bestModel) {
+    private ResultAnalysis1Dto createBestModel1Dto(List<MemberDetailDto> members, String[] bestModel) {
         ResultAnalysis1Dto resultAnalysis1Dto = new ResultAnalysis1Dto();
         List<MemberDetailDto> memberDtos = new ArrayList<>();
 
@@ -232,17 +212,19 @@ public class ASPService {
                     alreadyAdded.put(memberId, count++);
                 }
 
-                Member member = user.getPlan().getMembers().get((int) (memberId - 1));
+
+
+
+                MemberDetailDto member = members.get((int) (memberId - 1));
                 memberDto.setFullName(member.getFullName());
                 memberDto.setMemberType(member.getMemberType());
 
-                Profile profile = member.getProfiles().get((int) (profileId - 1));
-                ProfileDto profileDto = new ProfileDto();
-                profileDto.setId(profileId);
-                profileDto.setProfileType(profile.getType());
-                profileDto.setGraph(profile.getProfileGraph().getGraph());
+                ProfileDto profile = member.getProfiles().stream()
+                        .filter(p -> p.getId().equals(profileId))
+                        .findFirst()
+                        .orElse(null);
 
-                memberDto.getProfiles().add(profileDto);
+                memberDto.getProfiles().add(profile);
             }
         }
 
@@ -258,7 +240,7 @@ public class ASPService {
         return resultAnalysis1Dto;
     }
 
-    private ResultAnalysis2Dto createBestModel2Dto(User user, String[] bestModel) {
+    private ResultAnalysis2Dto createBestModel2Dto(List<MemberDetailDto> members , String[] bestModel) {
         ResultAnalysis2Dto resultAnalysis2Dto = new ResultAnalysis2Dto();
         List<MemberDetailDto> memberDtos = new ArrayList<>();
 
@@ -269,23 +251,11 @@ public class ASPService {
 
             if (assignMatcher.find()) {
                 long memberId = Long.parseLong(assignMatcher.group(1));
-                MemberDetailDto memberDto;
-                memberDto = new MemberDetailDto();
-                memberDto.setId(memberId);
+
+                MemberDetailDto memberDto = members.stream().filter(m -> m.getId().equals(memberId)).findFirst().orElse(null);
+
                 memberDtos.add(memberDto);
 
-                Member member = user.getPlan().getMembers().get((int) (memberId - 1));
-                memberDto.setFullName(member.getFullName());
-                memberDto.setMemberType(member.getMemberType());
-
-                List<Profile> profile = member.getProfiles();
-                for (Profile p : profile) {
-                    ProfileDto profileDto = new ProfileDto();
-                    profileDto.setId(p.getId());
-                    profileDto.setProfileType(p.getType());
-                    profileDto.setGraph(p.getProfileGraph().getGraph());
-                    memberDto.getProfiles().add(profileDto);
-                }
             }
         }
 
@@ -303,6 +273,7 @@ public class ASPService {
 
     private List<Double> calculateTotal(List<MemberDetailDto> members, ProfileType type) {
         List<Double> totals = new ArrayList<>(Collections.nCopies(24, 0.0));
+
         for (MemberDetailDto m : members) {
             for (ProfileDto p : m.getProfiles()) {
                 if (p.getProfileType().equals(type)) {

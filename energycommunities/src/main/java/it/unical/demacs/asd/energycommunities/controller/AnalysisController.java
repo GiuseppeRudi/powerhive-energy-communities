@@ -100,11 +100,11 @@ public class AnalysisController {
         System.out.println("Want to add:" + wantToAdd.toString());
         System.out.println("Want to remove:" + wantToRemove.toString());
 
-        wantToAdd.add(1L);
-        wantToAdd.add(2L);
-        wantToRemove.add(8L);
-        List<MemberDetailDto> mockMembers = MockDataGenerator2.generateListOfMembers();
-        ResultAnalysis3Dto resultAnalysis3Dto = aspService.generateOptimalCommunity(mockMembers,wantToAdd,wantToRemove);
+//        wantToAdd.add(1L);
+//        wantToAdd.add(2L);
+//        wantToRemove.add(8L);
+//        List<MemberDetailDto> mockMembers = MockDataGenerator2.generateListOfMembers();
+        ResultAnalysis3Dto resultAnalysis3Dto = aspService.generateOptimalCommunity(members,wantToAdd,wantToRemove);
 
         System.out.print("Default community: ");
         for(MemberDetailDto m: resultAnalysis3Dto.getDefaultCommunity().getAssignments()) System.out.print(m.getId() + " ");

@@ -95,9 +95,9 @@
   </div>
 
   <!-- Nessun membro disponibile -->
-  <div *ngIf="plan && plan.members.length === 0" class="no-members">
+  <div *ngIf=" !plan ||(plan && plan.members.length === 0)" class="no-members">
     <i class="fa-solid fa-users-slash"></i>
     <p>No members available. Please import a CSV file first.</p>
-    <a routerLink="/csv" class="btn btn-csv">Import CSV</a>
+    <a routerLink="/csv" class="btn btn-csv">Go to CSV Page</a>
   </div>
 </div>

@@ -10,6 +10,7 @@ import { EnergyChartComponent } from '../energy-chart/energy-chart';
 import { GenerationLoader } from '../generation-loader/generation-loader';
 import { FormsModule } from '@angular/forms';
 import {AnalysisService} from '../../services/analysis.service';
+import {Analysi3Request} from '../../model/analysis/Analysis3Request';
 
 @Component({
   selector: 'app-choose-analysis3',
@@ -184,33 +185,13 @@ export class ChooseAnalysis3 implements OnInit {
 
   startAnalysis3(){
 
-    const chooseMembers : MemberDetail[] = [];
-    for (const member of this.members) {
-      if(this.communityMembers.includes(member.id)) {
-        chooseMembers.push(member);
-      }
+    const analysis3Request: Analysi3Request = {
+      members: this.members,
+      wantToAdd: this.wantToAdd,
+      wantToRemove: this.wantToRemove
+    };
 
-      if(this.wantToRemove.includes(member.id)) {
-        chooseMembers.push(member);
-      }
-      if(this.wantToAdd.includes(member.id)) {
-        chooseMembers.push(member);
-      }
-    }
-
-    this.analysisService.getResultAnalysis_3(this.members, this.wantToAdd, this.wantToRemove)
-      .subscribe({
-        next: (result) => {
-          console.log('Analisi completata:', result);
-        },
-        error: (err) => {
-          console.error('Errore durante la richiesta:', err);
-          alert('Si è verificato un errore durante l\'analisi. Riprova più tardi.');
-        },
-        complete: () => {
-          console.log('Richiesta completata.');
-        }
-      });
+    this.analysisService.setAnalysisResult(analysis3Request)
 
     this.wantToAdd = []
     this.wantToRemove = []

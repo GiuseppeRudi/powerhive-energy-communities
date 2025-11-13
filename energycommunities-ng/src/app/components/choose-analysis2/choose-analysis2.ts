@@ -148,7 +148,7 @@ export class ChooseAnalysis2 {
   }
 
 
-  startAnalysis3() {
+  startAnalysis2() {
     if (this.communitySize <= 0) {
       alert('Inserisci una dimensione valida per la community prima di continuare.');
       return;

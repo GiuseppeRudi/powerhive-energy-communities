@@ -13,8 +13,9 @@ export class AnalysisService {
 
   private readonly baseUrl = 'http://localhost:8080/analysis';
 
+
   private currentResultAnalysis: any ;
-  
+
     constructor(private readonly http: HttpClient) {
   }
 

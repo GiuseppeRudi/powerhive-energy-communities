@@ -12,6 +12,7 @@ import {HistorySummary} from '../../model/history/HistorySummary';
 import {FormsModule} from '@angular/forms';
 import {ResultAnalysis_3} from '../../model/analysis/ResultAnalysis_3';
 import {SingleAnalysis} from '../../model/analysis/SingleAnalysis';
+import {Analysi3Request} from '../../model/analysis/Analysis3Request';
 
 interface CommunityData {
   community: SingleAnalysis;
@@ -92,22 +93,31 @@ export class Analysis3 implements OnInit {
   ) {}
 
   @Input() historyId?: number;
-  @Input() members: MemberDetail[] | undefined;
-  @Input() wantToRemove: number[] | undefined;
-  @Input() wantToAdd: number[] | undefined;
+  members: MemberDetail[] | undefined;
+  wantToRemove: number[] | undefined;
+  wantToAdd: number[] | undefined;
+  analysis3Request: Analysi3Request | undefined = undefined ;
 
   ngOnInit() {
-    this.wantToRemove = [8];
-    this.wantToAdd = [1,2];
-    this.analysisService.getResultAnalysis_3(this.members,this.wantToAdd,this.wantToRemove).subscribe({
-      next: (data) => {
-        this.resultAnalysis = data;
-        this.setupCommunities();
-        this.buildAllCharts();
-      },
-      error: (err) => console.error(err)
-    });
+
+    this.analysis3Request = this.analysisService.getAnalysisResult()
+
+    this.wantToRemove = this.analysis3Request?.wantToRemove;
+    this.wantToAdd = this.analysis3Request?.wantToAdd;
+    this.members = this.analysis3Request?.members;
+
+    if(this.members && this.members.length > 0 && this.wantToAdd  && this.wantToRemove) {
+      this.analysisService.getResultAnalysis_3(this.members,this.wantToAdd,this.wantToRemove).subscribe({
+        next: (data) => {
+          this.resultAnalysis = data;
+          this.setupCommunities();
+          this.buildAllCharts();
+        },
+        error: (err) => console.error(err)
+      });
+    }
   }
+
 
   setupCommunities() {
     if (!this.resultAnalysis) return;

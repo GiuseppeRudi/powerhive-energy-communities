@@ -37,10 +37,9 @@
       <div
         *ngFor="let communityData of communities; let i = index"
         class="community-card"
-        #communityCard
-        (click)="toggleCommunity(communityData.community, communityCard)">
+        #communityCard>
 
-        <div class="community-header">
+        <div class="community-header" (click)="toggleCommunity(communityData.community, communityCard)">
           <div class="community-info">
             <i class="fa-solid" [ngClass]="communityData.icon" [style.color]="communityData.iconColor"></i>
             <h3 class="community-name">{{ communityData.title }}</h3>
@@ -60,7 +59,7 @@
 
             <div class="communities-grid">
               <div class="community-initial-card" *ngFor="let m of communityData.community.assignments">
-                <div class="community-avatar" [ngClass]="getAvatarClass(m, communityData.showLegend)">
+                <div class="community-avatar" [ngClass]="getAvatarClass(m.id, communityData.showLegend)">
                   {{ m.fullName[0] }}
                 </div>
                 <div class="community-initial-info">
@@ -75,21 +74,19 @@
               </div>
 
               <ng-container *ngIf="communityData.showRemoved">
-                <div class="community-initial-card" *ngFor="let m of members">
-                  <div *ngIf="isInRemovalList(m)">
-                    <div class="overlay">
-                      <i class="fa-solid fa-xmark"></i>
-                    </div>
-                    <div class="community-avatar">{{ m.fullName[0] }}</div>
-                    <div class="community-initial-info">
-                      <p class="name">{{ m.fullName }}</p>
-                      <p class="type"
-                         [class.producer]="m.memberType === 'PRODUCER'"
-                         [class.consumer]="m.memberType === 'CONSUMER'"
-                         [class.prosumer]="m.memberType === 'PROSUMER'">
-                        {{ m.memberType }}
-                      </p>
-                    </div>
+                <div class="community-initial-card" *ngFor="let m of removedMembers">
+                  <div class="overlay">
+                    <i class="fa-solid fa-xmark"></i>
+                  </div>
+                  <div class="community-avatar" [ngClass]="'default-avatar'">{{ m.fullName[0] }}</div>
+                  <div class="community-initial-info">
+                    <p class="name">{{ m.fullName }}</p>
+                    <p class="type"
+                       [class.producer]="m.memberType === 'PRODUCER'"
+                       [class.consumer]="m.memberType === 'CONSUMER'"
+                       [class.prosumer]="m.memberType === 'PROSUMER'">
+                      {{ m.memberType }}
+                    </p>
                   </div>
                 </div>
               </ng-container>

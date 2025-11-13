@@ -95,7 +95,9 @@ export class Analysis3 implements OnInit {
   @Input() historyId?: number;
   members: MemberDetail[] | undefined;
   wantToRemove: number[] | undefined;
+  removedMembers: MemberDetail[] = [];
   wantToAdd: number[] | undefined;
+  addedMembers: MemberDetail[] = [];
   analysis3Request: Analysi3Request | undefined = undefined ;
 
   ngOnInit() {
@@ -105,6 +107,18 @@ export class Analysis3 implements OnInit {
     this.wantToRemove = this.analysis3Request?.wantToRemove;
     this.wantToAdd = this.analysis3Request?.wantToAdd;
     this.members = this.analysis3Request?.members;
+
+    if (this.members && this.wantToRemove) {
+      this.removedMembers = this.wantToRemove
+        .map(id => this.members!.find(m => m.id === id))
+        .filter((m): m is MemberDetail => m !== undefined);
+    }
+
+    if (this.members && this.wantToAdd) {
+      this.addedMembers = this.wantToAdd
+        .map(id => this.members!.find(m => m.id === id))
+        .filter((m): m is MemberDetail => m !== undefined);
+    }
 
     if(this.members && this.members.length > 0 && this.wantToAdd  && this.wantToRemove) {
       this.analysisService.getResultAnalysis_3(this.members,this.wantToAdd,this.wantToRemove).subscribe({
@@ -165,12 +179,12 @@ export class Analysis3 implements OnInit {
     return this.communityExpanded == community;
   }
 
-  isInRemovalList(member: any): boolean {
-    return this.wantToRemove?.some(id => id === member.id) ?? false;
+  isInRemovalList(memberId: any): boolean {
+    return this.wantToRemove?.some(id => id === memberId) ?? false;
   }
 
-  isInAdditionList(member: any): boolean {
-    return this.wantToAdd?.some(id => id === member.id) ?? false;
+  isInAdditionList(memberId: any): boolean {
+    return this.wantToAdd?.some(id => id === memberId) ?? false;
   }
 
   buildAllCharts() {
@@ -285,11 +299,11 @@ export class Analysis3 implements OnInit {
     buildChart(this.resultAnalysis.wantedCommunity);
   }
 
-  getAvatarClass(member: any, showLegend: boolean): string {
+  getAvatarClass(memberId: any, showLegend: boolean): string {
     if (!showLegend) return 'default-avatar';
 
-    if (this.isInRemovalList(member)) return 'to-remove';
-    if (this.isInAdditionList(member)) return 'to-add';
+    if (this.isInRemovalList(memberId)) return 'to-remove';
+    if (this.isInAdditionList(memberId)) return 'to-add';
     return 'default-avatar';
   }
 }

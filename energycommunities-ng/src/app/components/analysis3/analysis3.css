@@ -1,3 +1,7 @@
+.communities-section {
+  margin-bottom: 2rem;
+}
+
 .communities-list {
   display: flex;
   flex-direction: column;
@@ -51,7 +55,7 @@
 }
 
 .community-content.expanded {
-  max-height: 2000px;
+  max-height: 10000px;
   padding: 25px;
 }
 
@@ -155,4 +159,32 @@
   height: 20px;
   border-radius: 4px;
   display: inline-block;
+}
+
+.type {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.9em;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.type.producer {
+  background: linear-gradient(135deg, #00b894 0%, #26de81 100%);
+}
+
+.type.consumer {
+  background: linear-gradient(135deg, #e17055 0%, #e67e22 100%);
+}
+
+.type.prosumer {
+  background: linear-gradient(135deg, #a29bfe 0%, #74b9ff 100%);
+}
+
+.section-title .icon {
+  font-size: 1.2em;
+  margin-right: 8px;
 }

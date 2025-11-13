@@ -13,6 +13,15 @@ import {FormsModule} from '@angular/forms';
 import {ResultAnalysis_3} from '../../model/analysis/ResultAnalysis_3';
 import {SingleAnalysis} from '../../model/analysis/SingleAnalysis';
 
+interface CommunityData {
+  community: SingleAnalysis;
+  title: string;
+  icon: string;
+  iconColor: string;
+  showRemoved: boolean;
+  showLegend: boolean;
+}
+
 @Component({
   selector: 'app-analisys3',
   templateUrl: './analysis3.html',
@@ -24,7 +33,10 @@ export class Analysis3 implements OnInit {
 
   history : HistorySummary | undefined = undefined ;
   resultAnalysis: ResultAnalysis_3 | null = null;
-  communityExpandedState: Map<SingleAnalysis, boolean> = new Map();
+  communityExpanded: SingleAnalysis | null = null;
+
+  communities: CommunityData[] = [];
+
   optConsProfChart: Map<SingleAnalysis, ChartData<'line'>> = new Map();
   optProdProfChart: Map<SingleAnalysis, ChartData<'line'>> = new Map();
   totalComparisonChart: Map<SingleAnalysis, ChartData<'line'>> = new Map();
@@ -34,8 +46,15 @@ export class Analysis3 implements OnInit {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
-      x: { title: { display: true, text: 'Hour (0-23)' } },
-      y: { title: { display: true, text: 'Energy (kWh)' }, beginAtZero: true }
+      x: {
+        title: { display: true, text: 'Hour (0-23)' },
+        grid: { display: true, color: 'rgba(0, 0, 0, 0.1)' }
+      },
+      y: {
+        title: { display: true, text: 'Energy (kWh)' },
+        beginAtZero: true,
+        grid: { display: true, color: 'rgba(0, 0, 0, 0.1)' }
+      }
     },
     plugins: {
       legend: { display: true, position: 'top' },
@@ -47,8 +66,16 @@ export class Analysis3 implements OnInit {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
-      x: { title: { display: true, text: 'Hour (0-23)' } },
-      y: { title: { display: true, text: 'Percentage (%)' }, beginAtZero: true, max: 100 }
+      x: {
+        title: { display: true, text: 'Hour (0-23)' },
+        grid: { display: true, color: 'rgba(0, 0, 0, 0.1)' }
+      },
+      y: {
+        title: { display: true, text: 'Percentage (%)' },
+        beginAtZero: true,
+        max: 100,
+        grid: { display: true, color: 'rgba(0, 0, 0, 0.1)' }
+      }
     },
     plugins: {
       legend: { display: true, position: 'top' },
@@ -75,22 +102,57 @@ export class Analysis3 implements OnInit {
     this.analysisService.getResultAnalysis_3(this.members,this.wantToAdd,this.wantToRemove).subscribe({
       next: (data) => {
         this.resultAnalysis = data;
-        this.communityExpandedState.set(this.resultAnalysis.defaultCommunity, false)
-        this.communityExpandedState.set(this.resultAnalysis.optimalCommunity, false)
-        this.communityExpandedState.set(this.resultAnalysis.wantedCommunity, false)
+        this.setupCommunities();
         this.buildAllCharts();
       },
       error: (err) => console.error(err)
     });
   }
 
-  toggleCommunity(community: SingleAnalysis) {
-    const currentState = this.communityExpandedState.get(community) || false;
-    this.communityExpandedState.set(community, !currentState);
+  setupCommunities() {
+    if (!this.resultAnalysis) return;
+
+    this.communities = [
+      {
+        community: this.resultAnalysis.defaultCommunity,
+        title: 'Default Community',
+        icon: 'fa-users',
+        iconColor: 'darkgreen',
+        showRemoved: false,
+        showLegend: false
+      },
+      {
+        community: this.resultAnalysis.optimalCommunity,
+        title: 'Optimal Community',
+        icon: 'fa-gem',
+        iconColor: 'darkgreen',
+        showRemoved: false,
+        showLegend: true
+      },
+      {
+        community: this.resultAnalysis.wantedCommunity,
+        title: 'Wanted Community',
+        icon: 'fa-heart',
+        iconColor: 'darkgreen',
+        showRemoved: true,
+        showLegend: true
+      }
+    ];
+  }
+
+  toggleCommunity(community: SingleAnalysis, el: HTMLElement) {
+    const expanded = this.isCommunityExpanded(community);
+    this.communityExpanded = expanded ? null : community;
+
+    if (!expanded) {
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 400);
+    }
   }
 
   isCommunityExpanded(community: SingleAnalysis): boolean {
-    return this.communityExpandedState.get(community) || false;
+    return this.communityExpanded == community;
   }
 
   isInRemovalList(member: any): boolean {
@@ -109,13 +171,20 @@ export class Analysis3 implements OnInit {
 
   buildOptConsProdProfCharts() {
     if (!this.resultAnalysis) return;
+
+
+    this.buildChartsForCommunity(this.resultAnalysis.defaultCommunity);
+    this.buildChartsForCommunity(this.resultAnalysis.optimalCommunity);
+    this.buildChartsForCommunity(this.resultAnalysis.wantedCommunity);
+  }
+
+  buildChartsForCommunity(community: SingleAnalysis) {
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
     const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'black', 'brown'];
-
     let datasetsConsumers: any[] = [];
     let datasetsProducers: any[] = [];
 
-    this.resultAnalysis.defaultCommunity.assignments.forEach((member, index) => {
+    community.assignments.forEach((member, index) => {
       const consumer = member.profiles.find(p => p.profileType === 'CONSUMER');
       const producer = member.profiles.find(p => p.profileType === 'PRODUCER');
 
@@ -125,7 +194,7 @@ export class Analysis3 implements OnInit {
           data: consumer.graph,
           borderColor: colors[index % colors.length],
           backgroundColor: 'transparent',
-          tension: 0.25
+          tension: 0.25,
         });
       }
 
@@ -133,216 +202,85 @@ export class Analysis3 implements OnInit {
         datasetsProducers.push({
           label: member.fullName,
           data: producer.graph,
-          borderColor: colors[(index + member.profiles.filter(p => p.profileType === 'PRODUCER').length) % colors.length],
+          borderColor: colors[(index + 4) % colors.length],
           backgroundColor: 'transparent',
-          tension: 0.25
+          tension: 0.25,
         });
       }
     });
 
-    this.optConsProfChart.set(this.resultAnalysis.defaultCommunity, { labels, datasets: datasetsConsumers });
-    this.optProdProfChart.set(this.resultAnalysis.defaultCommunity, { labels, datasets: datasetsProducers });
-
-    datasetsConsumers = [];
-    datasetsProducers = [];
-
-    this.resultAnalysis.optimalCommunity.assignments.forEach((member, index) => {
-      const consumer = member.profiles.find(p => p.profileType === 'CONSUMER');
-      const producer = member.profiles.find(p => p.profileType === 'PRODUCER');
-
-      if (consumer) {
-        datasetsConsumers.push({
-          label: member.fullName,
-          data: consumer.graph,
-          borderColor: colors[index % colors.length],
-          backgroundColor: 'transparent',
-          tension: 0.25
-        });
-      }
-
-      if (producer) {
-        datasetsProducers.push({
-          label: member.fullName,
-          data: producer.graph,
-          borderColor: colors[(index + member.profiles.filter(p => p.profileType === 'PRODUCER').length) % colors.length],
-          backgroundColor: 'transparent',
-          tension: 0.25
-        });
-      }
-    });
-
-    this.optConsProfChart.set(this.resultAnalysis.optimalCommunity, { labels, datasets: datasetsConsumers });
-    this.optProdProfChart.set(this.resultAnalysis.optimalCommunity, { labels, datasets: datasetsProducers });
-
-    datasetsConsumers = [];
-    datasetsProducers = [];
-
-    this.resultAnalysis.wantedCommunity.assignments.forEach((member, index) => {
-      const consumer = member.profiles.find(p => p.profileType === 'CONSUMER');
-      const producer = member.profiles.find(p => p.profileType === 'PRODUCER');
-
-      if (consumer) {
-        datasetsConsumers.push({
-          label: member.fullName,
-          data: consumer.graph,
-          borderColor: colors[index % colors.length],
-          backgroundColor: 'transparent',
-          tension: 0.25
-        });
-      }
-
-      if (producer) {
-        datasetsProducers.push({
-          label: member.fullName,
-          data: producer.graph,
-          borderColor: colors[(index + member.profiles.filter(p => p.profileType === 'PRODUCER').length) % colors.length],
-          backgroundColor: 'transparent',
-          tension: 0.25
-        });
-      }
-    });
-
-    this.optConsProfChart.set(this.resultAnalysis.wantedCommunity, { labels, datasets: datasetsConsumers });
-    this.optProdProfChart.set(this.resultAnalysis.wantedCommunity, { labels, datasets: datasetsProducers });
-
+    this.optConsProfChart.set(community, { labels, datasets: datasetsConsumers });
+    this.optProdProfChart.set(community, { labels, datasets: datasetsProducers });
   }
 
   buildTotalComparisonChart() {
     if (!this.resultAnalysis) return;
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
 
-    this.totalComparisonChart.set(this.resultAnalysis.defaultCommunity, {
-      labels,
-      datasets: [
-        {
-          label: 'Total Production',
-          data: this.resultAnalysis.defaultCommunity.totalProduction,
-          borderColor: 'red',
-          backgroundColor: 'transparent',
-          tension: 0.25,
-        },
-        {
-          label: 'Total Consumption',
-          data: this.resultAnalysis.defaultCommunity.totalConsumption,
-          borderColor: 'green',
-          backgroundColor: 'transparent',
-          tension: 0.25,
-        }
-      ]
-    });
+    const buildChart = (community: SingleAnalysis) => {
+      this.totalComparisonChart.set(community, {
+        labels,
+        datasets: [
+          {
+            label: 'Total Production',
+            data: community.totalProduction,
+            borderColor: 'red',
+            backgroundColor: 'transparent',
+            tension: 0.25,
+          },
+          {
+            label: 'Total Consumption',
+            data: community.totalConsumption,
+            borderColor: 'green',
+            backgroundColor: 'transparent',
+            tension: 0.25,
+          }
+        ]
+      });
+    };
 
-    this.totalComparisonChart.set(this.resultAnalysis.optimalCommunity, {
-      labels,
-      datasets: [
-        {
-          label: 'Total Production',
-          data: this.resultAnalysis.optimalCommunity.totalProduction,
-          borderColor: 'red',
-          backgroundColor: 'transparent',
-          tension: 0.25,
-        },
-        {
-          label: 'Total Consumption',
-          data: this.resultAnalysis.optimalCommunity.totalConsumption,
-          borderColor: 'green',
-          backgroundColor: 'transparent',
-          tension: 0.25,
-        }
-      ]
-    });
-
-    this.totalComparisonChart.set(this.resultAnalysis.wantedCommunity, {
-      labels,
-      datasets: [
-        {
-          label: 'Total Production',
-          data: this.resultAnalysis.wantedCommunity.totalProduction,
-          borderColor: 'red',
-          backgroundColor: 'transparent',
-          tension: 0.25,
-        },
-        {
-          label: 'Total Consumption',
-          data: this.resultAnalysis.wantedCommunity.totalConsumption,
-          borderColor: 'green',
-          backgroundColor: 'transparent',
-          tension: 0.25,
-        }
-      ]
-    });
+    buildChart(this.resultAnalysis.defaultCommunity);
+    buildChart(this.resultAnalysis.optimalCommunity);
+    buildChart(this.resultAnalysis.wantedCommunity);
   }
 
   buildKpiChart() {
     if (!this.resultAnalysis) return;
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
 
-    this.kpiChart.set(this.resultAnalysis.defaultCommunity, {
-      labels,
-      datasets: [
-        {
-          label: 'Shared Energy (KPI1)',
-          data: this.resultAnalysis.defaultCommunity.kpi1,
-          borderColor: 'blue',
-          backgroundColor: 'transparent',
-          tension: 0.25,
-        },
-        {
-          label: 'Self-Sufficiency (KPI2)',
-          data: this.resultAnalysis.defaultCommunity.kpi2,
-          borderColor: 'yellow',
-          backgroundColor: 'transparent',
-          tension: 0.25,
-        }
-      ]
-    });
+    const buildChart = (community: SingleAnalysis) => {
+      this.kpiChart.set(community, {
+        labels,
+        datasets: [
+          {
+            label: 'Shared Energy',
+            data: community.kpi1,
+            borderColor: 'blue',
+            backgroundColor: 'transparent',
+            tension: 0.25,
+          },
+          {
+            label: 'Self-Sufficiency',
+            data: community.kpi2,
+            borderColor: 'orange',
+            backgroundColor: 'transparent',
+            tension: 0.25,
+          }
+        ]
+      });
+    };
 
-    this.kpiChart.set(this.resultAnalysis.optimalCommunity, {
-      labels,
-      datasets: [
-        {
-          label: 'Shared Energy (KPI1)',
-          data: this.resultAnalysis.optimalCommunity.kpi1,
-          borderColor: 'blue',
-          backgroundColor: 'transparent',
-          tension: 0.25,
-        },
-        {
-          label: 'Self-Sufficiency (KPI2)',
-          data: this.resultAnalysis.optimalCommunity.kpi2,
-          borderColor: 'yellow',
-          backgroundColor: 'transparent',
-          tension: 0.25,
-        }
-      ]
-    });
-    this.kpiChart.set(this.resultAnalysis.wantedCommunity, {
-      labels,
-      datasets: [
-        {
-          label: 'Shared Energy (KPI1)',
-          data: this.resultAnalysis.wantedCommunity.kpi1,
-          borderColor: 'blue',
-          backgroundColor: 'transparent',
-          tension: 0.25,
-        },
-        {
-          label: 'Self-Sufficiency (KPI2)',
-          data: this.resultAnalysis.wantedCommunity.kpi2,
-          borderColor: 'yellow',
-          backgroundColor: 'transparent',
-          tension: 0.25,
-        }
-      ]
-    });
+    buildChart(this.resultAnalysis.defaultCommunity);
+    buildChart(this.resultAnalysis.optimalCommunity);
+    buildChart(this.resultAnalysis.wantedCommunity);
   }
 
-  getMemberTypeLabel(member: MemberDetail): string {
-    const hasProducer = member.profiles.some(p => p.profileType === 'PRODUCER');
-    const hasConsumer = member.profiles.some(p => p.profileType === 'CONSUMER');
+  getAvatarClass(member: any, showLegend: boolean): string {
+    if (!showLegend) return 'default-avatar';
 
-    if (hasProducer && hasConsumer) return 'Prosumer';
-    if (hasProducer) return 'Producer';
-    return 'Consumer';
+    if (this.isInRemovalList(member)) return 'to-remove';
+    if (this.isInAdditionList(member)) return 'to-add';
+    return 'default-avatar';
   }
 }
 

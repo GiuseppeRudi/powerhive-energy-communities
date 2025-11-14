@@ -10,7 +10,7 @@ import { EnergyChartComponent } from '../energy-chart/energy-chart';
 import { GenerationLoader } from '../generation-loader/generation-loader';
 import { FormsModule } from '@angular/forms';
 import {AnalysisService} from '../../services/analysis.service';
-import {Analysi3Request} from '../../model/analysis/Analysis3Request';
+import {Analysis3Request} from '../../model/analysis/Analysis3Request';
 
 @Component({
   selector: 'app-choose-analysis3',
@@ -185,8 +185,8 @@ export class ChooseAnalysis3 implements OnInit {
 
   startAnalysis3(){
 
-    const analysis3Request: Analysi3Request = {
-      members: this.members,
+    const analysis3Request: Analysis3Request = {
+      members: this.members.filter(member => this.communityMembers.includes(member.id)),
       wantToAdd: this.wantToAdd,
       wantToRemove: this.wantToRemove
     };

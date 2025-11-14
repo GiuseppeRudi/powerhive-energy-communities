@@ -12,7 +12,7 @@ import {HistorySummary} from '../../model/history/HistorySummary';
 import {FormsModule} from '@angular/forms';
 import {ResultAnalysis_3} from '../../model/analysis/ResultAnalysis_3';
 import {SingleAnalysis} from '../../model/analysis/SingleAnalysis';
-import {Analysi3Request} from '../../model/analysis/Analysis3Request';
+import {Analysis3Request} from '../../model/analysis/Analysis3Request';
 
 interface CommunityData {
   community: SingleAnalysis;
@@ -98,7 +98,7 @@ export class Analysis3 implements OnInit {
   removedMembers: MemberDetail[] = [];
   wantToAdd: number[] | undefined;
   addedMembers: MemberDetail[] = [];
-  analysis3Request: Analysi3Request | undefined = undefined ;
+  analysis3Request: Analysis3Request | undefined = undefined ;
 
   ngOnInit() {
 
@@ -302,11 +302,11 @@ export class Analysis3 implements OnInit {
   }
 
   getAvatarClass(memberId: any, showLegend: boolean): string {
-    if (!showLegend) return 'default-avatar';
+    if (!showLegend) return 'avatar';
 
     if (this.isInRemovalList(memberId)) return 'to-remove';
     if (this.isInAdditionList(memberId)) return 'to-add';
-    return 'default-avatar';
+    return 'avatar';
   }
 }
 

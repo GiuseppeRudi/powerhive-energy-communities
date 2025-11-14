@@ -112,16 +112,36 @@
   margin-bottom: 0.5rem;
 }
 
-.default-avatar {
+.avatar {
   background-color: #ddd;
 }
 
 .to-remove {
-  background-color: #e53935;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  background-color: rgba(229, 57, 53, 0.3);
 }
 
 .to-add {
-  background-color: #43a047;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  background-color: rgba(67, 160, 71, 0.3);
 }
 
 .community-initial-info {

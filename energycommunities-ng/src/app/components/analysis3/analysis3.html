@@ -59,7 +59,9 @@
 
             <div class="communities-grid">
               <div class="community-initial-card" *ngFor="let m of communityData.community.assignments">
-                <div class="community-avatar" [ngClass]="getAvatarClass(m.id, communityData.showLegend)">
+                <div class="to-add" *ngIf="isInAdditionList(m.id)"></div>
+                <div class="to-remove" *ngIf="isInRemovalList(m.id)"></div>
+                <div class="community-avatar" [ngClass]="'avatar'">
                   {{ m.fullName[0] }}
                 </div>
                 <div class="community-initial-info">

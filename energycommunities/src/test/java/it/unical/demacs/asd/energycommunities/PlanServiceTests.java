@@ -29,7 +29,22 @@ import it.unical.demacs.asd.energycommunities.data.entities.Plan;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
 import it.unical.demacs.asd.energycommunities.data.services.implementation.PlanServiceImpl;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
-import it.unical.demacs.asd.energycommunities.dto.user.PlanDto;
+import it.unical.demacs.asd.energycommunities.dto.plan.PlanSummaryDto;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.doNothing;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.naming.NameNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.web.server.ResponseStatusException;
+
+import it.unical.demacs.asd.energycommunities.dto.ManualMemberDto;
+
 
 @ExtendWith(MockitoExtension.class)
 public class PlanServiceTests {
@@ -69,9 +84,9 @@ public class PlanServiceTests {
         when(userDao.findById(1L)).thenReturn(Optional.of(owner));
         when(planDao.findByUser(owner)).thenReturn(Optional.empty());
         when(userDao.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(modelMapper.map(any(Plan.class), eq(PlanDto.class))).thenReturn(new PlanDto());
+        when(modelMapper.map(any(Plan.class), eq(PlanSummaryDto.class))).thenReturn(new PlanSummaryDto());
 
-        PlanDto result = planService.upload(file, 1L);
+        PlanSummaryDto result = planService.upload(file, 1L);
 
         assertNotNull(result);
         verify(userDao, times(1)).findById(1L);
@@ -85,14 +100,14 @@ public class PlanServiceTests {
 
 
     @Test
-    void testGetPlanById() {
+    void testGetSummaryPlanById() {
         Plan plan = new Plan();
         plan.setId(1L);
 
         when(planDao.findById(1L)).thenReturn(Optional.of(plan));
-        when(modelMapper.map(plan, PlanDto.class)).thenReturn(new PlanDto());
+        when(modelMapper.map(plan, PlanSummaryDto.class)).thenReturn(new PlanSummaryDto());
 
-        PlanDto result = planService.getPlanById(1L);
+        PlanSummaryDto result = planService.getSummaryPlanById(1L);
 
         assertNotNull(result);
         verify(planDao).findById(1L);
@@ -111,5 +126,150 @@ public class PlanServiceTests {
 
         assertNotNull(result);
         verify(memberDao).findByIdAndPlanId(10L, 1L);
+    }
+
+    @Test
+    void testAddMember_Success_NewMember() throws NameNotFoundException {
+        // ARRANGE
+        ManualMemberDto dto = new ManualMemberDto();
+        dto.setEmail("new.member@example.com");
+        dto.setFullName("New Member");
+        dto.setCategory("PRODUCER");
+        List<Integer> values = new ArrayList<>(Collections.nCopies(24, 10));
+        dto.setEnergyValues(values);
+
+        when(userDao.findById(1L)).thenReturn(Optional.of(owner));
+        when(planDao.findByUser(owner)).thenReturn(Optional.empty());
+        when(modelMapper.map(any(Member.class), eq(MemberDetailDto.class))).thenReturn(new MemberDetailDto());
+
+        MemberDetailDto result = planService.addMember(dto, 1L);
+
+        assertNotNull(result);
+        verify(userDao).findById(1L);
+        verify(planDao).findByUser(owner);
+        verify(planDao).save(any(Plan.class));
+        verify(modelMapper).map(any(Member.class), eq(MemberDetailDto.class));
+
+        assertNotNull(owner.getPlan());
+        assertEquals(1, owner.getPlan().getMembers().size());
+        assertEquals("new.member@example.com", owner.getPlan().getMembers().get(0).getEmail());
+        assertEquals(1, owner.getPlan().getMembers().get(0).getProfiles().size());
+        assertEquals(24, owner.getPlan().getMembers().get(0).getProfiles().get(0).getProfileGraph().getGraph().size());
+    }
+
+    @Test
+    void testAddMember_Fail_UserNotFound() {
+        ManualMemberDto dto = new ManualMemberDto();
+        when(userDao.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(NameNotFoundException.class, () -> {
+            planService.addMember(dto, 99L);
+        });
+
+        verify(userDao).findById(99L);
+        verify(planDao, never()).save(any());
+    }
+
+    @Test
+    void testAddMember_Fail_EmailConflict() {
+        ManualMemberDto dto = new ManualMemberDto();
+        dto.setEmail("existing.member@example.com");
+        dto.setFullName("NOME DIVERSO");
+        dto.setCategory("CONSUMER");
+        dto.setEnergyValues(new ArrayList<>(Collections.nCopies(24, 5)));
+
+        Member existingMember = new Member();
+        existingMember.setEmail("existing.member@example.com");
+        existingMember.setFullName("Nome Originale");
+
+        Plan existingPlan = new Plan();
+        existingPlan.setUser(owner);
+        existingPlan.setMembers(new ArrayList<>(List.of(existingMember)));
+
+        owner.setPlan(existingPlan);
+
+        when(userDao.findById(1L)).thenReturn(Optional.of(owner));
+        when(planDao.findByUser(owner)).thenReturn(Optional.of(existingPlan));
+
+        assertThrows(ResponseStatusException.class, () -> {
+            planService.addMember(dto, 1L);
+        });
+
+        verify(userDao).findById(1L);
+        verify(planDao).findByUser(owner);
+        verify(planDao, never()).save(any(Plan.class));
+    }
+
+    @Test
+    void testAddMember_Fail_InvalidEnergyValues() {
+        ManualMemberDto dto = new ManualMemberDto();
+        dto.setEmail("new.member@example.com");
+        dto.setFullName("New Member");
+        dto.setCategory("PRODUCER");
+        List<Integer> values = new ArrayList<>(Collections.nCopies(23, 10));
+        dto.setEnergyValues(values);
+
+        when(userDao.findById(1L)).thenReturn(Optional.of(owner));
+        when(planDao.findByUser(owner)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            planService.addMember(dto, 1L);
+        });
+
+        verify(userDao).findById(1L);
+        verify(planDao, never()).save(any(Plan.class));
+    }
+
+    @Test
+    void testDeleteMemberFromPlan_Success() throws NameNotFoundException {
+        Plan plan = new Plan();
+        plan.setId(5L);
+
+        Member member = new Member();
+        member.setId(10L);
+        member.setPlan(plan);
+
+        owner.setPlan(plan);
+
+        when(userDao.findById(1L)).thenReturn(Optional.of(owner));
+        when(memberDao.findByIdAndPlanId(10L, 5L)).thenReturn(Optional.of(member));
+        doNothing().when(memberDao).delete(any(Member.class));
+
+        planService.deleteMemberFromPlan(10L, 1L);
+
+        verify(userDao).findById(1L);
+        verify(memberDao).findByIdAndPlanId(10L, 5L);
+        verify(memberDao, times(1)).delete(member);
+    }
+
+    @Test
+    void testDeleteMemberFromPlan_Fail_PlanNotFound() {
+        when(userDao.findById(1L)).thenReturn(Optional.of(owner));
+
+        assertThrows(EntityNotFoundException.class, () -> {
+            planService.deleteMemberFromPlan(10L, 1L);
+        });
+
+        verify(userDao).findById(1L);
+        verify(memberDao, never()).findByIdAndPlanId(any(), any());
+        verify(memberDao, never()).delete(any());
+    }
+
+    @Test
+    void testDeleteMemberFromPlan_Fail_MemberNotFound() {
+        Plan plan = new Plan();
+        plan.setId(5L);
+        owner.setPlan(plan);
+
+        when(userDao.findById(1L)).thenReturn(Optional.of(owner));
+        when(memberDao.findByIdAndPlanId(99L, 5L)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> {
+            planService.deleteMemberFromPlan(99L, 1L);
+        });
+
+        verify(userDao).findById(1L);
+        verify(memberDao).findByIdAndPlanId(99L, 5L);
+        verify(memberDao, never()).delete(any());
     }
 }

@@ -8,10 +8,8 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class ResultAnalysis_2Dto {
-    private List<MemberDetailDto> assignments;
-    List<Double> kpi1;
-    List<Double> kpi2;
-    List<Double> totalConsumption;
-    List<Double> totalProduction;
+public class ResultAnalysis3Dto {
+    SingleAnalysis optimalCommunity;
+    SingleAnalysis defaultCommunity;
+    SingleAnalysis wantedCommunity;
 }

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { PlanService} from '../../services/plan.service';
 import { AuthService} from '../../services/auth/auth.service';
 import {User} from '../../model/User';
-import {Plan} from '../../model/plan/Plan';
+import {PlanSummary} from '../../model/plan/PlanSummary';
 
 @Component({
   selector: 'app-csv',

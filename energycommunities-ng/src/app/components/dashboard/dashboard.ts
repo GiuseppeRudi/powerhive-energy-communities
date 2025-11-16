@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import {PlanService} from '../../services/plan.service';
 import { User } from '../../model/User';
-import { Plan} from '../../model/plan/Plan';
+import { PlanSummary} from '../../model/plan/PlanSummary';
 import { AuthService} from '../../services/auth/auth.service';
 
 @Component({
@@ -14,7 +14,7 @@ import { AuthService} from '../../services/auth/auth.service';
   styleUrl: '../welcome/welcome.css'
 })
 export class Dashboard implements OnInit {
-  plan?: Plan;
+  plan?: PlanSummary;
   currentUser : User | null = null;
 
 
@@ -25,9 +25,11 @@ export class Dashboard implements OnInit {
 
     this.authService.user$.subscribe(user => this.currentUser = user);
 
+
+    console.log(this.currentUser);
     if(this.currentUser?.plan_id != null) {
-      this.planService.getPlan(this.currentUser.plan_id).subscribe({
-          next: (plan: Plan) => {
+      this.planService.getSummaryPlan(this.currentUser.plan_id).subscribe({
+          next: (plan: PlanSummary) => {
             this.plan = plan;
             console.log(this.plan);
 

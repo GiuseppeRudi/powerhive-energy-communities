@@ -46,8 +46,10 @@ public class UserController {
     public ResponseEntity<UserDto> login(@RequestBody LoginDto loginDto, HttpServletRequest request) {
         UserDto user = userService.login(loginDto.getUsername(), loginDto.getPassword());
 
+
         if (user != null) {
             request.getSession(true);
+            System.out.println(user);
             return ResponseEntity.ok(user);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

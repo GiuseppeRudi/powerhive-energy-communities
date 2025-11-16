@@ -1,6 +1,6 @@
 import {MemberSummary} from '../member/MemberSummary';
 
-export interface Plan {
+export interface PlanSummary {
   id: number;
   members: MemberSummary[];
 }

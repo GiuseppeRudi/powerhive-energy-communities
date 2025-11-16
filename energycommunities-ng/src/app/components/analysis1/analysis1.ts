@@ -72,11 +72,13 @@ export class Analysis1 implements OnInit {
   @Input() historyId?: number;
 
   ngOnInit() {
-
     this.route.queryParams.subscribe(params => {
-      const historyId = +params['historyId']; // il + converte in number
+      const historyId = +params['historyId'];
+      const memberIdsParam = params['memberIds'];
+
       if (historyId) {
-        this.typeAnalisys = 1 ; // nel caso in cui è una history
+        // Caricamento da history (come prima)
+        this.typeAnalisys = 1;
         this.historyService.getHistoryById(historyId).subscribe({
           next: history => {
             this.history = history;
@@ -87,18 +89,38 @@ export class Analysis1 implements OnInit {
           error: err => console.error('Errore caricamento history:', err)
         });
       } else {
-        this.typeAnalisys = 0 ; // nel caso in cui è una nuova analisi
-        this.analysisService.getResultAnalysis_1().subscribe({
-          next: (data) => {
-            this.resultAnalysis = data;
-            this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
-            this.buildAllCharts();
-          },
-          error: (err) => console.error(err)
-        });
+        // Nuova analisi
+        this.typeAnalisys = 0;
+
+        // Se ci sono memberIds nei query params, passali al backend
+        if (memberIdsParam) {
+          const memberIds = memberIdsParam.split(',').map((id: string) => +id);
+          console.log('Running analysis with member IDs:', memberIds);
+
+          // Chiama il servizio con i memberIds
+          this.analysisService.getResultAnalysis_1(memberIds).subscribe({
+            next: (data) => {
+              this.resultAnalysis = data;
+              this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+              this.buildAllCharts();
+            },
+            error: (err) => console.error(err)
+          });
+        } else {
+          // Fallback: analisi con tutti i membri
+          this.analysisService.getResultAnalysis_1().subscribe({
+            next: (data) => {
+              this.resultAnalysis = data;
+              this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+              this.buildAllCharts();
+            },
+            error: (err) => console.error(err)
+          });
+        }
       }
     });
   }
+
 
   toggleMember(memberId: number) {
     const currentState = this.memberExpandedState.get(memberId) || false;
@@ -224,7 +246,7 @@ export class Analysis1 implements OnInit {
         {
           label: 'Self-Sufficiency (KPI2)',
           data: this.resultAnalysis.kpi2,
-          borderColor: 'yellow',
+          borderColor: 'orange',
           backgroundColor: 'transparent',
           tension: 0.25,
         }

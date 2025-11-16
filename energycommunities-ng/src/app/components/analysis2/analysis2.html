@@ -208,23 +208,7 @@
       </div>
     </div>
 
-    <!-- Optimization Insights -->
-    <div class="chart-section-divided">
-      <h2 class="section-title">Optimization Insights</h2>
-      <div *ngIf="isLoading" class="loading-container">
-        <app-generation-loader></app-generation-loader>
-      </div>
 
-      <ul class="insight-list" *ngIf="!isLoading && insights && insights.length > 0">
-        <li *ngFor="let i of insights">
-          <i class="fa-solid fa-lightbulb"></i> {{ i }}
-        </li>
-      </ul>
-
-      <div *ngIf="!isLoading && (!insights || insights.length === 0)">
-        <p>Click on "Generate optimal community" to view optimization insights.</p>
-      </div>
-    </div>
   </div>
 
 </div>

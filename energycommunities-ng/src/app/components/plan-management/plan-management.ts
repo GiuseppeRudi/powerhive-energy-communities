@@ -52,15 +52,32 @@ export class PlanManagement implements OnInit {
   memberToDelete: { id: number, fullName: string } | null = null;
 
   ngOnInit() {
-    this.authService.user$.subscribe(user => {
-      this.currentUser = user;
-      if (this.currentUser) {
-        this.ownerId = this.currentUser.id;
-        if (this.currentUser.plan_id) {
-          this.loadPlan(this.currentUser.plan_id);
-        }
+
+    const userJson = sessionStorage.getItem('currentUser');
+    if (!userJson) {
+      console.log('Nessun utente loggato');
+      return;
+    }
+
+    this.currentUser = JSON.parse(userJson);
+
+    if (this.currentUser) {
+      this.ownerId = this.currentUser.id;
+      if (this.currentUser.plan_id) {
+        this.loadPlan(this.currentUser.plan_id);
       }
-    });
+    }
+
+    // this.authService.user$.subscribe(user => {
+    //   this.currentUser = user;
+    //   console.log(user);
+    //   if (this.currentUser) {
+    //     this.ownerId = this.currentUser.id;
+    //     if (this.currentUser.plan_id) {
+    //       this.loadPlan(this.currentUser.plan_id);
+    //     }
+    //   }
+    // });
   }
 
   loadPlan(planId: number): void {
@@ -171,9 +188,10 @@ export class PlanManagement implements OnInit {
         console.log('Member saved:', res);
         this.resetForm();
 
-        this.loadPlan(this.ownerId);
-
-        this.authService.setUserField('plan_id', this.ownerId);
+        if(this.currentUser?.plan_id){
+          this.loadPlan(this.currentUser?.plan_id);
+          this.authService.setUserField('plan_id', this.currentUser?.plan_id);
+        }
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage = `Conflict: The email ${this.memberEmail} is already associated with an account. Update the member with new production/consumption profiles.`;
@@ -246,7 +264,10 @@ export class PlanManagement implements OnInit {
         this.successMessage = 'Member successfully deleted!';
 
         if (typeof this.loadPlan === 'function') {
-          this.loadPlan(this.ownerId);
+          if(this.currentUser?.plan_id){
+            this.loadPlan(this.currentUser?.plan_id);
+
+          }
         } else {
           console.warn('Method loadPlan() not found. The table will not update automatically.');
         }

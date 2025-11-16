@@ -213,9 +213,11 @@ public class ASPService {
                 }
 
 
+                MemberDetailDto member = members.stream()
+                        .filter(p -> p.getId().equals(memberId))
+                        .findFirst()
+                        .orElse(null);
 
-
-                MemberDetailDto member = members.get((int) (memberId - 1));
                 memberDto.setFullName(member.getFullName());
                 memberDto.setMemberType(member.getMemberType());
 

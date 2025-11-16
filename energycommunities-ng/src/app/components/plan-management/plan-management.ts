@@ -165,6 +165,12 @@ export class PlanManagement implements OnInit {
       energyValues: energyValuesArray
     };
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!this.memberEmail || !emailRegex.test(this.memberEmail)) {
+      this.errorMessage = 'Errore: Inserisci un indirizzo email valido.';
+      return; // Blocca l'esecuzione
+    }
+
     this.planService.addMemberToPlan(memberData, this.ownerId).subscribe({
       next: (res) => {
         this.successMessage = `Member "${res.fullName}" saved/updated successfully!`;

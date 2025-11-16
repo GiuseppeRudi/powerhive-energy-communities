@@ -7,5 +7,6 @@ export interface MemberDetail {
   email: string;
   memberType: MemberType;
   profiles : Profile[];
+  plan_id: number;
 }
 

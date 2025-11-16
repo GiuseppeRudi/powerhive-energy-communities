@@ -180,7 +180,10 @@ public class PlanServiceImpl implements PlanService {
 
         planDao.save(plan);
 
-        return modelMapper.map(member, MemberDetailDto.class);
+        MemberDetailDto dto = modelMapper.map(member, MemberDetailDto.class);
+        dto.setPlanId(plan.getId());
+
+        return dto;
     }
     @Override
     public PlanSummaryDto getSummaryPlanById(Long planId) {

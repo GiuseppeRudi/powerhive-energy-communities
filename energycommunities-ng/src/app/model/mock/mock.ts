@@ -109,7 +109,8 @@ export const member1: MemberDetail = {
   fullName: 'Mario Rossi',
   memberType: 'PROSUMER',
   email: 'aa@gmail.com',
-  profiles: [profile1, profile2]
+  profiles: [profile1, profile2],
+  plan_id: 1
 };
 
 export const member2: MemberDetail = {
@@ -117,7 +118,8 @@ export const member2: MemberDetail = {
   fullName: 'Luigi Bianchi',
   memberType: 'CONSUMER',
   email: 'ab@gmail.com',
-  profiles: [profile2]
+  profiles: [profile2],
+  plan_id: 1
 };
 
 export const member3: MemberDetail = {
@@ -125,7 +127,8 @@ export const member3: MemberDetail = {
   fullName: 'Anna Verdi',
   memberType: 'PRODUCER',
   email: 'ac@gmail.com',
-  profiles: [profile3]
+  profiles: [profile3],
+  plan_id: 1
 };
 
 export const member4: MemberDetail = {
@@ -133,7 +136,8 @@ export const member4: MemberDetail = {
   fullName: 'Giuseppe Neri',
   memberType: 'PROSUMER',
   email: 'ad@gmail.com',
-  profiles: [profile3, profile4]
+  profiles: [profile3, profile4],
+  plan_id: 1
 };
 
 export const member5: MemberDetail = {
@@ -141,7 +145,8 @@ export const member5: MemberDetail = {
   fullName: 'Francesca Gialli',
   memberType: 'CONSUMER',
   email: 'ae@gmail.com',
-  profiles: [profile5]
+  profiles: [profile5],
+  plan_id: 1
 };
 
 export const member6: MemberDetail = {
@@ -149,7 +154,8 @@ export const member6: MemberDetail = {
   fullName: 'Roberto Marroni',
   memberType: 'PRODUCER',
   email: 'af@gmail.com',
-  profiles: [profile6]
+  profiles: [profile6],
+  plan_id: 1
 };
 
 export const member7: MemberDetail = {
@@ -157,7 +163,8 @@ export const member7: MemberDetail = {
   fullName: 'Silvia Viola',
   memberType: 'PROSUMER',
   email: 'ag@gmail.com',
-  profiles: [profile6, profile7]
+  profiles: [profile6, profile7],
+  plan_id: 1
 };
 
 export const member8: MemberDetail = {
@@ -165,7 +172,8 @@ export const member8: MemberDetail = {
   fullName: 'Andrea Arancioni',
   memberType: 'PROSUMER',
   email: 'ah@gmail.com',
-  profiles: [profile8, profile9]
+  profiles: [profile8, profile9],
+  plan_id: 1
 };
 
 export const member9: MemberDetail = {
@@ -173,7 +181,8 @@ export const member9: MemberDetail = {
   fullName: 'Paolo Bianchi',
   memberType: 'CONSUMER',
   email: 'ai@gmail.com',
-  profiles: [profile7]
+  profiles: [profile7],
+  plan_id: 1
 };
 
 export const member10: MemberDetail = {
@@ -181,7 +190,8 @@ export const member10: MemberDetail = {
   fullName: 'Elena Neri',
   memberType: 'PRODUCER',
   email: 'al@gmail.com',
-  profiles: [profile10]
+  profiles: [profile10],
+  plan_id: 1
 };
 
 export const member11: MemberDetail = {
@@ -189,7 +199,8 @@ export const member11: MemberDetail = {
   fullName: 'Davide Azzurri',
   memberType: 'PROSUMER',
   email: 'am@gmail.com',
-  profiles: [profile10, profile5]
+  profiles: [profile10, profile5],
+  plan_id: 1
 };
 
 export const member12: MemberDetail = {
@@ -197,7 +208,8 @@ export const member12: MemberDetail = {
   fullName: 'Chiara Rosa',
   memberType: 'CONSUMER',
   email: 'an@gmail.com',
-  profiles: [profile9]
+  profiles: [profile9],
+  plan_id: 1
 };
 
 export const mockPlan: PlanDetail = {

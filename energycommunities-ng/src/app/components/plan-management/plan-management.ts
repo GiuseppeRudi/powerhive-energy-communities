@@ -52,32 +52,15 @@ export class PlanManagement implements OnInit {
   memberToDelete: { id: number, fullName: string } | null = null;
 
   ngOnInit() {
-
-    const userJson = sessionStorage.getItem('currentUser');
-    if (!userJson) {
-      console.log('Nessun utente loggato');
-      return;
-    }
-
-    this.currentUser = JSON.parse(userJson);
-
-    if (this.currentUser) {
-      this.ownerId = this.currentUser.id;
-      if (this.currentUser.plan_id) {
-        this.loadPlan(this.currentUser.plan_id);
+    this.authService.user$.subscribe(user => {
+      this.currentUser = user;
+      if (this.currentUser) {
+        this.ownerId = this.currentUser.id;
+        if (this.currentUser.plan_id) {
+          this.loadPlan(this.currentUser.plan_id);
+        }
       }
-    }
-
-    // this.authService.user$.subscribe(user => {
-    //   this.currentUser = user;
-    //   console.log(user);
-    //   if (this.currentUser) {
-    //     this.ownerId = this.currentUser.id;
-    //     if (this.currentUser.plan_id) {
-    //       this.loadPlan(this.currentUser.plan_id);
-    //     }
-    //   }
-    // });
+    });
   }
 
   loadPlan(planId: number): void {
@@ -182,15 +165,35 @@ export class PlanManagement implements OnInit {
       energyValues: energyValuesArray
     };
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!this.memberEmail || !emailRegex.test(this.memberEmail)) {
+      this.errorMessage = 'Errore: Inserisci un indirizzo email valido.';
+      return; // Blocca l'esecuzione
+    }
+
     this.planService.addMemberToPlan(memberData, this.ownerId).subscribe({
       next: (res) => {
         this.successMessage = `Member "${res.fullName}" saved/updated successfully!`;
-        console.log('Member saved:', res);
+        console.log('Member saved, response from backend:', res);
         this.resetForm();
+        const planId = res.plan_id;
 
-        if(this.currentUser?.plan_id){
-          this.loadPlan(this.currentUser?.plan_id);
-          this.authService.setUserField('plan_id', this.currentUser?.plan_id);
+        if (planId) {
+          console.log("Sono qua (ID dalla risposta API):", planId);
+          this.authService.setUserField('plan_id', planId);
+          this.loadPlan(planId);
+          if (this.currentUser) {
+            this.currentUser.plan_id = planId;
+          }
+
+        } else {
+          if(this.currentUser?.plan_id) {
+            console.log("Sono qua (ID dallo stato corrente)");
+            this.loadPlan(this.currentUser.plan_id);
+          } else {
+            console.error("Membro salvato, ma nessun plan_id ricevuto o presente.");
+            this.errorMessage = "Member saved, but unable to reload plan. Please refresh the page.";
+          }
         }
       },
       error: (err: HttpErrorResponse) => {
@@ -262,11 +265,9 @@ export class PlanManagement implements OnInit {
     this.planService.deleteMemberFromPlan(memberId, this.ownerId).subscribe({
       next: () => {
         this.successMessage = 'Member successfully deleted!';
-
         if (typeof this.loadPlan === 'function') {
           if(this.currentUser?.plan_id){
-            this.loadPlan(this.currentUser?.plan_id);
-
+            this.loadPlan(this.currentUser.plan_id);
           }
         } else {
           console.warn('Method loadPlan() not found. The table will not update automatically.');

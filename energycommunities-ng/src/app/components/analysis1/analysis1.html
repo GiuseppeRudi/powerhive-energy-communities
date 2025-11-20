@@ -17,7 +17,8 @@
   <!-- Azioni solo se ci sono dati -->
   <app-analysis-actions
     [resultAnalysis]="resultAnalysis"
-    [typeAnalysis]="1"
+    [typeAnalysis]="typeAnalisys"
+    [history]="history"
     (terminated)="resetAnalysisData()"
   ></app-analysis-actions>
 

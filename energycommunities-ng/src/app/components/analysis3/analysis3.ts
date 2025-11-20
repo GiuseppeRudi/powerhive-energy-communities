@@ -13,6 +13,8 @@ import {FormsModule} from '@angular/forms';
 import {ResultAnalysis_3} from '../../model/analysis/ResultAnalysis_3';
 import {SingleAnalysis} from '../../model/analysis/SingleAnalysis';
 import {Analysis3Request} from '../../model/analysis/Analysis3Request';
+import {AnalysisActionsComponent} from '../analysis-save/analysis-save';
+import {ResultAnalysis_1} from '../../model/analysis/ResultAnalysis_1';
 
 interface CommunityData {
   community: SingleAnalysis;
@@ -27,7 +29,7 @@ interface CommunityData {
   selector: 'app-analisys3',
   templateUrl: './analysis3.html',
   standalone: true,
-  imports: [CommonModule, EnergyChartComponent, GenerationLoader, FormsModule],
+  imports: [CommonModule, EnergyChartComponent, GenerationLoader, FormsModule, AnalysisActionsComponent],
   styleUrls: ['./analysis3.css', '../analysis1/analysis1.css', '../welcome/welcome.css']
 })
 export class Analysis3 implements OnInit {
@@ -92,7 +94,8 @@ export class Analysis3 implements OnInit {
     private historyService: HistoryService
   ) {}
 
-  @Input() historyId?: number;
+  typeAnalysis : number = 3;
+  historyId: number | null  = null;
   members: MemberDetail[] | undefined;
   wantToRemove: number[] | undefined;
   removedMembers: MemberDetail[] = [];
@@ -100,40 +103,53 @@ export class Analysis3 implements OnInit {
   addedMembers: MemberDetail[] = [];
   analysis3Request: Analysis3Request | undefined = undefined ;
 
+
   ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      this.historyId = +params['historyId'];
 
-    this.analysis3Request = this.analysisService.getAnalysisResult()
+      if (this.historyId) {
+        // Caricamento da history (come prima)
+        this.historyService.getHistoryById(this.historyId).subscribe({
+          next: history => {
+            this.history = history;
+            this.resultAnalysis = history.analysisData as ResultAnalysis_3;
+            this.setupCommunities();
+            this.buildAllCharts();
+          },
+          error: err => console.error('Errore caricamento history:', err)
+        });
+      } else {
 
-    this.wantToRemove = this.analysis3Request?.wantToRemove;
-    this.wantToAdd = this.analysis3Request?.wantToAdd;
-    this.members = this.analysis3Request?.members;
+        this.analysis3Request = this.analysisService.getAnalysisResult()
+
+        this.wantToRemove = this.analysis3Request?.wantToRemove;
+        this.wantToAdd = this.analysis3Request?.wantToAdd;
+        this.members = this.analysis3Request?.members;
 
 
-    if (this.members && this.wantToRemove) {
-      this.removedMembers = this.wantToRemove
-        .map(id => this.members!.find(m => m.id === id))
-        .filter((m): m is MemberDetail => m !== undefined);
-    }
+        if (this.members && this.wantToRemove) {
+          this.removedMembers = this.wantToRemove
+            .map(id => this.members!.find(m => m.id === id))
+            .filter((m): m is MemberDetail => m !== undefined);
+        }
 
-    /*
-    if (this.members && this.wantToAdd) {
-      this.addedMembers = this.wantToAdd
-        .map(id => this.members!.find(m => m.id === id))
-        .filter((m): m is MemberDetail => m !== undefined);
-    }
-    */
 
-    if(this.members && this.members.length > 0 && this.wantToAdd  && this.wantToRemove) {
-      this.analysisService.getResultAnalysis_3(this.members,this.wantToAdd,this.wantToRemove).subscribe({
-        next: (data) => {
-          this.resultAnalysis = data;
-          this.setupCommunities();
-          this.buildAllCharts();
-        },
-        error: (err) => console.error(err)
-      });
-    }
+
+        if(this.members && this.members.length > 0 && this.wantToAdd  && this.wantToRemove) {
+          this.analysisService.getResultAnalysis_3(this.members,this.wantToAdd,this.wantToRemove).subscribe({
+            next: (data) => {
+              this.resultAnalysis = data;
+              this.setupCommunities();
+              this.buildAllCharts();
+            },
+            error: (err) => console.error(err)
+          });
+        }
+      }
+    });
   }
+
 
 
   setupCommunities() {
@@ -309,5 +325,28 @@ export class Analysis3 implements OnInit {
     if (this.isInAdditionList(memberId)) return 'to-add';
     return 'avatar';
   }
+
+  resetAnalysisData() {
+    // Pulisce tutti i dati dell’analisi
+    this.resultAnalysis = null;
+    this.history = undefined;
+    this.members = undefined;
+    this.wantToRemove = undefined;
+    this.wantToAdd = undefined;
+    this.removedMembers = [];
+    this.addedMembers = [];
+    this.analysis3Request = undefined;
+
+    // Pulisce le comunità e grafici
+    this.communities = [];
+    this.communityExpanded = null;
+
+    this.optConsProfChart.clear();
+    this.optProdProfChart.clear();
+    this.totalComparisonChart.clear();
+    this.kpiChart.clear();
+
+  }
+
 }
 

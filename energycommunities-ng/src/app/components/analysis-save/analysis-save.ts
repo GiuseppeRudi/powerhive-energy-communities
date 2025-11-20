@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, SimpleChanges, OnChanges } from '@angular/core';
+import {Component, Input, Output, EventEmitter, SimpleChanges, OnChanges, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {User} from '../../model/User';
 import {SaveAnalysisRequest} from '../../model/SaveAnalysisRequest';
@@ -14,12 +14,11 @@ import {HistorySummary} from '../../model/history/HistorySummary';
   imports: [FormsModule,
   CommonModule]
 })
-export class AnalysisActionsComponent {
+export class AnalysisActionsComponent implements OnInit {
 
   @Input() resultAnalysis: any | null = null;
   @Input() typeAnalysis: number = 0;
   @Input() history: HistorySummary | undefined = undefined ;
-
 
   @Output() terminated = new EventEmitter<void>();
 
@@ -30,6 +29,9 @@ export class AnalysisActionsComponent {
     private historyService : HistoryService
   ) {}
 
+  ngOnInit() {
+    console.log(this.history);
+  }
 
   onSave() {
     const userJson = sessionStorage.getItem('currentUser');
@@ -56,6 +58,7 @@ export class AnalysisActionsComponent {
       next: res => {
         console.log('Analisi salvata:', res);
         this.terminated.emit();
+        this.reset()
         this.router.navigate(['/dashboard']);
       },
       error: err => console.error('Errore nel salvataggio:', err)
@@ -64,6 +67,13 @@ export class AnalysisActionsComponent {
 
   onDiscard() {
     this.terminated.emit();
+    this.reset()
     this.router.navigate(['/dashboard']);
+  }
+
+  reset() {
+  this.resultAnalysis= null;
+  this.typeAnalysis = 0;
+  this.history= undefined ;
   }
 }

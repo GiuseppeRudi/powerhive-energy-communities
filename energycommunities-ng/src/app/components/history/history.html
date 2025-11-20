@@ -1,48 +1,46 @@
-<div class="content-div">
+<!-- Tabella History -->
+<div *ngIf="!loading && !error && historyList.length > 0">
 
-  <div class="header-with-button">
-    <h1>Analysis History</h1>
-    <button class="btn btn-csv" (click)="loadHistory()">Reload</button>
+  <!-- LEGENDA TYPE -->
+  <div class="legend-container">
+    <span class="legend-title">Legend:</span>
+
+    <div class="legend-list">
+      <div class="legend-item">
+        <span class="legend-badge">1</span>
+        <span>Profile Analysis</span>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-badge">2</span>
+        <span>Optimal Community Formation</span>
+      </div>
+
+      <div class="legend-item">
+        <span class="legend-badge">3</span>
+        <span>Community Adjustment Optimization</span>
+      </div>
+    </div>
   </div>
 
-  <!-- Stato di caricamento -->
-  <div *ngIf="loading" class="loading-container">
-    <p>Loading ...</p>
-  </div>
-
-  <!-- Stato di errore -->
-  <div *ngIf="error" class="error-container">
-    <p>{{ error }}</p>
-    <button class="btn" (click)="loadHistory()">Try again</button>
-  </div>
-
-  <!-- Stato vuoto -->
-  <div *ngIf="!loading && !error && historyList.length === 0" class="empty-state">
-    <p>Nothing to see.</p>
-  </div>
-
-  <!-- Tabella History -->
-  <div *ngIf="!loading && !error && historyList.length > 0">
-    <table class="members-table">
-      <thead>
-      <tr>
-        <th>Analysis Name</th>
-        <th>Type</th>
-        <th>Creation Date</th>
-        <th>Action</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let history of historyList">
-        <td>{{ history.name || ('Analisi #' + history.id) }}</td>
-        <td>{{ history.analysisNumber }}</td>
-        <td>{{ formatDate(history.createdAt) }}</td>
-        <td>
-          <button class="btn" (click)="viewAnalysis(history.id,history.analysisNumber)">Visualize</button>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
-
+  <table class="members-table">
+    <thead>
+    <tr>
+      <th>Analysis Name</th>
+      <th>Type</th>
+      <th>Creation Date</th>
+      <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let history of historyList">
+      <td>{{ history.name || ('Analisi #' + history.id) }}</td>
+      <td>{{ history.analysisNumber }}</td>
+      <td>{{ formatDate(history.createdAt) }}</td>
+      <td>
+        <button class="btn" (click)="viewAnalysis(history.id,history.analysisNumber)">Visualize</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
 </div>

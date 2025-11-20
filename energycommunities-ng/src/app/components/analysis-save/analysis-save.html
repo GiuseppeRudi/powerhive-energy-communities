@@ -19,7 +19,7 @@
 </div>
 
 
-<div *ngIf="resultAnalysis && history" class="analysis-actions">
+<div *ngIf="resultAnalysis!=null && history" class="analysis-actions">
   <h3>Analysis Information</h3>
   <div class="analysis-summary">
     <p><strong>Analysis Name:</strong> {{ history?.name }}</p>

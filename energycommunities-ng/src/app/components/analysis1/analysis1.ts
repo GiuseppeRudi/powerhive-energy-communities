@@ -26,7 +26,7 @@ import {AnalysisActionsComponent} from '../analysis-save/analysis-save';
 export class Analysis1 implements OnInit {
 
   history : HistorySummary | undefined = undefined ;
-  typeAnalisys : number | null = null;
+  typeAnalisys : number = 1
   resultAnalysis: ResultAnalysis_1 | null = null;
   memberExpandedState: Map<number, boolean> = new Map();
   chartDataMap: Map<number, ChartData<'line'>> = new Map();
@@ -69,7 +69,6 @@ export class Analysis1 implements OnInit {
     private historyService: HistoryService
   ) {}
 
-  @Input() historyId?: number;
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -78,7 +77,6 @@ export class Analysis1 implements OnInit {
 
       if (historyId) {
         // Caricamento da history (come prima)
-        this.typeAnalisys = 1;
         this.historyService.getHistoryById(historyId).subscribe({
           next: history => {
             this.history = history;
@@ -89,9 +87,6 @@ export class Analysis1 implements OnInit {
           error: err => console.error('Errore caricamento history:', err)
         });
       } else {
-        // Nuova analisi
-        this.typeAnalisys = 0;
-
         // Se ci sono memberIds nei query params, passali al backend
         if (memberIdsParam) {
           const memberIds = memberIdsParam.split(',').map((id: string) => +id);
@@ -99,16 +94,6 @@ export class Analysis1 implements OnInit {
 
           // Chiama il servizio con i memberIds
           this.analysisService.getResultAnalysis_1(memberIds).subscribe({
-            next: (data) => {
-              this.resultAnalysis = data;
-              this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
-              this.buildAllCharts();
-            },
-            error: (err) => console.error(err)
-          });
-        } else {
-          // Fallback: analisi con tutti i membri
-          this.analysisService.getResultAnalysis_1().subscribe({
             next: (data) => {
               this.resultAnalysis = data;
               this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));

@@ -1,0 +1,61 @@
+/* LEGEND STYLES */
+.legend-container {
+  max-width: 900px;
+  margin: 1.5rem auto 1rem auto;;
+  padding: 0.9rem 1.4rem;
+  background: #ffffff;
+  border-radius: 0.9rem;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+.legend-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #0c751b;
+  margin-top: 0.2rem;
+  white-space: nowrap;
+}
+
+.legend-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.4rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #333333;
+}
+
+.legend-badge {
+  min-width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #ffffff;
+  background: linear-gradient(135deg, #0c751b, #0a5f16);
+  box-shadow: 0 4px 10px rgba(12, 117, 27, 0.35);
+}
+
+/* Responsive legend */
+@media (max-width: 768px) {
+  .legend-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .legend-title {
+    margin-bottom: 0.2rem;
+  }
+}

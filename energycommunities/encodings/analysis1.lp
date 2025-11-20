@@ -1,12 +1,12 @@
-% member(MemberId,PlanId,MemberType)
+% member(MemberId,MemberType)
 % profile(ProfileId,MemberId,ProfileType)
 % profileGraph(MemberId,ProfileId,Hour,Value)
 
-time(T) :- profileGraph(_,_,T,_).
+time(0..23).
 
 % Profile Assignment
-{ assign(M,P) : profile(P,M,consumer) } = 1 :- member(M,_,MT), MT != producer.
-{ assign(M,P) : profile(P,M,producer) } = 1 :- member(M,_,MT), MT != consumer.
+{ assign(M,P) : profile(P,M,consumer) } = 1 :- member(M,MT), MT != producer.
+{ assign(M,P) : profile(P,M,producer) } = 1 :- member(M,MT), MT != consumer.
 
 consumers_consumption_per_hour(T,V) :-
     time(T),
@@ -21,22 +21,19 @@ energy_snapshot(T,B,A-B) :- consumers_consumption_per_hour(T,A), producers_produ
 
 max_gap(K) :- K = #max{0; Z : energy_snapshot(_,_,Z)}.
 
-surplus_energy_per_member(M,T,Value2-Value1) :-
-    assign(M,P1), assign(M,P2), P1<P2,
-    profileGraph(M,P1,T,Value1),
-    profileGraph(M,P2,T,Value2),
-    Value1<=Value2.
-surplus_energy_per_member(M,T,Value1-Value2) :-
-    assign(M,P1), assign(M,P2), P1<P2,
-    profileGraph(M,P1,T,Value1),
-    profileGraph(M,P2,T,Value2),
-    Value1>Value2.
+surplus_energy_per_member(M,T,S) :-
+    assign(M,P1), assign(M,P2),
+    profile(P1,M,producer),
+    profile(P2,M,consumer),
+    profileGraph(M,P1,T,V1),
+    profileGraph(M,P2,T,V2),
+    S = abs(V2 - V1).
 
 % vincoli deboli per minimizzare gap
 :~ max_gap(K). [K@4] % minimizza il gap maggiore
 :~ energy_snapshot(T,_,K). [K@3,T] % minimizza il bilancio totale (efficienza)
 :~ producers_production_per_hour(T,P), consumers_consumption_per_hour(T,C). [C-P@2,T]
-:~ surplus_energy_per_member(M,T,S). [S@1,M,T] % massimizzare l'autoconsumo
+:~ surplus_energy_per_member(M,T,abs(S)). [S@1,M,T] % massimizzare l'autoconsumo
 
 
 % misura quanta parte dell’energia prodotta viene effettivamente usata (0–100%)
@@ -50,5 +47,6 @@ surplus_energy_per_member(M,T,Value1-Value2) :-
 %#show consumers_consumption_per_hour/2.
 %#show producers_production_per_hour/2.
 %#show energy_snapshot/3.
+%#show surplus_energy_per_member/3.
 #show kpi_1/2.
 #show kpi_2/2.

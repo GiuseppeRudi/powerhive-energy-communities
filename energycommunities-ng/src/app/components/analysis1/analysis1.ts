@@ -14,6 +14,7 @@ import { SaveAnalysisRequest } from '../../model/SaveAnalysisRequest';
 import {HistoryDetail} from '../../model/history/HistoryDetail';
 import {HistorySummary} from '../../model/history/HistorySummary';
 import {FormsModule} from '@angular/forms';
+import {ClingoEventsService} from '../../services/clingo-events.service';
 
 @Component({
   selector: 'app-analisys1',
@@ -61,12 +62,16 @@ export class Analysis1 implements OnInit {
     }
   };
 
+  statusMessage = "Starting...";
+  statusWarning: boolean = false;
+
   constructor(
     private router: Router,
     private route : ActivatedRoute,
     private analysisService: AnalysisService,
     private authService: AuthService,
-    private historyService: HistoryService
+    private historyService: HistoryService,
+    private clingoEvents: ClingoEventsService
   ) {}
 
   @Input() historyId?: number;
@@ -89,6 +94,18 @@ export class Analysis1 implements OnInit {
           error: err => console.error('Errore caricamento history:', err)
         });
       } else {
+        this.clingoEvents.connect((eventName) => {
+          if (eventName === 'GROUNDING_STARTED') {
+            this.statusMessage = 'Grounding...';
+          }
+          if (eventName === 'GROUNDING_FINISHED') {
+            this.statusMessage = 'Solving...';
+            if (this.statusWarning) this.statusWarning = false
+          }
+          if (eventName === 'GROUNDING_STILL_RUNNING') {
+            this.statusWarning = true
+          }
+        });
         // Nuova analisi
         this.typeAnalisys = 0;
 

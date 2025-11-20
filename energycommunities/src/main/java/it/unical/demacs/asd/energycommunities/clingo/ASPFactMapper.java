@@ -18,8 +18,8 @@ public class ASPFactMapper {
         for (MemberDetailDto member : members) {
             if (wantToAdd.contains(member.getId())) facts.append(String.format("wantToAdd(%d).\n", member.getId()));
             else if (wantToRemove.contains(member.getId())) facts.append(String.format("wantToRemove(%d).\n", member.getId()));
-            facts.append(String.format("member(%d, %d, %s).\n",
-                    member.getId(), 0, member.getMemberType().name().toLowerCase()));
+            facts.append(String.format("member(%d,%s).\n",
+                    member.getId(), member.getMemberType().name().toLowerCase()));
 
             profilesAndGraphsToFacts(facts, member);
         }
@@ -30,8 +30,8 @@ public class ASPFactMapper {
         StringBuilder facts = new StringBuilder();
 
         for (MemberDetailDto  member :members) {
-            facts.append(String.format("member(%d, %d, %s).\n",
-                    member.getId(), 0 , member.getMemberType().name().toLowerCase()));
+            facts.append(String.format("member(%d,%s).\n",
+                    member.getId(), member.getMemberType().name().toLowerCase()));
             profilesAndGraphsToFacts(facts, member);
         }
         if (analysis == 2) facts.append(String.format("dimCommunity(%d).\n", dim));
@@ -41,7 +41,7 @@ public class ASPFactMapper {
 
     private static void profilesAndGraphsToFacts(StringBuilder facts, MemberDetailDto member) {
         for (ProfileDto profile : member.getProfiles()) {
-            facts.append(String.format("profile(%d, %d, %s).\n",
+            facts.append(String.format("profile(%d,%d,%s).\n",
                     profile.getId(), member.getId(), profile.getProfileType().name().toLowerCase()));
 
 

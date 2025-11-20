@@ -1,4 +1,4 @@
-% member(MemberId,PlanId,MemberType)
+% member(MemberId,MemberType)
 % profile(ProfileId,MemberId,ProfileType)
 % profileGraph(MemberId,ProfileId,Hour,Value)
 % wantToAdd(MemberId)
@@ -7,10 +7,10 @@
 time(T) :- profileGraph(_,_,T,_).
 
 % Profile Assignment
-dontWantToRemove(M) :- member(M,_,_), not wantToRemove(M).
-assign(M) :- member(M,_,_), dontWantToRemove(M).
-{assign(M): member(M,_,_), wantToAdd(M)} <= N :- #count{I: wantToAdd(I)} = N.
-{assign(M): member(M,_,_), wantToRemove(M)} <= N :- #count{I: wantToRemove(I)} = N.
+dontWantToRemove(M) :- member(M,_), not wantToRemove(M).
+assign(M) :- member(M,_), dontWantToRemove(M).
+{assign(M): member(M,_), wantToAdd(M)} <= N :- #count{I: wantToAdd(I)} = N.
+{assign(M): member(M,_), wantToRemove(M)} <= N :- #count{I: wantToRemove(I)} = N.
 
 consumers_consumption_per_hour(T,V) :-
     time(T),

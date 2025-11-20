@@ -42,8 +42,6 @@ public class AnalysisController {
             List<MemberDetailDto> members  = MockDataGenerator.createMockUser();
             resultAnalysis1Dto = aspService.chooseBestProfiles(members);
         }
-
-
         System.out.println("Best Profiles per members:");
         for(MemberDetailDto m: resultAnalysis1Dto.getAssignments()) {
             System.out.println(m.getFullName());
@@ -53,6 +51,7 @@ public class AnalysisController {
                 for(int i=0; i<p.getGraph().size(); i++){
                     System.out.print(p.getGraph().get(i) + " ");
                 }
+                System.out.println();
             }
         }
 

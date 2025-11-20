@@ -1,14 +1,12 @@
-% member(MemberId,PlanId,MemberType)
+% member(MemberId,MemberType)
 % profile(ProfileId,MemberId,ProfileType)
 % profileGraph(MemberId,ProfileId,Hour,Value)
 % dimCommunity(Dim)
-% wantToAdd(MemberId)
-% wantToRemove(MemberId)
 
 time(T) :- profileGraph(_,_,T,_).
 
 % Profile Assignment
-{assign(M) : member(M,_,_)} = N :- dimCommunity(N).
+{assign(M) : member(M,_)} = N :- dimCommunity(N).
 
 consumers_consumption_per_hour(T,V) :-
     time(T),

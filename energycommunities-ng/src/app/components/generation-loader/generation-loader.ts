@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, Input} from '@angular/core';
 
 @Component({
   selector: 'app-generation-loader',
@@ -8,5 +8,5 @@ import { Component } from '@angular/core';
   standalone: true
 })
 export class GenerationLoader {
-
+  @Input() status: string = "Generating...";
 }

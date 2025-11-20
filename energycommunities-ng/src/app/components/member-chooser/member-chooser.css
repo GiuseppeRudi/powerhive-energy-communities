@@ -140,3 +140,36 @@
   margin-bottom: 1rem;
   color: #0c751b;
 }
+
+.members-warning {
+  margin: 16px 0;
+  padding: 14px 18px;
+  border-left: 4px solid #e67e22;
+  background: #fff3e0;
+  border-radius: 4px;
+  color: #7a4a00;
+}
+
+.members-warning .warning-title {
+  margin: 0 0 6px 0;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.members-warning .warning-text {
+  margin: 0 0 12px 0;
+  line-height: 1.4rem;
+}
+
+.btn-async {
+  background-color: #f39c12;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-async:hover {
+  background-color: #d68910;
+}

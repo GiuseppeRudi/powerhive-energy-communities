@@ -1,8 +1,6 @@
 package it.unical.demacs.asd.energycommunities.clingo;
 
-import it.unical.demacs.asd.energycommunities.data.entities.Member;
-import it.unical.demacs.asd.energycommunities.data.entities.Profile;
-import it.unical.demacs.asd.energycommunities.data.entities.User;
+import it.unical.demacs.asd.energycommunities.controller.ClingoStreamController;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis1Dto;
 import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis2Dto;
@@ -15,16 +13,25 @@ import org.potassco.clingo.control.Control;
 import org.potassco.clingo.solving.Model;
 import org.potassco.clingo.solving.SolveHandle;
 import org.potassco.clingo.solving.SolveMode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
 public class ASPService {
+
+    @Autowired
+    private ClingoStreamController streamController;
 
     public ResultAnalysis1Dto chooseBestProfiles(List<MemberDetailDto> members) {
         int analysis = 1;
@@ -138,7 +145,11 @@ public class ASPService {
         long[] bestCost = null;
         String[] bestModel = null;
 
+        System.out.println("Starting...");
+
         try (Control ctl = new Control("0", "--opt-mode=opt")) {
+            long startClingo = System.currentTimeMillis();
+            // ctl.getConfiguration().get("solve").set("solve_limit", "900");
             if (analysis == 1) {
                 ctl.load(Path.of("energycommunities/encodings/analysis1.lp"));
             } else if (analysis == 2) {
@@ -147,7 +158,18 @@ public class ASPService {
                 ctl.load(Path.of("energycommunities/encodings/analysis3.lp"));
             }
             ctl.add(facts);
+            streamController.sendEvent("GROUNDING_STARTED");
+            System.out.println("Grounding...");
+            AtomicBoolean groundingCompleted = new AtomicBoolean(false);
+            Thread groundingMonitor = groundingChecker(groundingCompleted);
+            groundingMonitor.start();
             ctl.ground();
+            groundingCompleted.set(true);
+            groundingMonitor.interrupt();
+            streamController.sendEvent("GROUNDING_FINISHED");
+            System.out.println("Solving...");
+
+            long startSolver = System.currentTimeMillis();
 
             try (SolveHandle handle = ctl.solve(SolveMode.YIELD)) {
                 while (handle.hasNext()) {
@@ -159,14 +181,29 @@ public class ASPService {
                         System.out.print(cost[i] + "@" + (cost.length - i) + " ");
                     }
                     System.out.println();
+                    double elapsedTime = (double) (System.currentTimeMillis() - startSolver) / 1000;
+                    System.out.println("Time: " + elapsedTime + " seconds.");
 
                     if (bestCost == null || isBetter(cost, bestCost)) {
-                        // clone dei costi perché l'array potrebbe essere riutilizzato internamente
                         bestCost = cost.clone();
                         bestModelStr = model.toString();
                     }
                 }
             }
+
+            int numMembers = 0;
+            Pattern assignPattern = Pattern.compile("member\\(\\d+,[a-zA-Z_]+\\)\\.");
+            for(String str: facts.split("\n")) {
+                Matcher assignMatcher = assignPattern.matcher(str);
+                if (assignMatcher.find()) {
+                    numMembers++;
+                }
+            }
+
+            double elapsedTimeSolver = (double) (System.currentTimeMillis() - startSolver) / 1000;
+            double elapsedTimeClingo = (double) (System.currentTimeMillis() - startClingo) / 1000;
+            // Decommentare questa linea per salvare i tempi di esecuzione del solver
+            // updateCSV(analysis,numMembers, elapsedTimeSolver);
 
             if (bestModelStr != null) {
                 System.out.println("=== Modello ottimale ===");
@@ -181,10 +218,27 @@ public class ASPService {
                 System.out.println("Nessun modello trovato.");
             }
 
+            System.out.println("Elapsed time solver: " + elapsedTimeSolver + " seconds.");
+            System.out.println("Elapsed time Clingo: " + elapsedTimeClingo + " seconds.");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
         return bestModel;
+    }
+
+    private Thread groundingChecker(AtomicBoolean groundingCompleted) {
+        return new Thread(() -> {
+            try {
+                Thread.sleep(20000);
+
+                if (!groundingCompleted.get()) {
+                    streamController.sendEvent("GROUNDING_STILL_RUNNING");
+                    System.out.println("Grounding still running...");
+                }
+
+            } catch (InterruptedException ignored) {}
+        });
     }
 
     private ResultAnalysis1Dto createBestModel1Dto(List<MemberDetailDto> members, String[] bestModel) {
@@ -271,6 +325,38 @@ public class ASPService {
         resultAnalysis2Dto.setTotalProduction(totalProduction);
         resultAnalysis2Dto.setTotalConsumption(totalConsumption);
         return resultAnalysis2Dto;
+    }
+
+    private static void updateCSV(int analysis, int numFacts, double time) throws IOException {
+        Path path = Paths.get("energycommunities/elapsed" + analysis + ".csv");
+        if (!Files.exists(path)) {
+            try (FileWriter fw = new FileWriter("energycommunities/elapsed" + analysis + ".csv")) {
+                fw.write("NUM_FACTS;ELAPSED_TIME\n");
+                fw.write(numFacts + ";" + time + ";\n");
+                return;
+            }
+        }
+
+        List<String> lines = Files.readAllLines(path);
+        boolean found = false;
+
+        for (int i = 0; i < lines.size(); i++) {
+            String row = lines.get(i);
+
+            if (i == 0) continue;
+
+            if (row.startsWith(numFacts + ";")) {
+                lines.set(i, row + time + ";");
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            lines.add(numFacts + ";" + time + ";");
+        }
+
+        Files.write(path, lines);
     }
 
     private List<Double> calculateTotal(List<MemberDetailDto> members, ProfileType type) {

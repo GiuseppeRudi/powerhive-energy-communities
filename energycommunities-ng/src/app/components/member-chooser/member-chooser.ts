@@ -114,4 +114,8 @@ export class MemberChooser implements OnInit {
       }
     });
   }
+
+  runAnalysisAsync() {
+
+  }
 }

@@ -15,37 +15,12 @@
   </div>
 
   <!-- Azioni solo se ci sono dati -->
-  <div *ngIf="typeAnalisys === 0 && resultAnalysis" class="analysis-actions">
-    <h3>What would you like to do with this analysis?</h3>
-    <p>You can save it to your analysis history or discard it if you don’t want to keep it.</p>
+  <app-analysis-actions
+    [resultAnalysis]="resultAnalysis"
+    [typeAnalysis]="1"
+    (terminated)="resetAnalysisData()"
+  ></app-analysis-actions>
 
-    <!-- Campo per inserire il nome -->
-    <div class="analysis-name-input">
-      <label for="analysisName">Analysis Name:</label>
-      <input
-        id="analysisName"
-        type="text"
-        [(ngModel)]="analysisName"
-        placeholder="Enter a name for this analysis"
-      />
-    </div>
-
-
-    <div class="action-buttons">
-      <button class="btn-save" (click)="saveAnalysis()">Save Analysis</button>
-      <button class="btn-discard" (click)="discardAnalysis()">Discard</button>
-    </div>
-  </div>
-
-
-  <div *ngIf="typeAnalisys === 1 && resultAnalysis" class="analysis-actions">
-    <h3>Analysis Information</h3>
-    <div class="analysis-summary">
-      <p><strong>Analysis Name:</strong> {{ history?.name }}</p>
-      <p><strong>Analysis Number:</strong> {{ history?.analysisNumber }}</p>
-      <p><strong>Created At:</strong> {{ history?.createdAt | date: 'medium' }}</p>
-    </div>
-  </div>
 
   <!-- Member Profiles -->
   <div class="chart-section">

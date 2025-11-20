@@ -1,0 +1,29 @@
+
+
+<div *ngIf="resultAnalysis!=null && history==undefined" class="analysis-actions">
+  <h3>What would you like to do with this analysis?</h3>
+  <p>You can save it to your analysis history or discard it if you don’t want to keep it.</p>
+
+  <div class="analysis-name-input">
+    <label for="analysisName">Analysis Name:</label>
+    <input
+      id="analysisName"
+      type="text"
+      [(ngModel)]="analysisName"
+      placeholder="Enter a name for this analysis"
+    />
+  </div>
+
+  <button class="btn-save" (click)="onSave()">Save</button>
+  <button class="btn-discard" (click)="onDiscard()">Discard</button>
+</div>
+
+
+<div *ngIf="resultAnalysis && history" class="analysis-actions">
+  <h3>Analysis Information</h3>
+  <div class="analysis-summary">
+    <p><strong>Analysis Name:</strong> {{ history?.name }}</p>
+    <p><strong>Analysis Number:</strong> {{ history?.analysisNumber }}</p>
+    <p><strong>Created At:</strong> {{ history?.createdAt | date: 'medium' }}</p>
+  </div>
+</div>

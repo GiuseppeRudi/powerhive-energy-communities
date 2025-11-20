@@ -14,17 +14,17 @@ import { SaveAnalysisRequest } from '../../model/SaveAnalysisRequest';
 import {HistoryDetail} from '../../model/history/HistoryDetail';
 import {HistorySummary} from '../../model/history/HistorySummary';
 import {FormsModule} from '@angular/forms';
+import {AnalysisActionsComponent} from '../analysis-save/analysis-save';
 
 @Component({
   selector: 'app-analisys1',
   templateUrl: './analysis1.html',
   standalone: true,
-  imports: [CommonModule, EnergyChartComponent, GenerationLoader, FormsModule],
+  imports: [CommonModule, EnergyChartComponent, GenerationLoader, FormsModule, AnalysisActionsComponent],
   styleUrls: ['./analysis1.css', '../welcome/welcome.css']
 })
 export class Analysis1 implements OnInit {
 
-  analysisName: string = '';
   history : HistorySummary | undefined = undefined ;
   typeAnalisys : number | null = null;
   resultAnalysis: ResultAnalysis_1 | null = null;
@@ -263,44 +263,7 @@ export class Analysis1 implements OnInit {
     return 'Consumer';
   }
 
-  saveAnalysis() {
-    const userJson = sessionStorage.getItem('currentUser');
-    if (!userJson) {
-      console.log('Nessun utente loggato');
-      return;
-    }
 
-    const user: User = JSON.parse(userJson);
-
-    // Controllo nome analisi
-    if (!this.analysisName.trim()) {
-      alert('Please enter a name for the analysis before saving.');
-      return;
-    }
-
-    const saveAnalysisRequest: SaveAnalysisRequest = {
-      userId: user.id,
-      analysisName: this.analysisName.trim(),
-      analysisNumber: 1,
-      analysisData: this.resultAnalysis
-    };
-
-    console.log(saveAnalysisRequest);
-
-    this.historyService.saveAnalysis(saveAnalysisRequest).subscribe({
-      next: res => {
-        console.log('Analisi salvata:', res);
-        this.router.navigate(['/dashboard']);
-      },
-      error: err => console.error('Errore nel salvataggio:', err)
-    });
-  }
-
-
-  discardAnalysis() {
-    this.resetAnalysisData();
-    this.router.navigate(['/dashboard']);
-  }
 
   resetAnalysisData() {
     if (this.resultAnalysis) {

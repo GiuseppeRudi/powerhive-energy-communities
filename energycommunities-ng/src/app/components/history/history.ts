@@ -10,7 +10,7 @@ import {GenerationLoader} from '../generation-loader/generation-loader';
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, RouterModule, GenerationLoader],
+  imports: [CommonModule, RouterModule],
   templateUrl: './history.html',
   styleUrls: ['./history.css', '../welcome/welcome.css']
 })
@@ -56,8 +56,13 @@ export class HistoryComponent implements OnInit {
 
   }
 
-  viewAnalysis(historyId: number) {
-    this.router.navigate(['/analysis1'], { queryParams: { historyId } });
+  viewAnalysis(historyId: number, typeAnalysis:number) {
+    if(typeAnalysis ==  1){
+      this.router.navigate(['/analysis1'], { queryParams: { historyId } });
+    }
+    else if(typeAnalysis == 2){
+      this.router.navigate(['/analysis2'], { queryParams: { historyId } });
+    }
   }
 
   formatDate(dateString: string): string {

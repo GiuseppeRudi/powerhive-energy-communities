@@ -108,6 +108,7 @@ export class Analysis3 implements OnInit {
     this.wantToAdd = this.analysis3Request?.wantToAdd;
     this.members = this.analysis3Request?.members;
 
+
     if (this.members && this.wantToRemove) {
       this.removedMembers = this.wantToRemove
         .map(id => this.members!.find(m => m.id === id))

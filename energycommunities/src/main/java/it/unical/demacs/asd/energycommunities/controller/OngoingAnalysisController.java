@@ -3,6 +3,7 @@ package it.unical.demacs.asd.energycommunities.controller;
 import it.unical.demacs.asd.energycommunities.data.dao.OngoingAnalysisDao;
 import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.services.OngoingAnalysisService;
+import it.unical.demacs.asd.energycommunities.dto.analysis.OngoingAnalysisDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class OngoingAnalysisController {
     private final OngoingAnalysisService ongoingAnalysisService;
 
     @GetMapping("/{userId}")
-    public List<OngoingAnalysis> getOngoing(@PathVariable Long userId) {
+    public List<OngoingAnalysisDto> getOngoing(@PathVariable Long userId) {
         return ongoingAnalysisService.findByUserId(userId);
     }
 

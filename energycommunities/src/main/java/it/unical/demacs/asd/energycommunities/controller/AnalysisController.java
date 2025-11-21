@@ -6,6 +6,7 @@ import it.unical.demacs.asd.energycommunities.clingo.MockDataGenerator;
 import it.unical.demacs.asd.energycommunities.clingo.MockDataGenerator2;
 import it.unical.demacs.asd.energycommunities.data.dao.HistoryDao;
 import it.unical.demacs.asd.energycommunities.data.dao.OngoingAnalysisDao;
+import it.unical.demacs.asd.energycommunities.data.dao.UserDao;
 import it.unical.demacs.asd.energycommunities.data.entities.Member;
 import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
@@ -33,6 +34,7 @@ public class AnalysisController {
     private final MemberService memberService;
     private final ModelMapper modelMapper;
     private final OngoingAnalysisService ongoingAnalysisService;
+    private final UserDao userDao;
 
     @GetMapping(value = "/start_1")
     public ResponseEntity<ResultAnalysis1Dto> startFirstAnalysis(@RequestParam(required = false) List<Long> memberIds) {
@@ -176,7 +178,9 @@ public class AnalysisController {
         List<MemberDetailDto> selectedMembers;
 
         OngoingAnalysis entity = new OngoingAnalysis();
-        entity.setUserId(payload.getUserId());
+        User user = userDao.findById(payload.getUserId())
+                .orElseThrow(() -> new RuntimeException("User non trovato"));
+        entity.setUser(user);
         entity.setAnalysisType(payload.getAnalysis());
         entity.setStatus("PENDING");
 

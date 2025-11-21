@@ -11,8 +11,9 @@ import {HistorySummary} from '../../model/history/HistorySummary';
   selector: 'app-analysis-actions',
   templateUrl: './analysis-save.html',
   styleUrls: ['./analysis-save.css'],
+  standalone: true,
   imports: [FormsModule,
-  CommonModule]
+    CommonModule]
 })
 export class AnalysisActionsComponent implements OnInit {
 

@@ -82,6 +82,14 @@ export class MemberChooser implements OnInit {
     return this.selectedMembers.size === this.plan.members.length;
   }
 
+  getMemberTypeLabel(member: any): string {
+    const hasProducer = member.profiles?.some((p: any) => p.profileType === 'PRODUCER');
+    const hasConsumer = member.profiles?.some((p: any) => p.profileType === 'CONSUMER');
+    if (hasProducer && hasConsumer) return 'Prosumer';
+    if (hasProducer) return 'Producer';
+    return 'Consumer';
+  }
+
   isIndeterminate(): boolean {
     if (!this.plan || !this.plan.members) {
       return false;

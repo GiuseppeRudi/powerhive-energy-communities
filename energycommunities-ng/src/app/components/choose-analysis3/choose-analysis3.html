@@ -1,99 +1,186 @@
-<div class="chart-section">
-  <h2 class="section-title">Members Chosen</h2>
+<div class="content-div">
+  <div class="header-section">
+    <h1>Select Members for Analysis 3</h1>
+    <p class="description">
+      Configure your energy community by selecting default members, members to add, or members to remove.
+      The system will analyze the optimal configuration based on your choices.
+    </p>
+  </div>
 
-  <!-- Loader -->
   <div *ngIf="isLoading" class="loading-container">
     <app-generation-loader></app-generation-loader>
   </div>
 
-  <!-- Lista membri -->
-  <div *ngFor="let member of members" class="member-card">
-    <div class="member-header">
-      <!-- Info membro -->
-      <div class="member-info">
-        <h3 class="member-name" (click)="toggleMember(member.id)">
-          {{ member.fullName }}
-        </h3>
-        <span
-          class="member-badge"
-          [class]="getMemberTypeLabel(member).toLowerCase()"
-        >
-          {{ getMemberTypeLabel(member) }}
-        </span>
+  <div *ngIf="!isLoading && members.length > 0" class="member-selection-container">
+
+    <!-- Info generale -->
+    <div class="info-panel">
+      <div class="info-item">
+        <i class="fa-solid fa-users"></i>
+        <span><strong>Total Members:</strong> {{ members.length }}</span>
       </div>
-
-      <!-- Azioni -->
-      <div class="member-actions">
-        <!-- Community Default -->
-        <label class="action-checkbox">
-          <input
-            type="checkbox"
-            [disabled]="wantToAdd.includes(member.id)"
-            [checked]="communityMembers.includes(member.id)"
-            (change)="onMemberStatusChange(member, 'default')"
-          />
-          <span>Community Default</span>
-        </label>
-
-        <!-- Want to Add -->
-        <label class="action-checkbox">
-          <input
-            type="checkbox"
-            [disabled]="communityMembers.includes(member.id)"
-            [checked]="wantToAdd.includes(member.id)"
-            (change)="onMemberStatusChange(member, 'add')"
-          />
-          <span>Want to Add</span>
-        </label>
-
-        <!-- Want to Remove -->
-        <label class="action-checkbox">
-          <input
-            type="checkbox"
-            [disabled]="!communityMembers.includes(member.id)"
-            [checked]="wantToRemove.includes(member.id)"
-            (change)="onMemberStatusChange(member, 'remove')"
-          />
-          <span>Want to Remove</span>
-        </label>
+      <div class="info-item">
+        <i class="fa-solid fa-check-circle"></i>
+        <span><strong>Community Default:</strong> {{ communityMembers.length }}</span>
       </div>
+      <div class="info-item">
 
-      <!-- Icona espansione -->
-      <div
-        class="expand-icon"
-        [class.expanded]="isMemberExpanded(member.id)"
-        (click)="toggleMember(member.id)"
-      >
-        <i class="fa-solid fa-square-caret-down"></i>
+        <span><strong>Want to Add:</strong> {{ wantToAdd.length }}</span>
+      </div>
+      <div class="info-item">
+        <i class="fa-solid fa-minus-circle"></i>
+        <span><strong>Want to Remove:</strong> {{ wantToRemove.length }}</span>
       </div>
     </div>
 
-    <!-- Contenuto toggle -->
-    <div
-      class="member-content"
-      [class.expanded]="isMemberExpanded(member.id)"
-    >
-      <div *ngIf="chartDataMap.get(member.id); else noData">
-        <h4>Production / Consumption Graph</h4>
-        <app-energy-chart
-          [data]="chartDataMap.get(member.id)!"
-          [options]="chartOptionsLine"
-          [selectedChartType]="'line'"
-        >
-        </app-energy-chart>
-      </div>
+    <!-- Tabella membri -->
+    <div class="table-container">
+      <table class="members-table">
+        <thead>
+        <tr>
+          <th>Member Name</th>
+          <th>Category</th>
+          <th class="checkbox-header">
+            Community Default
+          </th>
+          <th class="checkbox-header">
+            Want to Add
+          </th>
+          <th class="checkbox-header">
+            Want to Remove
+          </th>
+          <th class="actions-column">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let member of members"
+            [class.default-row]="communityMembers.includes(member.id)"
+            [class.add-row]="wantToAdd.includes(member.id)"
+            [class.remove-row]="wantToRemove.includes(member.id)">
+          <td class="member-name-cell">
+            <i class="fa-solid fa-user"></i>
+            {{ member.fullName }}
+          </td>
+          <td>
+            <span class="category-badge" [class]="member.memberType.toLowerCase()">
+                {{ member.memberType }}
+              </span>
+          </td>
+          <td class="checkbox-cell">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [disabled]="wantToAdd.includes(member.id)"
+                [checked]="communityMembers.includes(member.id)"
+                (change)="onMemberStatusChange(member, 'default')"
+                class="styled-checkbox"
+              />
+              <span class="checkmark"></span>
+            </label>
+          </td>
+          <td class="checkbox-cell">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [disabled]="communityMembers.includes(member.id)"
+                [checked]="wantToAdd.includes(member.id)"
+                (change)="onMemberStatusChange(member, 'add')"
+                class="styled-checkbox"
+              />
+              <span class="checkmark"></span>
+            </label>
+          </td>
+          <td class="checkbox-cell">
+            <label class="checkbox-label">
+              <input
+                type="checkbox"
+                [disabled]="!communityMembers.includes(member.id)"
+                [checked]="wantToRemove.includes(member.id)"
+                (change)="onMemberStatusChange(member, 'remove')"
+                class="styled-checkbox"
+              />
+              <span class="checkmark"></span>
+            </label>
+          </td>
+          <td class="actions-column">
+            <button
+              class="btn-view-chart"
+              (click)="toggleMember(member.id)"
+              [title]="isMemberExpanded(member.id) ? 'Hide chart' : 'View chart'"
+            >
+              <i class="fa-solid" [class.fa-chart-line]="!isMemberExpanded(member.id)"
+                 [class.fa-eye-slash]="isMemberExpanded(member.id)"></i>
+              {{ isMemberExpanded(member.id) ? 'Hide' : 'View' }}
+            </button>
+          </td>
+        </tr>
+        <!-- Grafico espandibile sotto ogni riga -->
+        <tr *ngFor="let member of members"
+            [class.chart-row]="true"
+            [class.expanded]="isMemberExpanded(member.id)">
+          <td colspan="6" class="chart-cell">
+            <div class="chart-content" *ngIf="isMemberExpanded(member.id)">
+              <div *ngIf="chartDataMap.get(member.id); else noData">
+                <h4>Production / Consumption Graph - {{ member.fullName }}</h4>
+                <app-energy-chart
+                  [data]="chartDataMap.get(member.id)!"
+                  [options]="chartOptionsLine"
+                  [selectedChartType]="'line'"
+                ></app-energy-chart>
+              </div>
+              <ng-template #noData>
+                <div class="no-data">
+                  <p>No energy profiles available for this member.</p>
+                </div>
+              </ng-template>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
 
-      <ng-template #noData>
-        <div class="no-data">
-          <p>No energy profiles available for this member.</p>
+    <!-- Legenda -->
+    <div class="legend-section">
+      <h3><i class="fa-solid fa-info-circle"></i> Selection Legend</h3>
+      <div class="legend-items">
+        <div class="legend-item">
+          <span class="legend-color default"></span>
+          <strong>Community Default:</strong> Members already in the community
         </div>
-      </ng-template>
+        <div class="legend-item">
+          <span class="legend-color add"></span>
+          <strong>Want to Add:</strong> New members to be added
+        </div>
+        <div class="legend-item">
+          <span class="legend-color remove"></span>
+          <strong>Want to Remove:</strong> Members to be removed from community
+        </div>
+      </div>
+      <p class="legend-note">
+        <i class="fa-solid fa-lightbulb"></i>
+        <em>Note: You cannot select "Add" for default members, and "Remove" only works for default members.</em>
+      </p>
+    </div>
+
+    <!-- Pulsanti azione -->
+    <div class="action-buttons">
+      <button class="btn btn-cancel" routerLink="/dashboard">
+        <i class="fa-solid fa-arrow-left"></i> Cancel
+      </button>
+      <button
+        class="btn btn-run-analysis"
+        (click)="startAnalysis3()"
+        [disabled]="communityMembers.length === 0 && wantToAdd.length === 0">
+        <i class="fa-solid fa-play"></i> Start Analysis
+      </button>
     </div>
   </div>
 
-  <div class="action-buttons">
-    <button class="start-button" (click)="startAnalysis3()">Start</button>
+  <!-- Nessun membro disponibile -->
+  <div *ngIf="!isLoading && members.length === 0" class="no-members">
+    <i class="fa-solid fa-users-slash"></i>
+    <p>No members available. Please import a CSV file first.</p>
+    <a routerLink="/csv" class="btn btn-csv">Go to CSV Page</a>
   </div>
-
-
 </div>

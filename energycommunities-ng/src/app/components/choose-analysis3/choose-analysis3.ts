@@ -3,7 +3,7 @@ import { ChartData, ChartOptions } from 'chart.js';
 import { MemberDetail } from '../../model/member/MemberDetail';
 import { PlanService } from '../../services/plan.service';
 import { AuthService } from '../../services/auth/auth.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { User } from '../../model/User';
 import { CommonModule } from '@angular/common';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
@@ -15,13 +15,14 @@ import {Analysis3Request} from '../../model/analysis/Analysis3Request';
 @Component({
   selector: 'app-choose-analysis3',
   templateUrl: './choose-analysis3.html',
-  styleUrls: ['./choose-analysis3.css', '../analysis1/analysis1.css', '../welcome/welcome.css'],
+  styleUrls: ['./choose-analysis3.css', '../welcome/welcome.css'],
   standalone: true,
   imports: [
     CommonModule,
     EnergyChartComponent,
     GenerationLoader,
-    FormsModule
+    FormsModule,
+    RouterLink
   ]
 })
 export class ChooseAnalysis3 implements OnInit {
@@ -68,12 +69,17 @@ export class ChooseAnalysis3 implements OnInit {
     const user: User = JSON.parse(userJson);
 
     if (user.plan_id) {
+      this.isLoading = true;
       this.planService.getDetailPlan(user.plan_id).subscribe({
         next: (plan) => {
           this.members = plan.members;
           this.buildMemberCharts();
+          this.isLoading = false;
         },
-        error: (error) => console.error(error)
+        error: (error) => {
+          console.error(error);
+          this.isLoading = false;
+        }
       });
     }
   }
@@ -184,6 +190,10 @@ export class ChooseAnalysis3 implements OnInit {
   }
 
   startAnalysis3(){
+    if (this.communityMembers.length === 0 && this.wantToAdd.length === 0) {
+      alert('Seleziona almeno un membro nella community o da aggiungere prima di continuare.');
+      return;
+    }
 
     const analysis3Request: Analysis3Request = {
       members: this.members.filter(member => (this.communityMembers.includes(member.id) || this.wantToAdd.includes(member.id))),

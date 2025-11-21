@@ -23,6 +23,7 @@ export class Dashboard implements OnInit {
 
   ngOnInit() {
 
+    window.scrollTo(0, 0);
     this.authService.user$.subscribe(user => this.currentUser = user);
 
 

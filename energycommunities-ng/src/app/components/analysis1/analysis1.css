@@ -14,59 +14,7 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.analysis-actions {
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  padding: 20px;
-  border-radius: 12px;
-  margin: 25px 0;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
 
-.analysis-actions h3 {
-  margin-bottom: 10px;
-  font-weight: 600;
-}
-
-.analysis-actions p {
-  color: #555;
-  margin-bottom: 20px;
-}
-
-.action-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-}
-
-.btn-save,
-.btn-discard {
-  padding: 10px 20px;
-  border-radius: 8px;
-  border: none;
-  font-size: 15px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.btn-save {
-  background-color: #28a745;
-  color: white;
-}
-
-.btn-save:hover {
-  background-color: #218838;
-}
-
-.btn-discard {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-discard:hover {
-  background-color: #c82333;
-}
 
 
 .disclaimer p {
@@ -131,29 +79,6 @@
   height: 300px;
   position: relative;
 }
-
-.analysis-name-input {
-  margin-top: 15px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 10px;
-}
-
-.analysis-name-input label {
-  font-weight: 600;
-  margin-bottom: 5px;
-  color: #333;
-}
-
-.analysis-name-input input {
-  width: 100%;
-  max-width: 300px;
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
 
 /* KPI Legend */
 .kpi-legend {

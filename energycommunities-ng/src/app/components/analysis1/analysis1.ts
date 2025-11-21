@@ -14,19 +14,19 @@ import { SaveAnalysisRequest } from '../../model/SaveAnalysisRequest';
 import {HistoryDetail} from '../../model/history/HistoryDetail';
 import {HistorySummary} from '../../model/history/HistorySummary';
 import {FormsModule} from '@angular/forms';
+import {AnalysisActionsComponent} from '../analysis-save/analysis-save';
 
 @Component({
   selector: 'app-analisys1',
   templateUrl: './analysis1.html',
   standalone: true,
-  imports: [CommonModule, EnergyChartComponent, GenerationLoader, FormsModule],
+  imports: [CommonModule, EnergyChartComponent, GenerationLoader, FormsModule, AnalysisActionsComponent],
   styleUrls: ['./analysis1.css', '../welcome/welcome.css']
 })
 export class Analysis1 implements OnInit {
 
-  analysisName: string = '';
   history : HistorySummary | undefined = undefined ;
-  typeAnalisys : number | null = null;
+  typeAnalisys : number = 1
   resultAnalysis: ResultAnalysis_1 | null = null;
   memberExpandedState: Map<number, boolean> = new Map();
   chartDataMap: Map<number, ChartData<'line'>> = new Map();
@@ -69,7 +69,6 @@ export class Analysis1 implements OnInit {
     private historyService: HistoryService
   ) {}
 
-  @Input() historyId?: number;
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => {
@@ -78,7 +77,6 @@ export class Analysis1 implements OnInit {
 
       if (historyId) {
         // Caricamento da history (come prima)
-        this.typeAnalisys = 1;
         this.historyService.getHistoryById(historyId).subscribe({
           next: history => {
             this.history = history;
@@ -89,9 +87,6 @@ export class Analysis1 implements OnInit {
           error: err => console.error('Errore caricamento history:', err)
         });
       } else {
-        // Nuova analisi
-        this.typeAnalisys = 0;
-
         // Se ci sono memberIds nei query params, passali al backend
         if (memberIdsParam) {
           const memberIds = memberIdsParam.split(',').map((id: string) => +id);
@@ -99,16 +94,6 @@ export class Analysis1 implements OnInit {
 
           // Chiama il servizio con i memberIds
           this.analysisService.getResultAnalysis_1(memberIds).subscribe({
-            next: (data) => {
-              this.resultAnalysis = data;
-              this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
-              this.buildAllCharts();
-            },
-            error: (err) => console.error(err)
-          });
-        } else {
-          // Fallback: analisi con tutti i membri
-          this.analysisService.getResultAnalysis_1().subscribe({
             next: (data) => {
               this.resultAnalysis = data;
               this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
@@ -263,44 +248,7 @@ export class Analysis1 implements OnInit {
     return 'Consumer';
   }
 
-  saveAnalysis() {
-    const userJson = sessionStorage.getItem('currentUser');
-    if (!userJson) {
-      console.log('Nessun utente loggato');
-      return;
-    }
 
-    const user: User = JSON.parse(userJson);
-
-    // Controllo nome analisi
-    if (!this.analysisName.trim()) {
-      alert('Please enter a name for the analysis before saving.');
-      return;
-    }
-
-    const saveAnalysisRequest: SaveAnalysisRequest = {
-      userId: user.id,
-      analysisName: this.analysisName.trim(),
-      analysisNumber: 1,
-      analysisData: this.resultAnalysis
-    };
-
-    console.log(saveAnalysisRequest);
-
-    this.historyService.saveAnalysis(saveAnalysisRequest).subscribe({
-      next: res => {
-        console.log('Analisi salvata:', res);
-        this.router.navigate(['/dashboard']);
-      },
-      error: err => console.error('Errore nel salvataggio:', err)
-    });
-  }
-
-
-  discardAnalysis() {
-    this.resetAnalysisData();
-    this.router.navigate(['/dashboard']);
-  }
 
   resetAnalysisData() {
     if (this.resultAnalysis) {

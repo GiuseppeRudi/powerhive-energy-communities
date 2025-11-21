@@ -186,7 +186,7 @@ export class ChooseAnalysis3 implements OnInit {
   startAnalysis3(){
 
     const analysis3Request: Analysis3Request = {
-      members: this.members.filter(member => this.communityMembers.includes(member.id)),
+      members: this.members.filter(member => (this.communityMembers.includes(member.id) || this.wantToAdd.includes(member.id))),
       wantToAdd: this.wantToAdd,
       wantToRemove: this.wantToRemove
     };

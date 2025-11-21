@@ -52,4 +52,13 @@ export class AnalysisService {
     };
     return this.http.post<ResultAnalysis_3>(`${this.baseUrl}/start_3`,body);
   }
+
+  runAsync1(userId: number, analysis: number, memberIds?: number[]) {
+    const payload = {
+      memberIds: memberIds,
+      userId: userId,
+      analysis: analysis
+    }
+    return this.http.post<number>(`${this.baseUrl}/async_1`, payload)
+  }
 }

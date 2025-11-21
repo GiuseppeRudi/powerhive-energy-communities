@@ -1,9 +1,15 @@
 package it.unical.demacs.asd.energycommunities.controller;
 
+import it.unical.demacs.asd.energycommunities.clingo.ASPFactMapper;
 import it.unical.demacs.asd.energycommunities.clingo.ASPService;
 import it.unical.demacs.asd.energycommunities.clingo.MockDataGenerator;
 import it.unical.demacs.asd.energycommunities.clingo.MockDataGenerator2;
+import it.unical.demacs.asd.energycommunities.data.dao.HistoryDao;
+import it.unical.demacs.asd.energycommunities.data.dao.OngoingAnalysisDao;
+import it.unical.demacs.asd.energycommunities.data.entities.Member;
+import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
+import it.unical.demacs.asd.energycommunities.data.services.OngoingAnalysisService;
 import it.unical.demacs.asd.energycommunities.dto.analysis.*;
 import it.unical.demacs.asd.energycommunities.data.services.MemberService;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
@@ -26,6 +32,7 @@ public class AnalysisController {
     private final ASPService aspService;
     private final MemberService memberService;
     private final ModelMapper modelMapper;
+    private final OngoingAnalysisService ongoingAnalysisService;
 
     @GetMapping(value = "/start_1")
     public ResponseEntity<ResultAnalysis1Dto> startFirstAnalysis(@RequestParam(required = false) List<Long> memberIds) {
@@ -58,7 +65,6 @@ public class AnalysisController {
 
         return ResponseEntity.ok(resultAnalysis1Dto);
     }
-
 
     @PostMapping(value = "/start_2")
     public ResponseEntity<ResultAnalysis2Dto> startSecondAnalysis(@RequestBody Analysis2Dto request){
@@ -163,6 +169,31 @@ public class AnalysisController {
 
         return ResponseEntity.ok(resultAnalysis3Dto);
     }
+
+    @PostMapping(value = "/async_1")
+    public ResponseEntity<Long> runFirstAnalysisAsync(@RequestBody AsyncAnalysisDto payload) {
+
+        List<MemberDetailDto> selectedMembers;
+
+        OngoingAnalysis entity = new OngoingAnalysis();
+        entity.setUserId(payload.getUserId());
+        entity.setAnalysisType(payload.getAnalysis());
+        entity.setStatus("PENDING");
+
+        entity = ongoingAnalysisService.save(entity);
+
+
+        if (payload.getMemberIds() != null && !payload.getMemberIds().isEmpty()) {
+            selectedMembers = memberService.findAllById(payload.getMemberIds());
+        }
+        else selectedMembers  = MockDataGenerator.createMockUser();
+        String facts = ASPFactMapper.toFacts1(selectedMembers,1);
+        aspService.startAsyncAnalysis(selectedMembers, entity.getId(), 1,facts);
+        System.out.println(entity.getId());
+        return ResponseEntity.ok(entity.getId());
+    }
+
+
 /*
     @GetMapping(value = "/start_2")
     public ResponseEntity<ResultAnalysis_2Dto> startSecondAnalysis(

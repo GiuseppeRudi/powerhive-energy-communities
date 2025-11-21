@@ -1,0 +1,40 @@
+<div class="page-container">
+  <h2>Ongoing Analyses</h2>
+
+  <!-- Loader -->
+  <div *ngIf="loading" class="loader-container">
+    <app-generation-loader status="Loading analysis..."></app-generation-loader>
+  </div>
+
+  <!-- Nessuna analisi -->
+  <div *ngIf="!loading && analyses.length === 0" class="empty-box">
+    <p>No ongoing analysis at the moment.</p>
+  </div>
+
+  <!-- Lista analisi -->
+  <div *ngIf="!loading && analyses.length > 0" class="analysis-list">
+
+    <div class="analysis-item"
+         *ngFor="let a of analyses"
+         [ngClass]="getStatusClass(a.status)"
+         (click)="open(a)">
+
+      <div class="left">
+        <h4>Analysis #{{ a.id }}</h4>
+        <p>Type: {{ a.analysisType }}</p>
+        <p>Started: {{ a.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+      </div>
+
+      <div class="right">
+        <span class="badge" [ngClass]="a.status.toLowerCase()">
+          {{ a.status }}
+        </span>
+        <div class="arrow">
+          <i class="fa-solid fa-chevron-right"></i>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

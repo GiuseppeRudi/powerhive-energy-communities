@@ -116,6 +116,13 @@ export class MemberChooser implements OnInit {
   }
 
   runAnalysisAsync() {
+    const memberIds: number[] = Array.from(this.selectedMembers);
+    const userJson = sessionStorage.getItem('currentUser');
+    if (!userJson) return;
 
+    const user: User = JSON.parse(userJson);
+    this.analysisService.runAsync1(user.id, 1, memberIds).subscribe(id => {
+      this.router.navigate(['/ongoing-analysis']);
+    });
   }
 }

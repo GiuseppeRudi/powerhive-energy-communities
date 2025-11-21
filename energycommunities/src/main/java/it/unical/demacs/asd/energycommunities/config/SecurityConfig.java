@@ -40,7 +40,9 @@ public class SecurityConfig {
                                 "/plan/**",
                                 "/analysis/**",
                                 "/history/**",
-                                "/clingo-stream/**").permitAll()
+                                "/clingo-stream/**",
+                                "/ongoing/**"
+                                ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())

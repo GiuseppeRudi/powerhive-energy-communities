@@ -1,6 +1,8 @@
 package it.unical.demacs.asd.energycommunities.clingo;
 
 import it.unical.demacs.asd.energycommunities.controller.ClingoStreamController;
+import it.unical.demacs.asd.energycommunities.data.dao.OngoingAnalysisDao;
+import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis1Dto;
 import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis2Dto;
@@ -14,6 +16,7 @@ import org.potassco.clingo.solving.Model;
 import org.potassco.clingo.solving.SolveHandle;
 import org.potassco.clingo.solving.SolveMode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -32,6 +35,33 @@ public class ASPService {
 
     @Autowired
     private ClingoStreamController streamController;
+
+    @Autowired
+    private OngoingAnalysisDao ongoingAnalysisDao;
+
+    @Async
+    public void startAsyncAnalysis(List<MemberDetailDto> members, Long id, int analysisType, String facts) {
+        OngoingAnalysis analysis = ongoingAnalysisDao.findById(id).orElseThrow();
+        try {
+            analysis.setStatus("RUNNING");
+            ongoingAnalysisDao.save(analysis);
+
+            String[] bestModel = calculateBestModel(facts, analysisType);
+
+            if (bestModel == null) {
+                analysis.setStatus("ERROR");
+            } else {
+                analysis.setStatus("FINISHED");
+                analysis.setResultModel(String.join(" ", bestModel));
+            }
+
+        } catch (Exception e) {
+            analysis.setStatus("ERROR");
+            e.printStackTrace();
+        }
+
+        ongoingAnalysisDao.save(analysis);
+    }
 
     public ResultAnalysis1Dto chooseBestProfiles(List<MemberDetailDto> members) {
         int analysis = 1;

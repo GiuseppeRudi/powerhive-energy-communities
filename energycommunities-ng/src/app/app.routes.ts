@@ -14,6 +14,7 @@ import {PlanManagement} from './components/plan-management/plan-management';
 import {ChooseAnalysis3} from './components/choose-analysis3/choose-analysis3';
 import {Analysis3} from './components/analysis3/analysis3';
 import {ChooseAnalysis2} from './components/choose-analysis2/choose-analysis2';
+import {OngoingAnalysisComponent} from './components/ongoing-analysis/ongoing-analysis';
 
 export const routes: Routes = [
   { path: '', component: Welcome },
@@ -30,5 +31,6 @@ export const routes: Routes = [
   { path: 'analysis3', component: Analysis3, canActivate: [AuthGuard] },
   { path: 'csv', component: Csv, canActivate: [AuthGuard] },
   { path: 'plan-management', component: PlanManagement, canActivate: [AuthGuard]},
-  { path: 'member-chooser', component: MemberChooser, canActivate: [AuthGuard]}
+  { path: 'member-chooser', component: MemberChooser, canActivate: [AuthGuard]},
+  { path: 'ongoing-analysis', component: OngoingAnalysisComponent, canActivate: [AuthGuard]}
 ];

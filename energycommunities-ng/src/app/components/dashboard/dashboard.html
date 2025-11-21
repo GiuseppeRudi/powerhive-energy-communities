@@ -34,7 +34,25 @@
 
   </div>
 
-  <p class="content-div" *ngIf="!plan">No plan provided</p>
+  <div *ngIf="!plan" class="no-plan-wrapper">
+    <div class="empty-state-card">
+      <div class="icon-box">
+        <i class="bi bi-clipboard-data"></i>
+        <div class="pulse-ring"></div>
+      </div>
+
+      <h3>No Plan Found</h3>
+      <p>
+        It seems there is no energy plan loaded yet.<br>
+        Import a CSV file to start managing your community members and analyzing data.
+      </p>
+
+      <a routerLink="/csv" class="btn btn-primary-soft">
+        <i class="bi bi-upload"></i> Import CSV Now
+      </a>
+    </div>
+  </div>
+
 
 
 </div>

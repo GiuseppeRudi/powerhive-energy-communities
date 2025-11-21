@@ -1,72 +1,128 @@
-.page-container {
+/* Layout principale */
+.content-div {
   padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.analysis-list {
+/* Header verde come analysis1 */
+.disclaimer {
+  background: linear-gradient(135deg, greenyellow 0%, darkgreen 100%);
+  color: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Cards delle analisi */
+.analysis-cards {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 20px;
 }
 
-.analysis-item {
+/* Singola card */
+.analysis-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 25px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.analysis-card:hover {
+  border-color: green;
+  box-shadow: 0 4px 12px darkgreen;
+}
+
+/* Header card */
+.analysis-card-header {
   display: flex;
   justify-content: space-between;
-  padding: 14px 18px;
-  background: #ffffff;
-  border-radius: 6px;
-  border-left: 4px solid transparent;
-  cursor: pointer;
-  transition: 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
-
-.analysis-item:hover {
-  background: #f9f9f9;
-}
-
-.left h4 {
-  margin: 0 0 4px;
-}
-
-.right {
-  display: flex;
   align-items: center;
-  gap: 12px;
 }
 
+.analysis-card-header h3 {
+  margin: 0;
+  color: darkgreen;
+}
+
+/* Corpo card */
+.analysis-card-body p {
+  margin: 6px 0;
+  color: #333;
+  font-size: 0.95em;
+}
+
+/* Footer stile "open" */
+.analysis-card-footer {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  color: darkgreen;
+  font-weight: 600;
+}
+
+.analysis-card-footer i {
+  color: darkgreen;
+}
+
+/* Stato (badge + bordo card) */
 .badge {
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 0.85em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   color: white;
-  text-transform: capitalize;
 }
 
-.badge.pending { background: #6c757d; }
-.badge.running { background: #007bff; }
+/* COLORI BADGE */
+.badge.starting, .badge.pending { background: #6c757d; }
+.badge.grounding, .badge.running { background: #007bff; }
+.badge.solving { background: #f1c40f; color: black; }
 .badge.finished { background: #28a745; }
 .badge.error { background: #dc3545; }
 
-.status.pending { border-left-color: #6c757d; }
-.status.running { border-left-color: #007bff; }
-.status.finished { border-left-color: #28a745; }
-.status.error { border-left-color: #dc3545; }
+/* Border-left dinamico */
+.status.starting, .status.pending { border-left: 4px solid #6c757d; }
+.status.grounding, .status.running { border-left: 4px solid #007bff; }
+.status.solving { border-left: 4px solid #f1c40f; }
+.status.finished { border-left: 4px solid #28a745; }
+.status.error { border-left: 4px solid #dc3545; }
 
+/* Messaggi */
 .empty-box {
   margin-top: 30px;
-  padding: 20px;
-  background: #f7f7f7;
-  border-radius: 6px;
+  padding: 25px;
+  background: #fff4e6;
+  border-radius: 12px;
   text-align: center;
-  color: #555;
+  color: #8a5500;
+  border-left: 4px solid #f4a261;
+  font-size: 1.1em;
 }
 
-.arrow i {
-  font-size: 14px;
-  color: #999;
-}
-
-.loader-container {
+/* Loader */
+.loading-container {
   margin-top: 40px;
   text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .analysis-card {
+    padding: 15px 20px;
+  }
+
+  .analysis-card-header h3 {
+    font-size: 1.2em;
+  }
 }

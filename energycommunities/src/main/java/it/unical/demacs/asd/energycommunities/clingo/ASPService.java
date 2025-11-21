@@ -40,13 +40,13 @@ public class ASPService {
     private OngoingAnalysisDao ongoingAnalysisDao;
 
     @Async
-    public void startAsyncAnalysis(List<MemberDetailDto> members, Long id, int analysisType, String facts) {
+    public void startAsyncAnalysis(Long id, int analysisType, String facts) {
         OngoingAnalysis analysis = ongoingAnalysisDao.findById(id).orElseThrow();
         try {
             analysis.setStatus("RUNNING");
             ongoingAnalysisDao.save(analysis);
 
-            String[] bestModel = calculateBestModel(facts, analysisType);
+            String[] bestModel = calculateBestModel(facts, analysisType, analysis.getId());
 
             if (bestModel == null) {
                 analysis.setStatus("ERROR");
@@ -61,12 +61,13 @@ public class ASPService {
         }
 
         ongoingAnalysisDao.save(analysis);
+        streamController.sendEvent("FINISHED",id);
     }
 
     public ResultAnalysis1Dto chooseBestProfiles(List<MemberDetailDto> members) {
         int analysis = 1;
         String facts = ASPFactMapper.toFacts1(members,analysis);
-        String[] bestModel = calculateBestModel(facts,analysis);
+        String[] bestModel = calculateBestModel(facts,analysis,-1);
 
         if (bestModel != null) {
             return createBestModel1Dto(members, bestModel);
@@ -79,7 +80,7 @@ public class ASPService {
         int analysis = 2;
         String facts = ASPFactMapper.toFacts2(members,analysis,dim);
 
-        String[] bestModel = calculateBestModel(facts,analysis);
+        String[] bestModel = calculateBestModel(facts,analysis,-1);
 
         if (bestModel != null) {
             return createBestModel2Dto(members, bestModel);
@@ -92,7 +93,7 @@ public class ASPService {
         int analysis = 3;
         String facts = ASPFactMapper.toFacts3(members,wantToAdd,wantToRemove);
 
-        String[] bestModel = calculateBestModel(facts,analysis);
+        String[] bestModel = calculateBestModel(facts,analysis,-1);
         ResultAnalysis3Dto resultAnalysis3Dto = new ResultAnalysis3Dto();
 
         SingleAnalysis optimalCommunity = createBestModel3Dto(members,bestModel);
@@ -170,7 +171,7 @@ public class ASPService {
         return community;
     }
 
-    private String[] calculateBestModel(String facts, int analysis) {
+    private String[] calculateBestModel(String facts, int analysis, long analysisId) {
         String bestModelStr = null;
         long[] bestCost = null;
         String[] bestModel = null;
@@ -188,15 +189,15 @@ public class ASPService {
                 ctl.load(Path.of("energycommunities/encodings/analysis3.lp"));
             }
             ctl.add(facts);
-            streamController.sendEvent("GROUNDING_STARTED");
+            streamController.sendEvent("GROUNDING_STARTED",analysisId);
             System.out.println("Grounding...");
             AtomicBoolean groundingCompleted = new AtomicBoolean(false);
-            Thread groundingMonitor = groundingChecker(groundingCompleted);
+            Thread groundingMonitor = groundingChecker(groundingCompleted,analysisId);
             groundingMonitor.start();
             ctl.ground();
             groundingCompleted.set(true);
             groundingMonitor.interrupt();
-            streamController.sendEvent("GROUNDING_FINISHED");
+            streamController.sendEvent("GROUNDING_FINISHED",analysisId);
             System.out.println("Solving...");
 
             long startSolver = System.currentTimeMillis();
@@ -257,13 +258,13 @@ public class ASPService {
         return bestModel;
     }
 
-    private Thread groundingChecker(AtomicBoolean groundingCompleted) {
+    private Thread groundingChecker(AtomicBoolean groundingCompleted, long analysisId) {
         return new Thread(() -> {
             try {
                 Thread.sleep(20000);
 
                 if (!groundingCompleted.get()) {
-                    streamController.sendEvent("GROUNDING_STILL_RUNNING");
+                    streamController.sendEvent("GROUNDING_STILL_RUNNING",analysisId);
                     System.out.println("Grounding still running...");
                 }
 
@@ -271,7 +272,7 @@ public class ASPService {
         });
     }
 
-    private ResultAnalysis1Dto createBestModel1Dto(List<MemberDetailDto> members, String[] bestModel) {
+    public ResultAnalysis1Dto createBestModel1Dto(List<MemberDetailDto> members, String[] bestModel) {
         ResultAnalysis1Dto resultAnalysis1Dto = new ResultAnalysis1Dto();
         List<MemberDetailDto> memberDtos = new ArrayList<>();
 

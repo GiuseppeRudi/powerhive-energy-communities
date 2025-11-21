@@ -16,11 +16,11 @@ public class ClingoStreamController {
         return emitter;
     }
 
-    public void sendEvent(String eventName) {
+    public void sendEvent(String eventName, long analysisId) {
         try {
             emitter.send(SseEmitter.event()
                     .name(eventName)
-                    .data(eventName));
+                    .data(analysisId));
         } catch (Exception e) {
             System.out.println("SSE error: " + e.getMessage());
         }

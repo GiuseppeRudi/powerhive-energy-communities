@@ -77,6 +77,15 @@ export class Analysis1 implements OnInit {
   @Input() historyId?: number;
 
   ngOnInit() {
+    this.resultAnalysis = history.state?.result ?? null;
+
+    if(this.resultAnalysis != null) {
+      this.typeAnalisys = 0;
+      this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+      this.buildAllCharts();
+      return;
+    }
+
     this.route.queryParams.subscribe(params => {
       const historyId = +params['historyId'];
       const memberIdsParam = params['memberIds'];

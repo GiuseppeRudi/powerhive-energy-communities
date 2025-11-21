@@ -1,8 +1,9 @@
-<div class="page-container">
-  <h2>Ongoing Analyses</h2>
+<div class="content-div">
+  <h1>Ongoing Analyses</h1>
+  <br><br>
 
   <!-- Loader -->
-  <div *ngIf="loading" class="loader-container">
+  <div *ngIf="loading" class="loading-container">
     <app-generation-loader status="Loading analysis..."></app-generation-loader>
   </div>
 
@@ -12,29 +13,33 @@
   </div>
 
   <!-- Lista analisi -->
-  <div *ngIf="!loading && analyses.length > 0" class="analysis-list">
+  <div *ngIf="!loading && analyses.length > 0" class="analysis-cards">
 
-    <div class="analysis-item"
+    <div class="analysis-card"
          *ngFor="let a of analyses"
-         [ngClass]="getStatusClass(a.status)"
+         [ngClass]="getStatusClass(a.id)"
          (click)="open(a)">
 
-      <div class="left">
-        <h4>Analysis #{{ a.id }}</h4>
-        <p>Type: {{ a.analysisType }}</p>
-        <p>Started: {{ a.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+      <div class="analysis-card-header">
+        <h3>Analysis #{{ a.id }}</h3>
+        <span class="badge" *ngIf="statusMessage.get(a.id) || a.status as msg"
+              [ngClass]="msg.toLowerCase()">
+          {{ msg }}
+        </span>
       </div>
 
-      <div class="right">
-        <span class="badge" [ngClass]="a.status.toLowerCase()">
-          {{ a.status }}
-        </span>
-        <div class="arrow">
-          <i class="fa-solid fa-chevron-right"></i>
-        </div>
+      <div class="analysis-card-body">
+        <p><strong>Type:</strong> {{ a.analysisType }}</p>
+        <p><strong>Started:</strong> {{ a.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+      </div>
+
+      <div class="analysis-card-footer" *ngIf="(statusMessage.get(a.id) === 'FINISHED' || a.status === 'FINISHED') || (statusMessage.get(a.id) === 'ERROR' || a.status === 'ERROR')">
+        <span class="open-text">Open</span>
+        <i class="fa-solid fa-chevron-right"></i>
       </div>
 
     </div>
 
   </div>
+
 </div>

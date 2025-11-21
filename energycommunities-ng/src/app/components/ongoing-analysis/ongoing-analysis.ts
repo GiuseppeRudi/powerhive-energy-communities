@@ -5,6 +5,7 @@ import {OngoingAnalysisService} from '../../services/ongoing-analysis.service';
 import {GenerationLoader} from '../generation-loader/generation-loader';
 import {DatePipe, NgClass, NgForOf, NgIf} from '@angular/common';
 import {User} from '../../model/User';
+import {ClingoEventsService} from '../../services/clingo-events.service';
 
 @Component({
   selector: 'app-ongoing-analysis',
@@ -16,16 +17,19 @@ import {User} from '../../model/User';
     NgIf,
     DatePipe
   ],
-  styleUrls: ['./ongoing-analysis.css']
+  styleUrls: ['./ongoing-analysis.css', '../welcome/welcome.css']
 })
 export class OngoingAnalysisComponent implements OnInit {
 
   analyses: OngoingAnalysis[] = [];
   loading = true;
 
+  statusMessage: Map<number,string> = new Map<number, string>();
+
   constructor(
     private service: OngoingAnalysisService,
-    private router: Router
+    private router: Router,
+    private clingoEvents: ClingoEventsService
   ) {}
 
   ngOnInit() {
@@ -42,16 +46,39 @@ export class OngoingAnalysisComponent implements OnInit {
       },
       error: () => this.loading = false
     });
+
+    this.analyses.forEach((analysis, index) => {
+      console.log(analysis)
+      if(analysis.status === 'FINISHED' || analysis.status === 'ERROR') {
+        this.statusMessage.set(analysis.id, analysis.status);
+      } else {
+        this.statusMessage.set(analysis.id, 'STARTING');
+      }
+    });
+    this.clingoEvents.connect((eventName,analysisId) => {
+      console.log(eventName + ' ' + analysisId);
+      console.log(this.statusMessage);
+      if (eventName === 'GROUNDING_STARTED') {
+        this.statusMessage.set(analysisId, 'GROUNDING');
+      }
+      if (eventName === 'GROUNDING_FINISHED') {
+        this.statusMessage.set(analysisId, 'SOLVING');
+      }
+      if (eventName === 'FINISHED') {
+        this.statusMessage.set(analysisId, 'FINISHED');
+      }
+    });
   }
 
   open(item: OngoingAnalysis) {
-    if (item.status === 'PENDING' || item.status === 'RUNNING') return;
+    if ((item.status !== 'FINISHED' && item.status !== 'ERROR') &&
+      (this.statusMessage.get(item.id) !== 'FINISHED' && this.statusMessage.get(item.id) !== 'ERROR')) return;
 
     this.service.openAnalysis(item.id).subscribe((data: any) => {
-      if (data==null) window.location.reload();
-      else if (data.status === 'FINISHED') {
-        this.router.navigate(['/analysis-result'], {
-          state: { result: data.resultModel }
+      console.log(data);
+      if (data.resultModel !== null) {
+        this.router.navigate(['/analysis1'], {
+          state: {result: data}
         });
       } else {
         alert('The analysis ended with an error.');
@@ -59,9 +86,17 @@ export class OngoingAnalysisComponent implements OnInit {
     });
   }
 
-  getStatusClass(status: string): string {
-    switch(status) {
-      case 'PENDING': return 'status pending';
+  getStatusById(id: number): string | null {
+    const analysis = this.analyses.find(a => a.id === id);
+    return analysis ? analysis.status : null;
+  }
+
+  getStatusClass(id: number): string {
+    console.log()
+    switch(this.statusMessage.get(id) || this.getStatusById(id)) {
+      case 'STARTING': return 'status starting';
+      case 'GROUNDING': return 'status grounding';
+      case 'SOLVING': return 'status solving';
       case 'RUNNING': return 'status running';
       case 'FINISHED': return 'status finished';
       case 'ERROR': return 'status error';

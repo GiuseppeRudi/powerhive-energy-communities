@@ -5,6 +5,7 @@ import it.unical.demacs.asd.energycommunities.clingo.ASPService;
 import it.unical.demacs.asd.energycommunities.clingo.MockDataGenerator;
 import it.unical.demacs.asd.energycommunities.clingo.MockDataGenerator2;
 import it.unical.demacs.asd.energycommunities.data.dao.HistoryDao;
+import it.unical.demacs.asd.energycommunities.data.dao.MemberDao;
 import it.unical.demacs.asd.energycommunities.data.dao.OngoingAnalysisDao;
 import it.unical.demacs.asd.energycommunities.data.dao.UserDao;
 import it.unical.demacs.asd.energycommunities.data.entities.Member;
@@ -35,6 +36,7 @@ public class AnalysisController {
     private final ModelMapper modelMapper;
     private final OngoingAnalysisService ongoingAnalysisService;
     private final UserDao userDao;
+    private final MemberDao memberDao;
 
     @GetMapping(value = "/start_1")
     public ResponseEntity<ResultAnalysis1Dto> startFirstAnalysis(@RequestParam(required = false) List<Long> memberIds) {
@@ -178,21 +180,26 @@ public class AnalysisController {
         List<MemberDetailDto> selectedMembers;
 
         OngoingAnalysis entity = new OngoingAnalysis();
+        System.out.println(payload);
         User user = userDao.findById(payload.getUserId())
                 .orElseThrow(() -> new RuntimeException("User non trovato"));
+        System.out.println("User id: " + user.getId());
         entity.setUser(user);
         entity.setAnalysisType(payload.getAnalysis());
+        System.out.println("Analysis type: " + payload.getAnalysis());
+        List<Member> members = memberDao.findAllById(payload.getMemberIds());
+        System.out.println("Members:" + members);
+        entity.setMembers(members);
         entity.setStatus("PENDING");
 
         entity = ongoingAnalysisService.save(entity);
-
 
         if (payload.getMemberIds() != null && !payload.getMemberIds().isEmpty()) {
             selectedMembers = memberService.findAllById(payload.getMemberIds());
         }
         else selectedMembers  = MockDataGenerator.createMockUser();
         String facts = ASPFactMapper.toFacts1(selectedMembers,1);
-        aspService.startAsyncAnalysis(selectedMembers, entity.getId(), 1,facts);
+        aspService.startAsyncAnalysis(entity.getId(), 1,facts);
         System.out.println(entity.getId());
         return ResponseEntity.ok(entity.getId());
     }

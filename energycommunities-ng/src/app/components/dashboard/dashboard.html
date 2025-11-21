@@ -10,7 +10,7 @@
 
   <div >
 
-    <div *ngIf="plan">
+    <div *ngIf="plan && plan.members && plan.members.length > 0">
       <h2 align="center">Your Members</h2>
       <table class="members-table">
         <thead>
@@ -34,7 +34,7 @@
 
   </div>
 
-  <div *ngIf="!plan" class="no-plan-wrapper">
+  <div *ngIf="!plan || plan?.members?.length === 0" class="no-plan-wrapper">
     <div class="empty-state-card">
       <div class="icon-box">
         <i class="bi bi-clipboard-data"></i>

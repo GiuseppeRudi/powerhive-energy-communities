@@ -18,6 +18,7 @@ import {NgIf} from '@angular/common';
 export class Navbar implements OnInit {
 
   currentUser : User | null = null;
+  isMenuOpen = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -32,5 +33,12 @@ export class Navbar implements OnInit {
     this.router.navigate(['/login']); // reindirizza alla pagina di login
   }
 
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu() {
+    this.isMenuOpen = false;
+  }
 
 }

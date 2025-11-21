@@ -1,3 +1,6 @@
+/* ------------------------------
+   NAVBAR DESKTOP
+------------------------------ */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -38,20 +41,71 @@
   transform: translateY(-2px);
 }
 
-/* Versione mobile */
+/* ------------------------------
+   HAMBURGER BUTTON (hidden desktop)
+------------------------------ */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.hamburger span {
+  width: 25px;
+  height: 3px;
+  background: #0c751b;
+  border-radius: 3px;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+/* effetti X */
+.hamburger span.open:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger span.open:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger span.open:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
 @media (max-width: 768px) {
+
+  .hamburger {
+    display: flex;
+  }
+
   .navbar {
-    flex-direction: column;
-    padding: 1rem;
+    flex-direction: row;
+    padding: 1rem 1.5rem;
   }
 
   .navbar-links {
+    position: absolute;
+    top: 65px;
+    right: 0;
+    background: #a2f194;
+    width: 100%;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 1.2rem;
+    padding: 1rem 0;
+
+    /* stato chiuso */
+    opacity: 0;
+    transform: translateY(-15px);
+    pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.35s ease;
   }
 
-  .navbar-logo {
-    margin-bottom: 0.5rem;
+  /* stato aperto */
+  .navbar-links.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
   }
 }
+

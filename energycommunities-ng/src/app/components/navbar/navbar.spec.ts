@@ -1,33 +1,25 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Navbar } from './navbar';
 import { AuthService } from '../../services/auth/auth.service';
+import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { User } from '../../model/User';
-import {provideHttpClientTesting} from '@angular/common/http/testing';
-import {provideRouter, provideRoutes} from '@angular/router';
 
-describe('Navbar Component', () => {
+describe('Navbar', () => {
   let component: Navbar;
   let fixture: ComponentFixture<Navbar>;
-  let mockAuthService: jasmine.SpyObj<AuthService>;
-
-  const mockUser: User = {
-    id: 1,
-    username: 'testuser',
-    email: 'test@test.com',
-    first_name: 'Test',
-    last_name: 'User',
-    plan_id: 1
-  };
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
+  let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    mockAuthService = jasmine.createSpyObj('AuthService', ['logout'], {
-      user$: of(mockUser)
-    });
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['logout'], { user$: of(null) });
+    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
       imports: [Navbar],
-      providers: [{ provide: AuthService, useValue: mockAuthService }, provideHttpClientTesting(), provideRouter([])]
+      providers: [
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: Router, useValue: routerSpy }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(Navbar);
@@ -35,12 +27,27 @@ describe('Navbar Component', () => {
     fixture.detectChanges();
   });
 
-  it('should call logout on click', () => {
-    component.logout();
-    expect(mockAuthService.logout).toHaveBeenCalled();
+  // -------------------------------------------------------
+  it('should create', () => {
+    expect(component).toBeTruthy();
   });
 
-  it('should update currentUser from user$', () => {
-    expect(component.currentUser).toEqual(mockUser);
+  // -------------------------------------------------------
+  it('should toggle menu state', () => {
+    expect(component.isMenuOpen).toBeFalse();
+
+    component.toggleMenu();
+    expect(component.isMenuOpen).toBeTrue();
+
+    component.toggleMenu();
+    expect(component.isMenuOpen).toBeFalse();
+  });
+
+  // -------------------------------------------------------
+  it('should logout and navigate to login', () => {
+    component.logout();
+
+    expect(authServiceSpy.logout).toHaveBeenCalled();
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
   });
 });

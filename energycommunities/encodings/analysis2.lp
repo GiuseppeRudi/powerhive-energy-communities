@@ -2,6 +2,8 @@
 % profile(ProfileId,MemberId,ProfileType)
 % profileGraph(MemberId,ProfileId,Hour,Value)
 % dimCommunity(Dim)
+% wantToAdd(MemberId)
+% wantToRemove(MemberId)
 
 time(T) :- profileGraph(_,_,T,_).
 

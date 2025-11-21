@@ -1,4 +1,4 @@
-package it.unical.demacs.asd.energycommunities.dto.user;
+package it.unical.demacs.asd.energycommunities.dto.plan;
 
 import it.unical.demacs.asd.energycommunities.dto.member.MemberSummaryDto;
 import lombok.Data;
@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class PlanDto {
+public class PlanSummaryDto {
 
     private Long id ;
     private List<MemberSummaryDto> members;

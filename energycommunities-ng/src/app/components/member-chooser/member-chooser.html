@@ -1,0 +1,103 @@
+<div class="content-div">
+  <div class="header-section">
+    <h1>Select Members for Analysis 1</h1>
+    <p class="description">
+      Choose which members you want to include in the energy community analysis.
+      The algorithm will optimize production and consumption profiles for the selected members.
+    </p>
+  </div>
+
+  <div *ngIf="plan && plan.members.length > 0" class="member-selection-container">
+
+    <!-- Azioni di selezione -->
+    <div class="selection-actions">
+      <button class="btn btn-select-all" (click)="selectAll()">
+        <i class="fa-solid fa-check-double"></i> Select All
+      </button>
+      <button class="btn btn-deselect-all" (click)="deselectAll()">
+        <i class="fa-solid fa-xmark"></i> Deselect All
+      </button>
+      <div class="selected-count">
+        <span class="count-badge">{{ getSelectedCount() }} / {{ plan.members.length }}</span>
+        <span class="count-label"> members selected</span>
+      </div>
+    </div>
+
+    <!-- Tabella membri -->
+    <div class="table-container">
+      <table class="members-table">
+        <thead>
+        <tr>
+          <th class="checkbox-column">
+            <input
+              type="checkbox"
+              [checked]="isAllSelected()"
+              [indeterminate]="isIndeterminate()"
+              (change)="toggleAll($event)"
+              class="header-checkbox"
+            />
+          </th>
+          <th>Member Name</th>
+          <th>Category</th>
+<!--          <th class="profiles-column">Profiles</th>-->
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let member of plan.members"
+            [class.selected-row]="selectedMembers.has(member.id)"
+            (click)="toggleMemberSelection(member.id)">
+          <td class="checkbox-column" (click)="$event.stopPropagation()">
+            <input
+              type="checkbox"
+              [checked]="selectedMembers.has(member.id)"
+              (change)="toggleMemberSelection(member.id)"
+              class="member-checkbox"
+            />
+          </td>
+          <td class="member-name">
+            <i class="fa-solid fa-user"></i>
+            {{ member.fullName }}
+          </td>
+          <td>
+              <span class="category-badge" [class]="member.memberType.toLowerCase()">
+                {{ member.memberType }}
+              </span>
+          </td>
+
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Messaggio di errore -->
+    <div *ngIf="showError" class="error-message">
+      <i class="fa-solid fa-exclamation-triangle"></i>
+      Please select at least one member to run the analysis.
+    </div>
+
+    <!-- Pulsanti azione -->
+    <div class="action-buttons">
+      <button class="btn btn-cancel" routerLink="/dashboard">
+        <i class="fa-solid fa-arrow-left"></i> Cancel
+      </button>
+      <button
+        class="btn btn-run-analysis"
+        (click)="runAnalysis()"
+        [disabled]="getSelectedCount() === 0">
+        <i class="fa-solid fa-play"></i> Run Analysis
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="!plan" class="loading-container">
+    <p>Loading members...</p>
+  </div>
+
+  <!-- Nessun membro disponibile -->
+  <div *ngIf=" !plan ||(plan && plan.members.length === 0)" class="no-members">
+    <i class="fa-solid fa-users-slash"></i>
+    <p>No members available. Please import a CSV file first.</p>
+    <a routerLink="/csv" class="btn btn-csv">Go to CSV Page</a>
+  </div>
+</div>

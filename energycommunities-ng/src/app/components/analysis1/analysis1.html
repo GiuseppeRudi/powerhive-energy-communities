@@ -1,3 +1,8 @@
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title></title>
+</head>
+
 <div class="content-div">
   <div class="disclaimer">
     <p><strong>Energy Community Analysis 1 Dashboard</strong></p>
@@ -10,37 +15,13 @@
   </div>
 
   <!-- Azioni solo se ci sono dati -->
-  <div *ngIf="typeAnalisys === 0 && resultAnalysis" class="analysis-actions">
-    <h3>What would you like to do with this analysis?</h3>
-    <p>You can save it to your analysis history or discard it if you don’t want to keep it.</p>
+  <app-analysis-actions
+    [resultAnalysis]="resultAnalysis"
+    [typeAnalysis]="typeAnalisys"
+    [history]="history"
+    (terminated)="resetAnalysisData()"
+  ></app-analysis-actions>
 
-    <!-- Campo per inserire il nome -->
-    <div class="analysis-name-input">
-      <label for="analysisName">Analysis Name:</label>
-      <input
-        id="analysisName"
-        type="text"
-        [(ngModel)]="analysisName"
-        placeholder="Enter a name for this analysis"
-      />
-    </div>
-
-
-    <div class="action-buttons">
-      <button class="btn-save" (click)="saveAnalysis()">Save Analysis</button>
-      <button class="btn-discard" (click)="discardAnalysis()">Discard</button>
-    </div>
-  </div>
-
-
-  <div *ngIf="typeAnalisys === 1 && resultAnalysis" class="analysis-actions">
-    <h3>Analysis Information</h3>
-    <div class="analysis-summary">
-      <p><strong>Analysis Name:</strong> {{ history?.name }}</p>
-      <p><strong>Analysis Number:</strong> {{ history?.analysisNumber }}</p>
-      <p><strong>Created At:</strong> {{ history?.createdAt | date: 'medium' }}</p>
-    </div>
-  </div>
 
   <!-- Member Profiles -->
   <div class="chart-section">
@@ -146,7 +127,7 @@
         <strong>Shared Energy:</strong> Percentage of produced energy shared within the community
       </div>
       <div class="kpi-item">
-        <span class="kpi-color" style="background-color: yellow;"></span>
+        <span class="kpi-color" style="background-color: orange;"></span>
         <strong>Self-Sufficiency:</strong> Percentage of energy demand met by local production
       </div>
     </div>

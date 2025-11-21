@@ -1,3 +1,8 @@
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title></title>
+</head>
+
 <div class="content-div">
   <div class="disclaimer">
     <p><strong>Energy Community Analysis 2 Dashboard</strong></p>
@@ -9,7 +14,20 @@
     </p>
   </div>
 
-  <div class="members-section">
+
+  <!-- Azioni solo se ci sono dati -->
+  <div *ngIf="!isLoading">
+    <app-analysis-actions
+      [resultAnalysis]="resultAnalysis"
+      [typeAnalysis]="typeAnalisys"
+      [history]="history"
+      (terminated)="resetAnalysisData()"
+    ></app-analysis-actions>
+  </div>
+
+
+
+    <div class="members-section">
     <h3>Available members</h3>
     <div class="members-grid">
       <div class="member-initial-card" *ngFor="let m of members">
@@ -24,13 +42,6 @@
     </div>
   </div>
 
-  <div class="input-section">
-    <label for="dim">Community Size</label>
-    <input type="number" id="dim" [(ngModel)]="selectedDim" min="1" [max]="members.length" placeholder="Ex. 3" />
-    <button (click)="generateCommunity()" [disabled]="isLoading">
-      {{ isLoading ? 'Generation...' : 'Generate optimal community' }}
-    </button>
-  </div>
   <br>
 
   <!-- Member Profiles -->
@@ -152,7 +163,7 @@
         <strong>Shared Energy:</strong> Percentage of produced energy shared within the community
       </div>
       <div class="kpi-item">
-        <span class="kpi-color" style="background-color: yellow;"></span>
+        <span class="kpi-color" style="background-color: orange;"></span>
         <strong>Self-Sufficiency:</strong> Percentage of energy demand met by local production
       </div>
     </div>
@@ -210,23 +221,7 @@
       </div>
     </div>
 
-    <!-- Optimization Insights -->
-    <div class="chart-section-divided">
-      <h2 class="section-title">Optimization Insights</h2>
-      <div *ngIf="isLoading" class="loading-container">
-        <app-generation-loader></app-generation-loader>
-      </div>
 
-      <ul class="insight-list" *ngIf="!isLoading && insights && insights.length > 0">
-        <li *ngFor="let i of insights">
-          <i class="fa-solid fa-lightbulb"></i> {{ i }}
-        </li>
-      </ul>
-
-      <div *ngIf="!isLoading && (!insights || insights.length === 0)">
-        <p>Click on "Generate optimal community" to view optimization insights.</p>
-      </div>
-    </div>
   </div>
 
 </div>

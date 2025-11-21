@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import {BehaviorSubject, Observable} from 'rxjs';
-import { Plan} from '../model/plan/Plan';
+import { PlanSummary} from '../model/plan/PlanSummary';
 import {MemberDetail} from '../model/member/MemberDetail';
 import {ResultAnalysis_1} from '../model/analysis/ResultAnalysis_1';
+import {PlanDetail} from '../model/plan/PlanDetail';
 
 @Injectable({ providedIn: 'root' })
 export class PlanService {
 
-  private readonly planSubject : BehaviorSubject<Plan | null> = new BehaviorSubject<Plan | null>(null);
-  public plan$ : Observable<Plan | null> = this.planSubject.asObservable();
+  private readonly planSubject : BehaviorSubject<PlanSummary | null> = new BehaviorSubject<PlanSummary | null>(null);
+  public plan$ : Observable<PlanSummary | null> = this.planSubject.asObservable();
 
 
   private readonly baseUrl = 'http://localhost:8080/plan';
@@ -37,12 +38,20 @@ export class PlanService {
     return this.http.post<MemberDetail>(`${this.baseUrl}/addMember`, dto, { params });
   }
 
-  getPlan(planID : number) : Observable<Plan>{
-    return this.http.get<Plan>(`${this.baseUrl}/${planID}`);
+  getSummaryPlan(planID : number) : Observable<PlanSummary>{
+    return this.http.get<PlanSummary>(`${this.baseUrl}/summary/${planID}`);
+  }
+
+  getDetailPlan(planID : number) : Observable<PlanDetail>{
+    return this.http.get<PlanDetail>(`${this.baseUrl}/detail/${planID}`);
   }
 
   getMember(planID : number, memberId : number) : Observable<MemberDetail>{
     return this.http.get<MemberDetail>(`${this.baseUrl}/${planID}/${memberId}`);
   }
 
+  deleteMemberFromPlan(memberId: number, ownerId: number): Observable<void> {
+    const params = new HttpParams().set('ownerId', ownerId.toString());
+    return this.http.delete<void>(`${this.baseUrl}/member/${memberId}`, { params });
+  }
 }

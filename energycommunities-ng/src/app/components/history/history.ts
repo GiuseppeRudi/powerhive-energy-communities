@@ -10,7 +10,7 @@ import {GenerationLoader} from '../generation-loader/generation-loader';
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule, RouterModule, GenerationLoader],
+  imports: [CommonModule, RouterModule],
   templateUrl: './history.html',
   styleUrls: ['./history.css', '../welcome/welcome.css']
 })
@@ -42,7 +42,12 @@ export class HistoryComponent implements OnInit {
     this.historyService.getHistories(this.userId).subscribe({
       next: (data) => {
         console.log(data);
-        this.historyList = data;
+
+        // Ordina dalla più recente alla più vecchia
+        this.historyList = data.sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
         console.log(this.historyList);
         this.loading = false;
       },
@@ -52,12 +57,20 @@ export class HistoryComponent implements OnInit {
         console.error(err);
       }
     });
-
-
   }
 
-  viewAnalysis(historyId: number) {
-    this.router.navigate(['/analysis1'], { queryParams: { historyId } });
+
+  viewAnalysis(historyId: number, typeAnalysis:number) {
+    if(typeAnalysis ==  1){
+      this.router.navigate(['/analysis1'], { queryParams: { historyId } });
+    }
+    else if(typeAnalysis == 2){
+      this.router.navigate(['/analysis2'], { queryParams: { historyId } });
+    }
+    else if(typeAnalysis == 3){
+      this.router.navigate(['/analysis3'], { queryParams: { historyId } });
+    }
+
   }
 
   formatDate(dateString: string): string {

@@ -1,6 +1,5 @@
 package it.unical.demacs.asd.energycommunities.data.services;
 
-import it.unical.demacs.asd.energycommunities.data.entities.Member;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 
 

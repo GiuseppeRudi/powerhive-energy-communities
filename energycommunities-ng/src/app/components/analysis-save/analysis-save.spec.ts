@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AnalysisSave } from './analysis-save';
+import { AnalysisActionsComponent } from './analysis-save';
 
-describe('AnalysisSave', () => {
-  let component: AnalysisSave;
-  let fixture: ComponentFixture<AnalysisSave>;
+describe('AnalysisActionsComponent', () => {
+  let component: AnalysisActionsComponent;
+  let fixture: ComponentFixture<AnalysisActionsComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AnalysisSave]
+      imports: [AnalysisActionsComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(AnalysisSave);
+    fixture = TestBed.createComponent(AnalysisActionsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

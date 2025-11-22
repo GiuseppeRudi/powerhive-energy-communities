@@ -1,5 +1,11 @@
 <div class="content-div">
-  <h2 align="center">Member Overview: {{member?.fullName}}</h2>
+  <div class="page-header">
+    <button (click)="goBack()" class="btn-back" title="Go Back">
+      <i class="bi bi-arrow-left"></i> <span>Back</span>
+    </button>
+
+    <h2>Member Overview: {{member?.fullName}}</h2>
+  </div>
   <h3>Member Type: {{member?.memberType}}</h3>
 
   <div *ngIf="produceChartData">

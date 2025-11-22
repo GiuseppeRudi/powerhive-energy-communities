@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { PlanService } from '../../services/plan.service';
 import { MemberDetail} from '../../model/member/MemberDetail';
 import { ChartData, ChartOptions } from 'chart.js';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
 import { AuthService } from '../../services/auth/auth.service';
 import {User} from '../../model/User';
@@ -13,7 +13,7 @@ import {User} from '../../model/User';
   standalone: true,
   imports: [CommonModule, EnergyChartComponent],
   templateUrl: './member-overview.html',
-  styleUrl: '../welcome/welcome.css'
+  styleUrls: ['../welcome/welcome.css', './member-overview.css']
 })
 export class MemberOverview  {
   currentUser : User | null = null;
@@ -35,10 +35,12 @@ export class MemberOverview  {
 
   constructor(private route: ActivatedRoute,
               private planService: PlanService,
-              private authService: AuthService) { }
+              private authService: AuthService,
+              private location: Location) { }
 
 
   ngOnInit() {
+    window.scrollTo(0, 0);
     this.authService.user$.subscribe(user => {
       this.currentUser = user;
 
@@ -91,4 +93,7 @@ export class MemberOverview  {
     }
   }
 
+  goBack(): void {
+    this.location.back();
+  }
 }

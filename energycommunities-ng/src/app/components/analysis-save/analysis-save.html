@@ -22,8 +22,8 @@
 <div *ngIf="resultAnalysis!=null && history" class="analysis-actions">
   <h3>Analysis Information</h3>
   <div class="analysis-summary">
-    <p><strong>Analysis Name:</strong> {{ history?.name }}</p>
-    <p><strong>Analysis Number:</strong> {{ history?.analysisNumber }}</p>
-    <p><strong>Created At:</strong> {{ history?.createdAt | date: 'medium' }}</p>
+    <p><strong>Analysis Name:</strong> {{ history.name }}</p>
+    <p><strong>Analysis Number:</strong> {{ history.analysisNumber }}</p>
+    <p><strong>Created At:</strong> {{ history.createdAt | date: 'medium' }}</p>
   </div>
 </div>

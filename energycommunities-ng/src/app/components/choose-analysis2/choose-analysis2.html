@@ -1,70 +1,148 @@
-<div class="chart-section">
-  <h2 class="section-title">Members</h2>
+<div class="content-div">
+  <div class="header-section">
+    <h1>Select Members for Analysis 2</h1>
+    <p class="description">
+      Choose members for the energy community and specify the desired community size.
+      The algorithm will optimize the community configuration based on your selections.
+    </p>
+  </div>
 
   <div *ngIf="isLoading" class="loading-container">
     <app-generation-loader></app-generation-loader>
   </div>
 
-  <!-- Lista membri -->
-  <div *ngFor="let member of members" class="member-card">
-    <div class="member-header">
-      <div class="member-info" (click)="toggleMember(member.id)">
-        <h3 class="member-name">{{ member.fullName }}</h3>
-        <span class="member-badge" [class]="getMemberTypeLabel(member).toLowerCase()">
-          {{ getMemberTypeLabel(member) }}
-        </span>
-      </div>
+  <div *ngIf="!isLoading && members.length > 0" class="member-selection-container">
 
-      <!-- Pulsante selezione -->
-      <button
-        class="select-button-1"
-        [class.selected]="energyCommunities.includes(member.id)"
-        (click)="toggleSelection(member.id)"
-      >
-        {{ energyCommunities.includes(member.id) ? 'Selected' : 'Select' }}
+    <!-- Azioni di selezione -->
+    <div class="selection-actions">
+      <button class="btn btn-select-all" (click)="selectAll()">
+        <i class="fa-solid fa-check-double"></i> Select All
       </button>
-
-      <div
-        class="expand-icon"
-        [class.expanded]="isMemberExpanded(member.id)"
-        (click)="toggleMember(member.id)"
-      >
-        <i class="fa-solid fa-square-caret-down"></i>
+      <button class="btn btn-deselect-all" (click)="deselectAll()">
+        <i class="fa-solid fa-xmark"></i> Deselect All
+      </button>
+      <div class="selected-count">
+        <span class="count-badge">{{ energyCommunities.length }} / {{ members.length }}</span>
+        <span class="count-label"> members selected</span>
       </div>
     </div>
 
-    <div class="member-content" [class.expanded]="isMemberExpanded(member.id)">
-      <div *ngIf="chartDataMap.get(member.id); else noData">
-        <h4>Production / Consumption Graph</h4>
-        <app-energy-chart
-          [data]="chartDataMap.get(member.id)!"
-          [options]="chartOptionsLine"
-          [selectedChartType]="'line'"
-        ></app-energy-chart>
-      </div>
+    <!-- Tabella membri -->
+    <div class="table-container">
+      <table class="members-table">
+        <thead>
+        <tr>
+          <th class="checkbox-column">
+            <input
+              type="checkbox"
+              [checked]="isAllSelected()"
+              [indeterminate]="isIndeterminate()"
+              (change)="toggleAll($event)"
+              class="header-checkbox"
+            />
+          </th>
+          <th>Member Name</th>
+          <th>Category</th>
+          <th class="actions-column">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let member of members"
+            [class.selected-row]="energyCommunities.includes(member.id)">
+          <td class="checkbox-column" (click)="$event.stopPropagation()">
+            <input
+              type="checkbox"
+              [checked]="energyCommunities.includes(member.id)"
+              (change)="toggleSelection(member.id)"
+              class="member-checkbox"
+            />
+          </td>
+          <td class="member-name-cell">
+            <i class="fa-solid fa-user"></i>
+            {{ member.fullName }}
+          </td>
+          <td>
+            <span class="category-badge" [class]="member.memberType.toLowerCase()">
+                {{ member.memberType }}
+              </span>
+          </td>
+          <td class="actions-column">
+            <button
+              class="btn-view-chart"
+              (click)="toggleMember(member.id)"
+              [title]="isMemberExpanded(member.id) ? 'Hide chart' : 'View chart'"
+            >
+              <i class="fa-solid" [class.fa-chart-line]="!isMemberExpanded(member.id)"
+                 [class.fa-eye-slash]="isMemberExpanded(member.id)"></i>
+              {{ isMemberExpanded(member.id) ? 'Hide' : 'View' }}
+            </button>
+          </td>
+        </tr>
+        <!-- Grafico espandibile sotto ogni riga -->
+        <tr *ngFor="let member of members"
+            [class.chart-row]="true"
+            [class.expanded]="isMemberExpanded(member.id)">
+          <td colspan="4" class="chart-cell">
+            <div class="chart-content" *ngIf="isMemberExpanded(member.id)">
+              <div *ngIf="chartDataMap.get(member.id); else noData">
+                <h4>Production / Consumption Graph - {{ member.fullName }}</h4>
+                <app-energy-chart
+                  [data]="chartDataMap.get(member.id)!"
+                  [options]="chartOptionsLine"
+                  [selectedChartType]="'line'"
+                ></app-energy-chart>
+              </div>
+              <ng-template #noData>
+                <div class="no-data">
+                  <p>No energy profiles available for this member.</p>
+                </div>
+              </ng-template>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
 
-      <ng-template #noData>
-        <div class="no-data">
-          <p>No energy profiles available for this member.</p>
-        </div>
-      </ng-template>
+    <!-- Community Size Input -->
+    <div class="community-size-section">
+      <h3><i class="fa-solid fa-users"></i> Community Size Configuration</h3>
+      <p class="size-description">
+        Members selected: <strong>{{ energyCommunities.length }}</strong>
+      </p>
+      <div class="size-input-group">
+        <label for="communitySize">Desired Community Size:</label>
+        <input
+          id="communitySize"
+          type="number"
+          [(ngModel)]="communitySize"
+          [max]="energyCommunities.length"
+          [min]="0"
+          (change)="onCommunitySizeChange($event)"
+          placeholder="Enter size"
+        />
+        <span class="input-hint">Max: {{ energyCommunities.length }}</span>
+      </div>
+    </div>
+
+    <!-- Pulsanti azione -->
+    <div class="action-buttons">
+      <button class="btn btn-cancel" routerLink="/dashboard">
+        <i class="fa-solid fa-arrow-left"></i> Cancel
+      </button>
+      <button
+        class="btn btn-run-analysis"
+        (click)="startAnalysis2()"
+        [disabled]="communitySize <= 0 || energyCommunities.length === 0">
+        <i class="fa-solid fa-play"></i> Start Analysis
+      </button>
     </div>
   </div>
 
-  <div class="community-size-section">
-    <h3>Community Size</h3>
-    <p>Members selected: <strong>{{ energyCommunities.length }}</strong></p>
-    <input
-      type="number"
-      [(ngModel)]="communitySize"
-      [max]="energyCommunities.length"
-      [min]="0"
-      (change)="onCommunitySizeChange($event)"
-      placeholder="Enter community size"
-    />
-  </div>
-
-  <div class="action-buttons">
-    <button class="start-button" (click)="startAnalysis2()">Start</button>
+  <!-- Nessun membro disponibile -->
+  <div *ngIf="!isLoading && members.length === 0" class="no-members">
+    <i class="fa-solid fa-users-slash"></i>
+    <p>No members available. Please import a CSV file first.</p>
+    <a routerLink="/csv" class="btn btn-csv">Go to CSV Page</a>
   </div>
 </div>

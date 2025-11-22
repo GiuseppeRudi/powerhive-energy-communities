@@ -5,7 +5,7 @@ import {CommonModule, NgForOf, NgIf} from "@angular/common";
 import {FormsModule} from '@angular/forms';
 import {MemberDetail} from '../../model/member/MemberDetail';
 import {ChartData, ChartOptions} from 'chart.js';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {PlanService} from '../../services/plan.service';
 import {AuthService} from '../../services/auth/auth.service';
 import {AnalysisService} from '../../services/analysis.service';
@@ -14,13 +14,14 @@ import {User} from '../../model/User';
 @Component({
   selector: 'app-choose-analysis2',
   templateUrl: './choose-analysis2.html',
-  styleUrls: ['./choose-analysis2.css', '../analysis1/analysis1.css', '../welcome/welcome.css'],
+  styleUrls: ['./choose-analysis2.css', '../welcome/welcome.css'],
   standalone: true,
   imports: [
     CommonModule,
     EnergyChartComponent,
     GenerationLoader,
-    FormsModule
+    FormsModule,
+    RouterLink
   ]
 })
 export class ChooseAnalysis2 {
@@ -61,12 +62,17 @@ export class ChooseAnalysis2 {
     const user: User = JSON.parse(userJson);
 
     if (user.plan_id) {
+      this.isLoading = true;
       this.planService.getDetailPlan(user.plan_id).subscribe({
         next: (plan) => {
           this.members = plan.members;
           this.buildMemberCharts();
+          this.isLoading = false;
         },
-        error: (error) => console.error(error)
+        error: (error) => {
+          console.error(error);
+          this.isLoading = false;
+        }
       });
     }
   }
@@ -92,6 +98,38 @@ export class ChooseAnalysis2 {
     if (this.communitySize > this.energyCommunities.length) {
       this.communitySize = this.energyCommunities.length;
     }
+  }
+
+  /** Seleziona tutti i membri */
+  selectAll() {
+    this.energyCommunities = this.members.map(m => m.id);
+    this.communitySize = this.energyCommunities.length;
+  }
+
+  /** Deseleziona tutti i membri */
+  deselectAll() {
+    this.energyCommunities = [];
+    this.communitySize = 0;
+  }
+
+  /** Toggle all checkbox handler */
+  toggleAll(event: Event) {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.selectAll();
+    } else {
+      this.deselectAll();
+    }
+  }
+
+  /** Verifica se tutti i membri sono selezionati */
+  isAllSelected(): boolean {
+    return this.members.length > 0 && this.energyCommunities.length === this.members.length;
+  }
+
+  /** Verifica se è in stato indeterminato (alcuni selezionati) */
+  isIndeterminate(): boolean {
+    return this.energyCommunities.length > 0 && this.energyCommunities.length < this.members.length;
   }
 
   /** Aggiorna la dimensione della community (validata) */
@@ -154,6 +192,11 @@ export class ChooseAnalysis2 {
       return;
     }
 
+    if (this.energyCommunities.length === 0) {
+      alert('Seleziona almeno un membro prima di continuare.');
+      return;
+    }
+
     const selectedMembers = this.members.filter(m => this.energyCommunities.includes(m.id));
 
     this.analysisService.getResultAnalysis_2(selectedMembers, this.communitySize)
@@ -169,7 +212,4 @@ export class ChooseAnalysis2 {
         }
       });
   }
-
 }
-
-

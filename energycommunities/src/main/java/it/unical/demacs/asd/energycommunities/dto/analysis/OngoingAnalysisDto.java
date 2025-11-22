@@ -13,6 +13,7 @@ public class OngoingAnalysisDto {
     private int analysisType;
     private String status; // PENDING, RUNNING, FINISHED, ERROR
     private String resultModel;
+    private int numMembers;
     private LocalDateTime createdAt = LocalDateTime.now();
 }
 

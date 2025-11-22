@@ -65,6 +65,8 @@ export class Analysis1 implements OnInit {
   statusMessage = "Starting...";
   statusWarning: boolean = false;
 
+  memberIds: number[] | undefined = undefined;
+
   constructor(
     private router: Router,
     private route : ActivatedRoute,
@@ -103,16 +105,20 @@ export class Analysis1 implements OnInit {
           error: err => console.error('Errore caricamento history:', err)
         });
       } else {
-        this.clingoEvents.connect((eventName) => {
-          if (eventName === 'GROUNDING_STARTED') {
-            this.statusMessage = 'Grounding...';
-          }
-          if (eventName === 'GROUNDING_FINISHED') {
-            this.statusMessage = 'Solving...';
-            if (this.statusWarning) this.statusWarning = false
-          }
-          if (eventName === 'GROUNDING_STILL_RUNNING') {
-            this.statusWarning = true
+        this.clingoEvents.connect((eventName,analysisId) => {
+          console.log(eventName);
+          console.log(analysisId);
+          if (analysisId === -1) {
+            if (eventName === 'GROUNDING_STARTED') {
+              this.statusMessage = 'Grounding...';
+            }
+            if (eventName === 'GROUNDING_FINISHED') {
+              this.statusMessage = 'Solving...';
+              if (this.statusWarning) this.statusWarning = false
+            }
+            if (eventName === 'GROUNDING_STILL_RUNNING') {
+              this.statusWarning = true
+            }
           }
         });
         // Nuova analisi
@@ -120,11 +126,11 @@ export class Analysis1 implements OnInit {
 
         // Se ci sono memberIds nei query params, passali al backend
         if (memberIdsParam) {
-          const memberIds = memberIdsParam.split(',').map((id: string) => +id);
-          console.log('Running analysis with member IDs:', memberIds);
+          this.memberIds = memberIdsParam.split(',').map((id: string) => +id);
+          console.log('Running analysis with member IDs:', this.memberIds);
 
           // Chiama il servizio con i memberIds
-          this.analysisService.getResultAnalysis_1(memberIds).subscribe({
+          this.analysisService.getResultAnalysis_1(this.memberIds).subscribe({
             next: (data) => {
               this.resultAnalysis = data;
               this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
@@ -345,4 +351,14 @@ export class Analysis1 implements OnInit {
     this.kpiChart = undefined;
   }
 
+  runAnalysisAsync() {
+    const memberIds = this.memberIds;
+    const userJson = sessionStorage.getItem('currentUser');
+    if (!userJson) return;
+
+    const user: User = JSON.parse(userJson);
+    this.analysisService.runAsync1(user.id, 1, memberIds).subscribe(id => {
+      this.router.navigate(['/ongoing-analysis']);
+    });
+  }
 }

@@ -103,6 +103,7 @@ public class ModelMapperConfig {
                     dto.setAnalysisType(source.getAnalysisType());
                     dto.setStatus(source.getStatus());
                     dto.setResultModel(source.getResultModel());
+                    dto.setNumMembers(source.getMembers().size());
                     dto.setUserId(source.getUser().getId());
                     dto.setCreatedAt(LocalDateTime.parse(source.getCreatedAt().toString()));
                     return dto;

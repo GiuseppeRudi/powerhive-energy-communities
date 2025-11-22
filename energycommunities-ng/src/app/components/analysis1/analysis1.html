@@ -61,6 +61,10 @@
             or try to send a smaller amount data to the solver.
             You can then track the progress in the “Ongoing Analyses” page.
           </p>
+          <br>
+          <button class="btn btn-async" (click)="runAnalysisAsync()">
+            <i class="fa-solid fa-rocket"></i> Run Asynchronously
+          </button>
         </div>
       </div>
 
@@ -108,6 +112,10 @@
           or try to send a smaller amount data to the solver.
           You can then track the progress in the “Ongoing Analyses” page.
         </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
       </div>
     </div>
     <div class="chart-wrapper" *ngIf="optConsProfChart">
@@ -132,6 +140,10 @@
           or try to send a smaller amount data to the solver.
           You can then track the progress in the “Ongoing Analyses” page.
         </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
       </div>
     </div>
     <div class="chart-wrapper" *ngIf="optProdProfChart">
@@ -156,6 +168,10 @@
           or try to send a smaller amount data to the solver.
           You can then track the progress in the “Ongoing Analyses” page.
         </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
       </div>
     </div>
     <div class="chart-wrapper" *ngIf="totalComparisonChart">
@@ -177,9 +193,14 @@
         <p class="warning-text">
           Probably you sent a large amount of data to the solver.
           If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+          (<strong>but you have to redo the generation</strong>)
           or try to send a smaller amount data to the solver.
           You can then track the progress in the “Ongoing Analyses” page.
         </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
       </div>
     </div>
     <div class="chart-wrapper" *ngIf="kpiChart">

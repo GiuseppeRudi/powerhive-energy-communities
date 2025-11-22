@@ -1,3 +1,8 @@
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title></title>
+</head>
+
 <div class="content-div">
   <h1>Ongoing Analyses</h1>
   <br><br>
@@ -31,11 +36,13 @@
       <div class="analysis-card-body">
         <p><strong>Type:</strong> {{ a.analysisType }}</p>
         <p><strong>Started:</strong> {{ a.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+        <p><strong>Num. Members:</strong> {{ a.numMembers }}</p>
       </div>
 
       <div class="analysis-card-footer" *ngIf="(statusMessage.get(a.id) === 'FINISHED' || a.status === 'FINISHED') || (statusMessage.get(a.id) === 'ERROR' || a.status === 'ERROR')">
-        <span class="open-text">Open</span>
-        <i class="fa-solid fa-chevron-right"></i>
+        <span class="open-text" *ngIf="(statusMessage.get(a.id) === 'FINISHED' || a.status === 'FINISHED')">Open</span>
+        <span class="error-text" *ngIf="(statusMessage.get(a.id) === 'ERROR' || a.status === 'ERROR')">Close</span>
+        <i class="fa-solid fa-chevron-right" *ngIf="(statusMessage.get(a.id) === 'FINISHED' || a.status === 'FINISHED')"></i>
       </div>
 
     </div>

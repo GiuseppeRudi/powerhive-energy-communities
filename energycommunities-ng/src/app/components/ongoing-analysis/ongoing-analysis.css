@@ -1,4 +1,4 @@
-/* Layout principale */
+
 .content-div {
   padding: 20px;
   max-width: 1400px;
@@ -6,7 +6,6 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Header verde come analysis1 */
 .disclaimer {
   background: linear-gradient(135deg, greenyellow 0%, darkgreen 100%);
   color: white;
@@ -16,14 +15,12 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* Cards delle analisi */
 .analysis-cards {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* Singola card */
 .analysis-card {
   background: white;
   border-radius: 12px;
@@ -39,7 +36,6 @@
   box-shadow: 0 4px 12px darkgreen;
 }
 
-/* Header card */
 .analysis-card-header {
   display: flex;
   justify-content: space-between;
@@ -51,14 +47,12 @@
   color: darkgreen;
 }
 
-/* Corpo card */
 .analysis-card-body p {
   margin: 6px 0;
   color: #333;
   font-size: 0.95em;
 }
 
-/* Footer stile "open" */
 .analysis-card-footer {
   margin-top: 15px;
   display: flex;
@@ -73,7 +67,6 @@
   color: darkgreen;
 }
 
-/* Stato (badge + bordo card) */
 .badge {
   padding: 6px 14px;
   border-radius: 10px;
@@ -84,21 +77,18 @@
   color: white;
 }
 
-/* COLORI BADGE */
 .badge.starting, .badge.pending { background: #6c757d; }
 .badge.grounding, .badge.running { background: #007bff; }
 .badge.solving { background: #f1c40f; color: black; }
 .badge.finished { background: #28a745; }
 .badge.error { background: #dc3545; }
 
-/* Border-left dinamico */
 .status.starting, .status.pending { border-left: 4px solid #6c757d; }
 .status.grounding, .status.running { border-left: 4px solid #007bff; }
 .status.solving { border-left: 4px solid #f1c40f; }
 .status.finished { border-left: 4px solid #28a745; }
 .status.error { border-left: 4px solid #dc3545; }
 
-/* Messaggi */
 .empty-box {
   margin-top: 30px;
   padding: 25px;
@@ -110,13 +100,45 @@
   font-size: 1.1em;
 }
 
-/* Loader */
 .loading-container {
   margin-top: 40px;
   text-align: center;
 }
 
-/* Responsive */
+.open-text {
+  color: #28a745;
+  font-weight: 700;
+  font-size: 1em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(40, 167, 69, 0.1);
+  border: 1px solid #28a745;
+}
+
+.error-text {
+  color: #dc3545;
+  font-weight: 700;
+  font-size: 1em;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(220, 53, 69, 0.1);
+  border: 1px solid #dc3545;
+}
+
+.analysis-card-footer i {
+  color: #28a745;
+  font-size: 1.1em;
+  transition: transform 0.2s ease;
+}
+
+.analysis-card-footer:hover i {
+  transform: translateX(4px);
+}
+
 @media (max-width: 768px) {
   .analysis-card {
     padding: 15px 20px;

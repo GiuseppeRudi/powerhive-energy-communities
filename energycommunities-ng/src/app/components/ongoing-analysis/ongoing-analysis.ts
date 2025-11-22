@@ -58,14 +58,16 @@ export class OngoingAnalysisComponent implements OnInit {
     this.clingoEvents.connect((eventName,analysisId) => {
       console.log(eventName + ' ' + analysisId);
       console.log(this.statusMessage);
-      if (eventName === 'GROUNDING_STARTED') {
-        this.statusMessage.set(analysisId, 'GROUNDING');
-      }
-      if (eventName === 'GROUNDING_FINISHED') {
-        this.statusMessage.set(analysisId, 'SOLVING');
-      }
-      if (eventName === 'FINISHED') {
-        this.statusMessage.set(analysisId, 'FINISHED');
+      if (analysisId !== -1) {
+        if (eventName === 'GROUNDING_STARTED') {
+          this.statusMessage.set(analysisId, 'GROUNDING');
+        }
+        if (eventName === 'GROUNDING_FINISHED') {
+          this.statusMessage.set(analysisId, 'SOLVING');
+        }
+        if (eventName === 'FINISHED') {
+          this.statusMessage.set(analysisId, 'FINISHED');
+        }
       }
     });
   }
@@ -76,12 +78,13 @@ export class OngoingAnalysisComponent implements OnInit {
 
     this.service.openAnalysis(item.id).subscribe((data: any) => {
       console.log(data);
-      if (data.resultModel !== null) {
+      if (data !== null) {
         this.router.navigate(['/analysis1'], {
           state: {result: data}
         });
       } else {
-        alert('The analysis ended with an error.');
+        window.location.reload();
+        // alert('The analysis ended with an error.');
       }
     });
   }

@@ -43,8 +43,11 @@ public class OngoingAnalysisController {
                 .map(member -> modelMapper.map(member, MemberDetailDto.class))
                 .toList();
 
-        ResultAnalysis1Dto dto = aspService.createBestModel1Dto(members,analysis.getResultModel().split(" "));
 
+        ResultAnalysis1Dto dto = null;
+        if(analysis.getResultModel() != null) {
+            dto = aspService.createBestModel1Dto(members, analysis.getResultModel().split(" "));
+        }
         ongoingAnalysisService.deleteById(id);
 
         return ResponseEntity.ok(dto);

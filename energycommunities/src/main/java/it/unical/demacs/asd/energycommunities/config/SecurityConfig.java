@@ -41,7 +41,8 @@ public class SecurityConfig {
                                 "/analysis/**",
                                 "/history/**",
                                 "/clingo-stream/**",
-                                "/ongoing/**"
+                                "/ongoing/**",
+                                "/battery/**"
                                 ).permitAll()
                         .anyRequest().authenticated()
                 )

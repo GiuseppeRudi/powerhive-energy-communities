@@ -23,6 +23,15 @@
     </ul>
   </div>
 
+  <!-- Azioni solo se ci sono dati -->
+  <app-analysis-actions
+    [resultAnalysis]="resultAnalysis"
+    [typeAnalysis]="typeAnalysis"
+    [history]="history"
+    (terminated)="resetAnalysisData()"
+  ></app-analysis-actions>
+
+
   <div class="chart-section">
     <h2 class="section-title">
       <span class="icon">🏘️</span>

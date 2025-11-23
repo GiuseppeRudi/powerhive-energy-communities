@@ -147,7 +147,11 @@ public class ASPService {
         SingleAnalysis community = new SingleAnalysis();
         List<MemberDetailDto> memberDtos = new ArrayList<>();
 
+        System.out.println("membri " + members);
+
         for (MemberDetailDto member : members) {
+            System.out.println("membro corrente" + member.getId());
+            System.out.println("list" + wantToAR);
             if(wantToAR.contains(member.getId())) continue;
             long memberId = member.getId();
 

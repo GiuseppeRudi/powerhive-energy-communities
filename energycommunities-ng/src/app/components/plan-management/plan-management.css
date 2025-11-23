@@ -1,9 +1,8 @@
 .plan-management-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  gap: 2rem ;
+  max-width: 100%;
 }
 
 .form-container {
@@ -430,5 +429,71 @@
   to { transform: scale(1); }
 }
 
+.btn-csv {
+  position: absolute;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #0c751b;
+  color: white;
+  padding: 0.8rem 1.6rem;
+  border-radius: 0.6rem;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
 
+.btn-csv:hover {
+  background-color: #0a5f16;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.btn-csv:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .header-with-button {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .btn-csv {
+    position: static;
+    right: auto;
+  }
+
+  .header-with-button h1 {
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-csv {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+
+.header-with-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.header-with-button h1 {
+  margin: 0;
+  flex: 1;
+  text-align: center;
+}
 

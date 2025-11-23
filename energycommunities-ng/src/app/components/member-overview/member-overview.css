@@ -1,0 +1,40 @@
+.page-header {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.page-header h2 {
+  margin: 0;
+  color: #0c751b;
+  font-weight: 700;
+  font-size: 2rem;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+.btn-back {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: 1px solid #0c751b;
+  color: #0c751b;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+.btn-back:hover {
+  background-color: #0c751b;
+  color: white;
+}
+
+

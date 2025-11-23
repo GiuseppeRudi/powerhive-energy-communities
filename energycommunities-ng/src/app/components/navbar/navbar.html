@@ -1,16 +1,24 @@
 <nav class="navbar">
   <div class="navbar-logo">PowerHive</div>
-  <ul class="navbar-links">
-    <li><a routerLink="/">Home</a></li>
+  <!-- Pulsante hamburger (solo mobile) -->
+  <div class="hamburger" (click)="toggleMenu()">
+    <span [class.open]="isMenuOpen"></span>
+    <span [class.open]="isMenuOpen"></span>
+    <span [class.open]="isMenuOpen"></span>
+  </div>
 
-    <li *ngIf="currentUser!=null"><a routerLink="/dashboard">Dashboard</a></li>
-    <li *ngIf="currentUser==null"><a routerLink="/login">Login</a></li>
-    <li *ngIf="currentUser!=null"><a routerLink="/plan-management">Management</a></li>
-    <li *ngIf="currentUser!=null"><a routerLink="/analysis">Analysis</a></li>
+  <ul class="navbar-links" [class.open]="isMenuOpen">
+    <li><a routerLink="/" (click)="closeMenu()">Home</a></li>
+
+    <li *ngIf="currentUser!=null"><a routerLink="/dashboard" (click)="closeMenu()">Dashboard</a></li>
+    <li *ngIf="currentUser==null"><a routerLink="/login" (click)="closeMenu()">Login</a></li>
+    <li *ngIf="currentUser!=null"><a routerLink="/plan-management" (click)="closeMenu()">Management</a></li>
+    <li *ngIf="currentUser!=null"><a routerLink="/analysis" (click)="closeMenu()">Analysis</a></li>
     <li *ngIf="currentUser!=null"><a routerLink="/ongoing-analysis">Ongoing Analysis</a></li>
-    <li *ngIf="currentUser!=null"><a routerLink="/history">History</a></li>
-    <li *ngIf="currentUser != null"><a routerLink="/login" (click)="logout()">Logout</a>
-    </li>
+    <li *ngIf="currentUser!=null"><a routerLink="/history" (click)="closeMenu()">History</a></li>
 
+    <li *ngIf="currentUser != null">
+      <a routerLink="/login" (click)="logout()">Logout</a>
+    </li>
   </ul>
 </nav>

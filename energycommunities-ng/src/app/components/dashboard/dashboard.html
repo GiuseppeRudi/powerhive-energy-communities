@@ -1,37 +1,31 @@
 <div class="content-div">
 
-
   <div *ngIf="currentUser != null">
     <h1> Welcome {{currentUser.username}}</h1>
   </div>
 
-
-
-
-  <div >
-
+  <div>
     <div *ngIf="plan && plan.members && plan.members.length > 0">
       <h2 align="center">Your Members</h2>
       <table class="members-table">
         <thead>
-        <tr>
-          <th>Name</th>
-          <th>Category</th>
-        </tr>
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+          </tr>
         </thead>
         <tbody>
-        <tr *ngFor="let member of plan.members">
-          <td>
-            <a [routerLink]="['/member', member.id]">
-              {{ member.fullName }}
-            </a>
-          </td>
-          <td>{{ member.memberType }}</td>
-        </tr>
+          <tr *ngFor="let member of plan.members">
+            <td>
+              <a [routerLink]="['/member', member.id]">
+                {{ member.fullName }}
+              </a>
+            </td>
+            <td>{{ member.memberType }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
-
   </div>
 
   <div *ngIf="!plan || plan?.members?.length === 0" class="no-plan-wrapper">
@@ -40,19 +34,15 @@
         <i class="bi bi-clipboard-data"></i>
         <div class="pulse-ring"></div>
       </div>
-
       <h3>No Plan Found</h3>
       <p>
         It seems there is no energy plan loaded yet.<br>
         Import a CSV file to start managing your community members and analyzing data.
       </p>
-
       <a routerLink="/csv" class="btn btn-primary-soft">
         <i class="bi bi-upload"></i> Import CSV Now
       </a>
     </div>
   </div>
-
-
 
 </div>

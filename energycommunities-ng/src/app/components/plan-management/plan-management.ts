@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PlanService } from '../../services/plan.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { User } from '../../model/User';
@@ -9,14 +9,16 @@ import { User } from '../../model/User';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
 import { ChartData, ChartOptions } from 'chart.js';
 import { HttpErrorResponse } from '@angular/common/http';
-import {PlanSummary} from '../../model/plan/PlanSummary';
+import { PlanSummary } from '../../model/plan/PlanSummary';
+import { BatteryService } from '../../services/battery.service';
+import { BatteryDto } from '../../model/battery/BatteryDto';
 
 @Component({
   selector: 'app-plan-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, EnergyChartComponent, RouterLink],
+  imports: [CommonModule, FormsModule, EnergyChartComponent, RouterLink, ReactiveFormsModule],
   templateUrl: './plan-management.html',
-  styleUrl: './plan-management.css',
+  styleUrls: ['./plan-management.css', '../welcome/welcome.css']
 })
 export class PlanManagement implements OnInit {
   currentUser: User | null = null;
@@ -29,6 +31,8 @@ export class PlanManagement implements OnInit {
   memberFullName: string = '';
   memberCategory: 'producer' | 'consumer' | '' = '';
   memberEnergyValues: string = '';
+
+  plan_batteries: BatteryDto[] = []
 
   previewChartData: ChartData<'line'> | null = null;
   chartOptions: ChartOptions<'line'> = {
@@ -43,13 +47,68 @@ export class PlanManagement implements OnInit {
     }
   };
 
+  management_navbar_state: ManagementNavbarState = ManagementNavbarState.MEMBERS
+  public ManagementNavbarState = ManagementNavbarState;
+
   constructor(
     private planService: PlanService,
     private router: Router,
-    private authService: AuthService
-  ) {}
+    private authService: AuthService,
+    private batteryService: BatteryService
+  ) { }
   isDeleteModalVisible = false;
   memberToDelete: { id: number, fullName: string } | null = null;
+  
+  isBatteryDeleteModalVisible = false;
+  batteryToDelete: BatteryDto | null = null;
+
+  set_navbar_state(state: ManagementNavbarState): void {
+    this.management_navbar_state = state
+  }
+
+  private form_builder = inject(FormBuilder)
+  battery_form: FormGroup = this.form_builder.group({
+    model: ['', Validators.required],
+    capacity: ['', Validators.required],
+    price: ['', Validators.required]
+  })
+
+  submit_battery() {
+    if (this.battery_form.invalid) {
+      this.battery_form.markAllAsTouched();
+      return;
+    }
+
+    const new_battery: BatteryDto = {
+      id: null,
+      plan: this.plan!,
+      model: this.battery_form.value.model,
+      capacity: this.battery_form.value.capacity,
+      price: this.battery_form.value.price
+    }
+
+    this.batteryService.add_battery(this.plan!.id, new_battery).subscribe({
+      next: (response) => {
+        this.battery_form.reset();
+
+        this.batteryService.get_batteries_by_plan(this.currentUser!.plan_id)
+          .subscribe(batteries => {
+            this.plan_batteries = batteries;
+          });
+      }
+    });
+
+    console.log(this.plan_batteries)
+  }
+
+  delete_battery(battery: BatteryDto) {
+    this.batteryService.delete_battery(battery.id!).subscribe({
+      next: (response) => {
+        this.batteryService.get_batteries_by_plan(this.currentUser!.plan_id)
+          .subscribe(response => { this.plan_batteries = response });
+      }
+    });
+  }
 
   ngOnInit() {
     this.authService.user$.subscribe(user => {
@@ -58,6 +117,10 @@ export class PlanManagement implements OnInit {
         this.ownerId = this.currentUser.id;
         if (this.currentUser.plan_id) {
           this.loadPlan(this.currentUser.plan_id);
+
+          this.batteryService.get_batteries_by_plan(this.currentUser.plan_id).subscribe(response => {
+            this.plan_batteries = response;
+          })
         }
       }
     });
@@ -187,7 +250,7 @@ export class PlanManagement implements OnInit {
           }
 
         } else {
-          if(this.currentUser?.plan_id) {
+          if (this.currentUser?.plan_id) {
             console.log("Sono qua (ID dallo stato corrente)");
             this.loadPlan(this.currentUser.plan_id);
           } else {
@@ -237,6 +300,54 @@ export class PlanManagement implements OnInit {
     this.isDeleteModalVisible = true;
   }
 
+  // Open battery delete confirmation
+  openBatteryDeleteModal(battery: BatteryDto): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.batteryToDelete = battery;
+    this.isBatteryDeleteModalVisible = true;
+  }
+
+  closeBatteryDeleteModal(): void {
+    this.isBatteryDeleteModalVisible = false;
+    this.batteryToDelete = null;
+  }
+
+  confirmBatteryDelete(): void {
+    if (!this.batteryToDelete) {
+      this.errorMessage = 'Error: no battery selected for deletion.';
+      this.closeBatteryDeleteModal();
+      return;
+    }
+
+    const batteryId = this.batteryToDelete.id;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    if (!batteryId) {
+      this.errorMessage = 'Error: invalid battery id.';
+      this.closeBatteryDeleteModal();
+      return;
+    }
+
+    this.batteryService.delete_battery(batteryId).subscribe({
+      next: () => {
+        this.successMessage = 'Battery successfully deleted!';
+        if (this.currentUser?.plan_id) {
+          this.batteryService.get_batteries_by_plan(this.currentUser.plan_id).subscribe(response => {
+            this.plan_batteries = response;
+          });
+        }
+        this.closeBatteryDeleteModal();
+      },
+      error: (err: any) => {
+        console.error('Error while deleting battery:', err);
+        this.errorMessage = 'Error during battery deletion. Please try again later.';
+        this.closeBatteryDeleteModal();
+      }
+    });
+  }
+
   closeDeleteModal(): void {
     this.isDeleteModalVisible = false;
     this.memberToDelete = null;
@@ -266,7 +377,7 @@ export class PlanManagement implements OnInit {
       next: () => {
         this.successMessage = 'Member successfully deleted!';
         if (typeof this.loadPlan === 'function') {
-          if(this.currentUser?.plan_id){
+          if (this.currentUser?.plan_id) {
             this.loadPlan(this.currentUser.plan_id);
           }
         } else {
@@ -290,4 +401,9 @@ export class PlanManagement implements OnInit {
       }
     });
   }
+}
+
+export enum ManagementNavbarState {
+  MEMBERS,
+  BATTERIES
 }

@@ -61,6 +61,7 @@ export class PlanManagement implements OnInit {
         }
       }
     });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   loadPlan(planId: number): void {

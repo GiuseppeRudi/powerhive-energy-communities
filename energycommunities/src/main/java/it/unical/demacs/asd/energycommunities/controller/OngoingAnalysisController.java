@@ -15,6 +15,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -25,13 +27,20 @@ public class OngoingAnalysisController {
 
     private final OngoingAnalysisService ongoingAnalysisService;
     private final ASPService aspService;
-    private final UserDao userDao;
-    private final MemberDao memberDao;
     private final ModelMapper modelMapper;
 
     @GetMapping("/{userId}")
     public List<OngoingAnalysisDto> getOngoing(@PathVariable Long userId) {
-        return ongoingAnalysisService.findByUserId(userId);
+        List<OngoingAnalysisDto> ongoingAnalysisDtos = ongoingAnalysisService.findByUserId(userId);
+        for (OngoingAnalysisDto a : ongoingAnalysisDtos) {
+            Duration diff = Duration.between(a.getCreatedAt(), LocalDateTime.now());
+
+            if (diff.toMinutes() >= 15 && !a.getStatus().equals("FINISHED") && !a.getStatus().equals("ERROR")) {
+                a.setStatus("ERROR");
+                ongoingAnalysisService.save(modelMapper.map(a, OngoingAnalysis.class));
+            }
+        }
+        return ongoingAnalysisDtos;
     }
 
     @GetMapping("/open/{id}")

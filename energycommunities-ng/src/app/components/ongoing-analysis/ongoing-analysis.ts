@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { Router } from '@angular/router';
 import {OngoingAnalysis} from '../../model/analysis/OngoingAnalysis';
 import {OngoingAnalysisService} from '../../services/ongoing-analysis.service';
@@ -19,7 +19,7 @@ import {ClingoEventsService} from '../../services/clingo-events.service';
   ],
   styleUrls: ['./ongoing-analysis.css', '../welcome/welcome.css']
 })
-export class OngoingAnalysisComponent implements OnInit {
+export class OngoingAnalysisComponent implements OnInit,OnDestroy {
 
   analyses: OngoingAnalysis[] = [];
   loading = true;
@@ -33,32 +33,12 @@ export class OngoingAnalysisComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const userJson = sessionStorage.getItem('currentUser');
-    if (!userJson) return;
+    this.loadAnalyses();
 
-    const user: User = JSON.parse(userJson);
-    this.service.getAll(user.id).subscribe({
-      next: (data) => {
-        this.analyses = data.sort((a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
-        this.loading = false;
-      },
-      error: () => this.loading = false
-    });
-
-    this.analyses.forEach((analysis, index) => {
-      console.log(analysis)
-      if(analysis.status === 'FINISHED' || analysis.status === 'ERROR') {
-        this.statusMessage.set(analysis.id, analysis.status);
-      } else {
-        this.statusMessage.set(analysis.id, 'STARTING');
-      }
-    });
-    this.clingoEvents.connect((eventName,analysisId) => {
+    this.clingoEvents.connect((eventName, analysisId) => {
       console.log(eventName + ' ' + analysisId);
       console.log(this.statusMessage);
-      if (analysisId !== -1) {
+      if (analysisId != -1) {
         if (eventName === 'GROUNDING_STARTED') {
           this.statusMessage.set(analysisId, 'GROUNDING');
         }
@@ -70,6 +50,10 @@ export class OngoingAnalysisComponent implements OnInit {
         }
       }
     });
+  }
+
+  ngOnDestroy() {
+    if (this.clingoEvents) this.clingoEvents.disconnect();
   }
 
   open(item: OngoingAnalysis) {
@@ -105,5 +89,34 @@ export class OngoingAnalysisComponent implements OnInit {
       case 'ERROR': return 'status error';
       default: return 'status';
     }
+  }
+
+  loadAnalyses(): void {
+    this.loading = true;
+
+    const userJson = sessionStorage.getItem('currentUser');
+    if (!userJson) return;
+
+    const user: User = JSON.parse(userJson);
+    this.service.getAll(user.id).subscribe({
+      next: (data) => {
+        console.log(data);
+        this.analyses = data.sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        this.analyses.forEach((analysis, index) => {
+          console.log(analysis)
+          if (analysis.id != -1) {
+            if (analysis.status === "PENDING") {
+              this.statusMessage.set(analysis.id, 'STARTING');
+            } else {
+              this.statusMessage.set(analysis.id, analysis.status);
+            }
+          }
+        });
+        this.loading = false;
+      },
+      error: () => this.loading = false
+    });
   }
 }

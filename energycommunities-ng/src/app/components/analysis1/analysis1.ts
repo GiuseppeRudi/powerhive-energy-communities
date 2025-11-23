@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { CommonModule } from '@angular/common';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
@@ -23,7 +23,7 @@ import {ClingoEventsService} from '../../services/clingo-events.service';
   imports: [CommonModule, EnergyChartComponent, GenerationLoader, FormsModule],
   styleUrls: ['./analysis1.css', '../welcome/welcome.css']
 })
-export class Analysis1 implements OnInit {
+export class Analysis1 implements OnInit,OnDestroy {
 
   analysisName: string = '';
   history : HistorySummary | undefined = undefined ;
@@ -108,7 +108,7 @@ export class Analysis1 implements OnInit {
         this.clingoEvents.connect((eventName,analysisId) => {
           console.log(eventName);
           console.log(analysisId);
-          if (analysisId === -1) {
+          if (analysisId == -1) {
             if (eventName === 'GROUNDING_STARTED') {
               this.statusMessage = 'Grounding...';
             }
@@ -153,6 +153,9 @@ export class Analysis1 implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    if (this.clingoEvents) this.clingoEvents.disconnect();
+  }
 
   toggleMember(memberId: number) {
     const currentState = this.memberExpandedState.get(memberId) || false;

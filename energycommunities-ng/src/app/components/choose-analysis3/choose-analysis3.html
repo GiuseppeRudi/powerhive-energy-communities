@@ -1,3 +1,7 @@
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
 <div class="content-div">
   <div class="header-section">
     <h1>Select Members for Analysis 3</h1>
@@ -12,7 +16,45 @@
   </div>
 
   <div *ngIf="!isLoading && members.length > 0" class="member-selection-container">
-
+    <div *ngIf="!isLoading" class="saved-analysis">
+      <div class="saved-analysis-header" (click)="showSavedAnalysis = !showSavedAnalysis">
+        <div class="saved-analysis-info">
+          <h3 class="saved-analysis-name">Add community default from saved Analysis</h3>
+        </div>
+        <div class="expand-icon" [class.expanded]="showSavedAnalysis">
+          <i class="fa-solid fa-square-caret-down"></i>
+        </div>
+      </div>
+      <div class="dropdown-content" [class.open]="showSavedAnalysis">
+        <div *ngIf="!loading && !error && historyList.length > 0" class="analysis-grid">
+          <button *ngFor="let history of historyList"
+                  class="btn"
+                  (click)="addCommunityDefault(history.id)">
+            {{history.name}}
+          </button>
+        </div>
+        <div *ngIf="!loading && historyList.length === 0" class="no-data-msg">
+          No saved analysis found.
+        </div>
+      </div>
+    </div>
+    <div *ngIf="showMissingWarning" class="warning-alert fade-in">
+      <div class="warning-header">
+        <div class="warning-title">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>Attention: Missing Members</span>
+        </div>
+        <button class="btn-close-warning" (click)="closeWarning()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="warning-body">
+        <p>The following members from the saved analysis are no longer present in your current plan and were not selected:</p>
+        <ul class="missing-list">
+          <li *ngFor="let name of missingMembersList">{{ name }}</li>
+        </ul>
+      </div>
+    </div>
     <!-- Info generale -->
     <div class="info-panel">
       <div class="info-item">

@@ -3,7 +3,7 @@ import { ChartData, ChartOptions } from 'chart.js';
 import { MemberDetail } from '../../model/member/MemberDetail';
 import { PlanService } from '../../services/plan.service';
 import { AuthService } from '../../services/auth/auth.service';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { User } from '../../model/User';
 import { CommonModule } from '@angular/common';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
@@ -11,6 +11,8 @@ import { GenerationLoader } from '../generation-loader/generation-loader';
 import { FormsModule } from '@angular/forms';
 import {AnalysisService} from '../../services/analysis.service';
 import {Analysis3Request} from '../../model/analysis/Analysis3Request';
+import {HistorySummary} from '../../model/history/HistorySummary'
+import {HistoryService} from '../../services/history.service';
 
 @Component({
   selector: 'app-choose-analysis3',
@@ -22,11 +24,18 @@ import {Analysis3Request} from '../../model/analysis/Analysis3Request';
     EnergyChartComponent,
     GenerationLoader,
     FormsModule,
-    RouterLink
+    RouterLink,
+    RouterModule
   ]
 })
 export class ChooseAnalysis3 implements OnInit {
-
+  showMissingWarning: boolean = false;
+  missingMembersList: string[] = [];
+  historyList: HistorySummary[] = [];
+  loading = true;
+  error: string | null = null;
+  userId: number = 0;
+  showSavedAnalysis: boolean = false;
   members: MemberDetail[] = [];
 
   // Mappa dei grafici
@@ -60,13 +69,22 @@ export class ChooseAnalysis3 implements OnInit {
     private planService: PlanService,
     private authService: AuthService,
     private analysisService: AnalysisService,
-  ) {}
+    private historyService: HistoryService,
+  ) {
+  }
 
   ngOnInit() {
-    const userJson = sessionStorage.getItem('currentUser');
-    if (!userJson) return;
+    window.scrollTo({top: 0, behavior: 'smooth'});
 
+    const userJson = sessionStorage.getItem('currentUser');
+    if (!userJson) {
+      console.warn('Nessun utente loggato trovato in sessione.');
+      return;
+    }
     const user: User = JSON.parse(userJson);
+    this.userId = user.id;
+
+    this.loadHistory();
 
     if (user.plan_id) {
       this.isLoading = true;
@@ -208,5 +226,18 @@ export class ChooseAnalysis3 implements OnInit {
     this.communityMembers = []
 
     this.router.navigate(['/analysis3']);
+  }
+
+  loadHistory(): void {
+
+  }
+
+
+  addCommunityDefault(historyId: number) {
+
+  }
+
+  closeWarning() {
+
   }
 }

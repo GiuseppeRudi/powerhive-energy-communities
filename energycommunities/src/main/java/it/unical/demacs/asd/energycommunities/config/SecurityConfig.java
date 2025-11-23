@@ -39,7 +39,10 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/plan/**",
                                 "/analysis/**",
-                                "/history/**").permitAll()
+                                "/history/**",
+                                "/clingo-stream/**",
+                                "/ongoing/**"
+                                ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())

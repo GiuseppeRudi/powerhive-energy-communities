@@ -1,0 +1,48 @@
+package it.unical.demacs.asd.energycommunities.data.entities;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Data
+@NoArgsConstructor
+@Table(name = "ongoing_analysis")
+@ToString(exclude = {"user", "members"})
+@EqualsAndHashCode(exclude = {"user", "members"})
+public class OngoingAnalysis {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name= "user_id", nullable = false)
+    private User user;
+
+    private int analysisType;
+
+    private String status; // PENDING, RUNNING, FINISHED, ERROR
+
+    @ManyToMany
+    @JoinTable(
+            name = "ongoing_analysis_members",
+            joinColumns = @JoinColumn(name = "analysis_id"),
+            inverseJoinColumns = @JoinColumn(name = "member_id")
+    )
+    private List<Member> members = new ArrayList<>();
+
+    @Column(columnDefinition = "TEXT")
+    private String resultModel;
+
+    private LocalDateTime createdAt = LocalDateTime.now();
+}
+

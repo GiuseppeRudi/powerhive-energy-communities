@@ -1,6 +1,7 @@
 package it.unical.demacs.asd.energycommunities.config;
 
 import it.unical.demacs.asd.energycommunities.data.entities.*;
+import it.unical.demacs.asd.energycommunities.dto.analysis.OngoingAnalysisDto;
 import it.unical.demacs.asd.energycommunities.dto.history.HistoryDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.history.HistorySummaryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
@@ -13,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -92,6 +94,22 @@ public class ModelMapperConfig {
                     dto.setCreatedAt(source.getCreatedAt().toString());
                     return dto;
                 });
+
+        modelMapper.createTypeMap(OngoingAnalysis.class, OngoingAnalysisDto.class)
+                .setConverter( context -> {
+                    OngoingAnalysis source = context.getSource();
+                    OngoingAnalysisDto dto = new OngoingAnalysisDto();
+                    dto.setId(source.getId());
+                    dto.setAnalysisType(source.getAnalysisType());
+                    dto.setStatus(source.getStatus());
+                    dto.setResultModel(source.getResultModel());
+                    dto.setNumMembers(source.getMembers().size());
+                    dto.setUserId(source.getUser().getId());
+                    dto.setCreatedAt(LocalDateTime.parse(source.getCreatedAt().toString()));
+                    return dto;
+                });
+
+
 
         modelMapper.createTypeMap(Profile.class, ProfileDto.class)
                         .setConverter(context -> {

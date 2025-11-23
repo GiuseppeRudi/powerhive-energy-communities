@@ -10,14 +10,15 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
 @Table(name = "members")
-@ToString(exclude = {"plan", "profiles"})
-@EqualsAndHashCode(exclude = {"plan", "profiles"})
+@ToString(exclude = {"plan", "profiles", "ongoingAnalysis"})
+@EqualsAndHashCode(exclude = {"plan", "profiles", "ongoingAnalysis"})
 public class Member {
 
     @Id
@@ -48,6 +49,10 @@ public class Member {
     @JoinColumn(name = "plan_id", nullable = false)
     @JsonIgnore
     private Plan plan;
+
+    @ManyToMany(mappedBy = "members")
+    @JsonIgnore
+    private List<OngoingAnalysis> ongoingAnalysis = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

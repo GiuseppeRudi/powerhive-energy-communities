@@ -1,3 +1,8 @@
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title></title>
+</head>
+
 <div class="content-div">
   <div class="header-section">
     <h1>Select Members for Analysis 1</h1>
@@ -73,6 +78,19 @@
     <div *ngIf="showError" class="error-message">
       <i class="fa-solid fa-exclamation-triangle"></i>
       Please select at least one member to run the analysis.
+    </div>
+
+    <div *ngIf="getSelectedCount()>5" class="members-warning">
+      <h4 class="warning-title">Large number of members selected</h4>
+      <p class="warning-text">
+        You have selected more than 5 members for this analysis.
+        The generation process will be significantly longer and may take several minutes.
+        If you prefer not to wait for the result, you can run the analysis asynchronously by clicking the button below.
+        You will be able to monitor its progress in the <b>Ongoing Analyses</b> page.
+      </p>
+      <button class="btn btn-async" (click)="runAnalysisAsync()">
+        <i class="fa-solid fa-rocket"></i> Run Asynchronously
+      </button>
     </div>
 
     <!-- Pulsanti azione -->

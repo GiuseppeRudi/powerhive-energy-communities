@@ -28,7 +28,20 @@
     <h2 class="section-title">Optimal Member Profiles Chosen</h2>
     <div class="members-list">
       <div *ngIf="!resultAnalysis || !resultAnalysis.assignments || resultAnalysis.assignments.length === 0" class="loading-container">
-        <app-generation-loader></app-generation-loader>
+        <app-generation-loader [status] = statusMessage></app-generation-loader>
+        <div *ngIf="statusWarning" class="warning-box">
+          <h4 class="warning-title">Grounding taking long time</h4>
+          <p class="warning-text">
+            Probably you sent a large amount of data to the solver.
+            If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+            or try to send a smaller amount data to the solver.
+            You can then track the progress in the “Ongoing Analyses” page.
+          </p>
+          <br>
+          <button class="btn btn-async" (click)="runAnalysisAsync()">
+            <i class="fa-solid fa-rocket"></i> Run Asynchronously
+          </button>
+        </div>
       </div>
 
 
@@ -66,7 +79,20 @@
   <div class="chart-section">
     <h2 class="section-title">Optimal Consumption Profiles</h2>
     <div *ngIf="!optConsProfChart" class="loading-container">
-      <app-generation-loader></app-generation-loader>
+      <app-generation-loader [status] = statusMessage></app-generation-loader>
+      <div *ngIf="statusWarning" class="warning-box">
+        <h4 class="warning-title">Grounding taking long time</h4>
+        <p class="warning-text">
+          Probably you sent a large amount of data to the solver.
+          If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+          or try to send a smaller amount data to the solver.
+          You can then track the progress in the “Ongoing Analyses” page.
+        </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
+      </div>
     </div>
     <div class="chart-wrapper" *ngIf="optConsProfChart">
       <app-energy-chart
@@ -81,7 +107,20 @@
   <div class="chart-section">
     <h2 class="section-title">Optimal Production Profiles</h2>
     <div *ngIf="!optProdProfChart" class="loading-container">
-      <app-generation-loader></app-generation-loader>
+      <app-generation-loader [status] = statusMessage></app-generation-loader>
+      <div *ngIf="statusWarning" class="warning-box">
+        <h4 class="warning-title">Grounding taking long time</h4>
+        <p class="warning-text">
+          Probably you sent a large amount of data to the solver.
+          If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+          or try to send a smaller amount data to the solver.
+          You can then track the progress in the “Ongoing Analyses” page.
+        </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
+      </div>
     </div>
     <div class="chart-wrapper" *ngIf="optProdProfChart">
       <app-energy-chart
@@ -96,7 +135,20 @@
   <div class="chart-section">
     <h2 class="section-title">Total Production vs Consumption</h2>
     <div *ngIf="!totalComparisonChart" class="loading-container">
-      <app-generation-loader></app-generation-loader>
+      <app-generation-loader [status] = statusMessage></app-generation-loader>
+      <div *ngIf="statusWarning" class="warning-box">
+        <h4 class="warning-title">Grounding taking long time</h4>
+        <p class="warning-text">
+          Probably you sent a large amount of data to the solver.
+          If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+          or try to send a smaller amount data to the solver.
+          You can then track the progress in the “Ongoing Analyses” page.
+        </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
+      </div>
     </div>
     <div class="chart-wrapper" *ngIf="totalComparisonChart">
       <app-energy-chart
@@ -111,7 +163,21 @@
   <div class="chart-section">
     <h2 class="section-title">Key Performance Indicators (KPIs)</h2>
     <div *ngIf="!kpiChart" class="loading-container">
-      <app-generation-loader></app-generation-loader>
+      <app-generation-loader [status] = statusMessage></app-generation-loader>
+      <div *ngIf="statusWarning" class="warning-box">
+        <h4 class="warning-title">Grounding taking long time</h4>
+        <p class="warning-text">
+          Probably you sent a large amount of data to the solver.
+          If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+          (<strong>but you have to redo the generation</strong>)
+          or try to send a smaller amount data to the solver.
+          You can then track the progress in the “Ongoing Analyses” page.
+        </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
+      </div>
     </div>
     <div class="chart-wrapper" *ngIf="kpiChart">
       <app-energy-chart

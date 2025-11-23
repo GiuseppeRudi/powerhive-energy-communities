@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { CommonModule } from '@angular/common';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
@@ -14,6 +14,7 @@ import { SaveAnalysisRequest } from '../../model/SaveAnalysisRequest';
 import {HistoryDetail} from '../../model/history/HistoryDetail';
 import {HistorySummary} from '../../model/history/HistorySummary';
 import {FormsModule} from '@angular/forms';
+import {ClingoEventsService} from '../../services/clingo-events.service';
 import {AnalysisActionsComponent} from '../analysis-save/analysis-save';
 
 @Component({
@@ -23,7 +24,7 @@ import {AnalysisActionsComponent} from '../analysis-save/analysis-save';
   imports: [CommonModule, EnergyChartComponent, GenerationLoader, FormsModule, AnalysisActionsComponent],
   styleUrls: ['./analysis1.css', '../welcome/welcome.css']
 })
-export class Analysis1 implements OnInit {
+export class Analysis1 implements OnInit,OnDestroy {
 
   history : HistorySummary | undefined = undefined ;
   typeAnalisys : number = 1
@@ -61,16 +62,31 @@ export class Analysis1 implements OnInit {
     }
   };
 
+  statusMessage = "Starting...";
+  statusWarning: boolean = false;
+
+  memberIds: number[] | undefined = undefined;
+
   constructor(
     private router: Router,
     private route : ActivatedRoute,
     private analysisService: AnalysisService,
     private authService: AuthService,
-    private historyService: HistoryService
+    private historyService: HistoryService,
+    private clingoEvents: ClingoEventsService
   ) {}
 
 
   ngOnInit() {
+    this.resultAnalysis = history.state?.result ?? null;
+
+    if(this.resultAnalysis != null) {
+      this.typeAnalisys = 0;
+      this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+      this.buildAllCharts();
+      return;
+    }
+
     this.route.queryParams.subscribe(params => {
       const historyId = +params['historyId'];
       const memberIdsParam = params['memberIds'];
@@ -87,13 +103,32 @@ export class Analysis1 implements OnInit {
           error: err => console.error('Errore caricamento history:', err)
         });
       } else {
+        this.clingoEvents.connect((eventName,analysisId) => {
+          console.log(eventName);
+          console.log(analysisId);
+          if (analysisId == -1) {
+            if (eventName === 'GROUNDING_STARTED') {
+              this.statusMessage = 'Grounding...';
+            }
+            if (eventName === 'GROUNDING_FINISHED') {
+              this.statusMessage = 'Solving...';
+              if (this.statusWarning) this.statusWarning = false
+            }
+            if (eventName === 'GROUNDING_STILL_RUNNING') {
+              this.statusWarning = true
+            }
+          }
+        });
+        // Nuova analisi
+        this.typeAnalisys = 0;
+
         // Se ci sono memberIds nei query params, passali al backend
         if (memberIdsParam) {
-          const memberIds = memberIdsParam.split(',').map((id: string) => +id);
-          console.log('Running analysis with member IDs:', memberIds);
+          this.memberIds = memberIdsParam.split(',').map((id: string) => +id);
+          console.log('Running analysis with member IDs:', this.memberIds);
 
           // Chiama il servizio con i memberIds
-          this.analysisService.getResultAnalysis_1(memberIds).subscribe({
+          this.analysisService.getResultAnalysis_1(this.memberIds).subscribe({
             next: (data) => {
               this.resultAnalysis = data;
               this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
@@ -106,6 +141,9 @@ export class Analysis1 implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    if (this.clingoEvents) this.clingoEvents.disconnect();
+  }
 
   toggleMember(memberId: number) {
     const currentState = this.memberExpandedState.get(memberId) || false;
@@ -267,4 +305,14 @@ export class Analysis1 implements OnInit {
     this.kpiChart = undefined;
   }
 
+  runAnalysisAsync() {
+    const memberIds = this.memberIds;
+    const userJson = sessionStorage.getItem('currentUser');
+    if (!userJson) return;
+
+    const user: User = JSON.parse(userJson);
+    this.analysisService.runAsync1(user.id, 1, memberIds).subscribe(id => {
+      this.router.navigate(['/ongoing-analysis']);
+    });
+  }
 }

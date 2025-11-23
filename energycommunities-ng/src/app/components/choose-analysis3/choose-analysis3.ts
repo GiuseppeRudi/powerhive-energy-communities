@@ -229,15 +229,88 @@ export class ChooseAnalysis3 implements OnInit {
   }
 
   loadHistory(): void {
+    this.loading = true;
+    this.error = null;
 
+    this.historyService.getHistories(this.userId).subscribe({
+      next: (data) => {
+        console.log(data);
+        const filteredData = data.filter(h => h.analysisNumber === 2);
+        // Ordina dalla più recente alla più vecchia
+        this.historyList = filteredData.sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        console.log(this.historyList);
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = 'Errore nel caricamento della cronologia';
+        this.loading = false;
+        console.error(err);
+      }
+    });
   }
 
 
   addCommunityDefault(historyId: number) {
 
+    this.showMissingWarning = false;
+    this.missingMembersList = [];
+
+    this.historyService.getHistoryMembers(historyId).subscribe({
+      next: (assignmentsList: any[]) => {
+        console.log('Lista membri ricevuta (Light Payload):', assignmentsList);
+
+        if (assignmentsList && Array.isArray(assignmentsList)) {
+
+          const currentPlanIds = this.members.map(m => m.id);
+          const validIds: number[] = [];
+          const missingNames: string[] = [];
+
+          assignmentsList.forEach((item: any) => {
+            let id: number;
+            let name: string;
+
+            if (typeof item === 'number') {
+              id = item;
+              name = `ID ${item}`;
+            } else {
+              id = Number(item.id || item.memberId);
+              name = item.fullName || `ID ${id}`;
+            }
+
+            if (currentPlanIds.includes(id)) {
+              validIds.push(id);
+            } else {
+              missingNames.push(name);
+            }
+          });
+          this.communityMembers = validIds;
+          this.wantToAdd = [];
+          this.wantToRemove = [];
+          window.scrollTo({top: 270, behavior: 'smooth'});
+          this.showSavedAnalysis = false;
+          console.log(`Applicati ${this.communityMembers.length} membri validi.`);
+
+          if (missingNames.length > 0) {
+            this.missingMembersList = missingNames;
+            this.showMissingWarning = true;
+          }
+
+        } else {
+          console.warn('Risposta vuota o formato non valido.');
+        }
+
+      },
+      error: (err) => {
+        console.error('Errore API GetMembers:', err);
+        alert('Impossibile caricare l\'analisi selezionata.');
+      }
+    });
   }
 
   closeWarning() {
-
+    this.showMissingWarning = false;
   }
 }

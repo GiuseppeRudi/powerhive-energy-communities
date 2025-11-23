@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import it.unical.demacs.asd.energycommunities.data.services.HistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import java.util.List;
 
@@ -63,6 +64,18 @@ public class HistoryController {
         }
     }
 
-
+    @GetMapping("/getMembers/{id}")
+    public ResponseEntity<Object> getHistoryMembers(@PathVariable Long id) {
+        HistoryDetailDto historyDto = historyService.getHistoryById(id);
+        if (historyDto == null) {
+            return ResponseEntity.notFound().build();
+        }
+        JsonNode analysisData = historyDto.getAnalysisData();
+        if (analysisData == null) {
+            return ResponseEntity.ok(JsonNodeFactory.instance.arrayNode());
+        }
+        JsonNode membersNode = analysisData.path("assignments");
+        return ResponseEntity.ok(membersNode);
+    }
 }
 

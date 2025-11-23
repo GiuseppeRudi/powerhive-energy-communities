@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import it.unical.demacs.asd.energycommunities.data.services.BatteryService;
@@ -25,7 +26,7 @@ public class BatteryController {
     private final BatteryService batteryService;
 
     @PostMapping("/plan/{plan_id}")
-    public ResponseEntity<BatteryDto> add_battery(@PathVariable Long plan_id, BatteryDto battery){
+    public ResponseEntity<BatteryDto> add_battery(@PathVariable Long plan_id, @RequestBody BatteryDto battery){
         return ResponseEntity.ok(batteryService.add_battery(plan_id, battery));
     }
 

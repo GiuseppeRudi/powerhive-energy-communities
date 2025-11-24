@@ -70,3 +70,4 @@ surplus_energy_per_member(M,T,Value1-Value2) :-
 %#show energy_snapshot/3.
 #show assign/1.
 #show battery/3.
+#show budget/1.

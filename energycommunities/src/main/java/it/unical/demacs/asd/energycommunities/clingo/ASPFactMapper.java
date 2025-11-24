@@ -42,6 +42,9 @@ public class ASPFactMapper {
             facts.append(String.format("battery(%d,%d,%d).\n",
                     battery.getId(), battery.getCapacity(), battery.getPrice()));
         }
+
+        facts.append(String.format("budget(%d).\n", budget));
+
         return facts.toString();
     }
 

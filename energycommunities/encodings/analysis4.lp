@@ -3,8 +3,12 @@
 % profileGraph(MemberId,ProfileId,Hour,Value)
 % wantToAdd(MemberId)
 % wantToRemove(MemberId)
+
+
 % budget(money)
 % battery(id, capacity, cost)
+value(1..5).
+
 
 
 time(T) :- profileGraph(_,_,T,_).
@@ -14,9 +18,6 @@ time(T) :- profileGraph(_,_,T,_).
 
 % Is not possible to assign a battery for a consumer
 
-% i would prefer to assign a battery at a prosumer instead of producer
-% if i have much prosumer choose the best
-% i thing that is not important because when i use the weak to maximize the shared energy already choose the best target for a battery
 
 % the sum of all  cost battery assign to a specific member is not greater to the budget
 

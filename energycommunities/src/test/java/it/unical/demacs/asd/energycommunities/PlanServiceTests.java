@@ -43,7 +43,7 @@ import javax.naming.NameNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.web.server.ResponseStatusException;
 
-import it.unical.demacs.asd.energycommunities.dto.ManualMemberDto;
+import it.unical.demacs.asd.energycommunities.dto.member.ManualMemberDto;
 
 
 @ExtendWith(MockitoExtension.class)

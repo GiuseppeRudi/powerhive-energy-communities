@@ -1,7 +1,7 @@
 package it.unical.demacs.asd.energycommunities.config;
 
 import it.unical.demacs.asd.energycommunities.data.entities.*;
-import it.unical.demacs.asd.energycommunities.dto.analysis.OngoingAnalysisDto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.result.OngoingAnalysisDto;
 import it.unical.demacs.asd.energycommunities.dto.battery.BatteryDto;
 import it.unical.demacs.asd.energycommunities.dto.history.HistoryDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.history.HistorySummaryDto;

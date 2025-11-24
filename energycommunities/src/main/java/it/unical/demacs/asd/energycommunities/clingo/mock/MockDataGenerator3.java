@@ -1,5 +1,7 @@
-package it.unical.demacs.asd.energycommunities.clingo;
+package it.unical.demacs.asd.energycommunities.clingo.mock;
 
+
+import it.unical.demacs.asd.energycommunities.clingo.ASPService;
 import it.unical.demacs.asd.energycommunities.data.utils.MemberType;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
@@ -13,10 +15,10 @@ import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
-public class MockDataGenerator2 {
+public class MockDataGenerator3 {
 
     public static List<MemberDetailDto> generateListOfMembers() {
-      
+
 
         List<MemberDetailDto> members = new ArrayList<>();
         long memberId = 1;
@@ -33,7 +35,7 @@ public class MockDataGenerator2 {
         ProfileDto ProfileDto = new ProfileDto();
         ProfileDto.setId(1L);
         ProfileDto.setProfileType(ProfileType.PRODUCER);
-        
+
         ProfileDto.setGraph(generateRandomGraph(random, 0, 12));
         profiles1.add(ProfileDto);
         member1.setProfiles(profiles1);
@@ -264,8 +266,7 @@ public class MockDataGenerator2 {
     }
 
     public static void main(String[] args) {
-        List<MemberDetailDto> members = MockDataGenerator2.generateListOfMembers();
-
+        List<MemberDetailDto> members = MockDataGenerator3.generateListOfMembers();
 
         ASPService aspService = new ASPService();
         List<Long> wantToAdd = new ArrayList<>();

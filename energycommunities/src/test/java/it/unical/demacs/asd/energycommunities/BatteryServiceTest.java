@@ -59,8 +59,8 @@ public class BatteryServiceTest {
         mockBattery = new Battery();
         mockBattery.setId(100L);
         mockBattery.setModel("Tesla Powerwall");
-        mockBattery.setCapacity(13.5f);
-        mockBattery.setPrice(8000.0f);
+        mockBattery.setCapacity(13);
+        mockBattery.setPrice(8000);
         mockBattery.setPlan(mockPlan);
 
         // Aggiungiamo la batteria al piano per i test di recupero liste
@@ -70,8 +70,8 @@ public class BatteryServiceTest {
         mockBatteryDto = new BatteryDto();
         mockBatteryDto.setId(100L);
         mockBatteryDto.setModel("Tesla Powerwall");
-        mockBatteryDto.setCapacity(13.5f);
-        mockBatteryDto.setPrice(8000.0f);
+        mockBatteryDto.setCapacity(13);
+        mockBatteryDto.setPrice(8000);
     }
 
     @Test
@@ -102,8 +102,8 @@ public class BatteryServiceTest {
         // DTO in input (senza ID, simula una nuova creazione)
         BatteryDto inputDto = new BatteryDto();
         inputDto.setModel("Tesla Powerwall");
-        inputDto.setCapacity(13.5f);
-        inputDto.setPrice(8000.0f);
+        inputDto.setCapacity(13);
+        inputDto.setPrice(8000);
 
         when(planDao.findById(1L)).thenReturn(Optional.of(mockPlan));
         // Quando salviamo una qualsiasi batteria, ritorniamo quella mockata completa di ID

@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 import javax.naming.NameNotFoundException;
 
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
-import it.unical.demacs.asd.energycommunities.dto.ManualMemberDto;
+import it.unical.demacs.asd.energycommunities.dto.member.ManualMemberDto;
 import it.unical.demacs.asd.energycommunities.dto.plan.PlanDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.plan.PlanSummaryDto;
 import org.springframework.web.multipart.MultipartFile;

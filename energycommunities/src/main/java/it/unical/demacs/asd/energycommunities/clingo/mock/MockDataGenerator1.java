@@ -1,6 +1,6 @@
-package it.unical.demacs.asd.energycommunities.clingo;
+package it.unical.demacs.asd.energycommunities.clingo.mock;
 
-import it.unical.demacs.asd.energycommunities.data.entities.*;
+import it.unical.demacs.asd.energycommunities.clingo.ASPService;
 import it.unical.demacs.asd.energycommunities.data.utils.MemberType;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
@@ -14,9 +14,9 @@ import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
-public class MockDataGenerator {
+public class MockDataGenerator1 {
 
-    public static List<MemberDetailDto> createMockUser() {
+    public static List<MemberDetailDto> generateListOfMembers() {
         
 
         List<MemberDetailDto> members = new ArrayList<>();
@@ -290,6 +290,14 @@ public class MockDataGenerator {
         }
 
         return graph;
+    }
+
+    public static void main(String[] args) {
+        List<MemberDetailDto> members = MockDataGenerator1.generateListOfMembers();
+
+
+        ASPService aspService = new ASPService();
+        aspService.chooseBestProfiles(members);
     }
 }
 

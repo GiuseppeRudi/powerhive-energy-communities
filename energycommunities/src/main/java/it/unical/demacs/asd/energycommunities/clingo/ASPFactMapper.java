@@ -1,6 +1,7 @@
 package it.unical.demacs.asd.energycommunities.clingo;
 
 import it.unical.demacs.asd.energycommunities.data.entities.*;
+import it.unical.demacs.asd.energycommunities.dto.battery.BatteryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 
@@ -22,6 +23,24 @@ public class ASPFactMapper {
                     member.getId(), member.getMemberType().name().toLowerCase()));
 
             profilesAndGraphsToFacts(facts, member);
+        }
+        return facts.toString();
+    }
+
+    public static String toFacts4(List<MemberDetailDto> members, List<BatteryDto> batteries, int  budget) {
+        StringBuilder facts = new StringBuilder();
+
+        for (MemberDetailDto member : members) {
+            facts.append(String.format("member(%d,%s).\n",
+                    member.getId(), member.getMemberType().name().toLowerCase()));
+
+            profilesAndGraphsToFacts(facts, member);
+        }
+
+
+        for (BatteryDto battery : batteries) {
+            facts.append(String.format("battery(%d,%d,%d).\n",
+                    battery.getId(), battery.getCapacity(), battery.getPrice()));
         }
         return facts.toString();
     }

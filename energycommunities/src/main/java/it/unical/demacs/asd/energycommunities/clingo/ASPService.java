@@ -4,10 +4,8 @@ import it.unical.demacs.asd.energycommunities.controller.ClingoStreamController;
 import it.unical.demacs.asd.energycommunities.data.dao.OngoingAnalysisDao;
 import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
-import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis1Dto;
-import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis2Dto;
-import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis3Dto;
-import it.unical.demacs.asd.energycommunities.dto.analysis.SingleAnalysis;
+import it.unical.demacs.asd.energycommunities.dto.analysis.result.*;
+import it.unical.demacs.asd.energycommunities.dto.battery.BatteryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +21,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,6 +73,21 @@ public class ASPService {
         }
     }
 
+    public ResultAnalysis4Dto generateChooseBatteries(List<MemberDetailDto> members, List<BatteryDto> batteries, int budget) {
+        int analysis = 4;
+        String facts = ASPFactMapper.toFacts4(members,batteries,budget);
+        String[] bestModel = calculateBestModel(facts,analysis,-1);
+
+        if (bestModel != null) {
+            return createBestModel4Dto(members, bestModel);
+        }  else {
+            return null;
+        }
+    }
+
+
+
+
     public ResultAnalysis2Dto generateOptimalCommunityDim(List<MemberDetailDto> members, int dim){
         int analysis = 2;
         String facts = ASPFactMapper.toFacts2(members,analysis,dim);
@@ -89,6 +100,7 @@ public class ASPService {
             return null;
         }
     }
+
 
     public ResultAnalysis3Dto generateOptimalCommunity(List<MemberDetailDto> members , List<Long> wantToAdd, List<Long> wantToRemove){
         int analysis = 3;
@@ -190,9 +202,12 @@ public class ASPService {
                 ctl.load(Path.of("energycommunities/encodings/analysis1.lp"));
             } else if (analysis == 2) {
                 ctl.load(Path.of("energycommunities/encodings/analysis2.lp"));
-            } else {
+            } else if (analysis == 3) {
                 ctl.load(Path.of("energycommunities/encodings/analysis3.lp"));
+            } else if (analysis == 4) {
+                ctl.load(Path.of("energycommunities/encodings/analysis4.lp"));
             }
+
             ctl.add(facts);
             streamController.sendEvent("GROUNDING_STARTED",analysisId);
             System.out.println("Grounding...");
@@ -275,6 +290,30 @@ public class ASPService {
 
             } catch (InterruptedException ignored) {}
         });
+    }
+
+    public ResultAnalysis4Dto createBestModel4Dto(List<MemberDetailDto> members, String[] bestModel) {
+        ResultAnalysis4Dto resultAnalysis4Dto = new ResultAnalysis4Dto();
+        Map<Long,Long> assignment=new HashMap<>();
+
+        Pattern assignPattern = Pattern.compile("assign\\((\\d+),(\\d+)\\)");
+
+
+        for (String a : bestModel) {
+            Matcher assignMatcher = assignPattern.matcher(a);
+
+            if (assignMatcher.find()) {
+                long memberId = Long.parseLong(assignMatcher.group(1));
+                long batteryId = Long.parseLong(assignMatcher.group(2));
+
+                assignment.put(memberId,batteryId);
+
+            }
+        }
+
+        resultAnalysis4Dto.setAssignment(assignment);
+
+        return resultAnalysis4Dto;
     }
 
     public ResultAnalysis1Dto createBestModel1Dto(List<MemberDetailDto> members, String[] bestModel) {

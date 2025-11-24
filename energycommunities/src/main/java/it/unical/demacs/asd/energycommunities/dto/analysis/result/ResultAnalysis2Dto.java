@@ -1,4 +1,4 @@
-package it.unical.demacs.asd.energycommunities.dto.analysis;
+package it.unical.demacs.asd.energycommunities.dto.analysis.result;
 
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import lombok.Data;

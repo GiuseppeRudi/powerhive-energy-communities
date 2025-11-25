@@ -195,9 +195,18 @@ public class ASPService {
 
         System.out.println("Starting...");
 
-        try (Control ctl = new Control("0", "--opt-mode=opt")) {
+        try (Control ctl = new Control("0", "--opt-mode=opt", "--parallel-mode=12")) {
             long startClingo = System.currentTimeMillis();
-            // ctl.getConfiguration().get("solve").set("solve_limit", "900");
+            // ctl.getConfiguration().get("solve").set("solve_limit", "100000");
+            Thread thread = new Thread(() -> {
+                try {
+                    Thread.sleep(20000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            thread.start();
+
             if (analysis == 1) {
                 ctl.load(Path.of("energycommunities/encodings/analysis1.lp"));
             } else if (analysis == 2) {
@@ -239,6 +248,7 @@ public class ASPService {
                         bestCost = cost.clone();
                         bestModelStr = model.toString();
                     }
+                    if(!thread.isAlive()) break;
                 }
             }
 

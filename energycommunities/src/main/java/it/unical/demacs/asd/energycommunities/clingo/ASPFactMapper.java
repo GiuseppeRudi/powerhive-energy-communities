@@ -34,7 +34,7 @@ public class ASPFactMapper {
             facts.append(String.format("member(%d,%s).\n",
                     member.getId(), member.getMemberType().name().toLowerCase()));
 
-            profilesAndGraphsToFacts(facts, member);
+            profilesAndGraphsToFacts2(facts, member);
         }
 
 
@@ -73,6 +73,17 @@ public class ASPFactMapper {
                 pos++;
             }
 
+        }
+    }
+
+    private static void profilesAndGraphsToFacts2(StringBuilder facts, MemberDetailDto member) {
+        int pos = 0;
+        for (ProfileDto profile : member.getProfiles()) {
+            for (Integer val: profile.getGraph()) {
+                facts.append(String.format("profile(%d,%s,%d,%d).\n",
+                    member.getId(), profile.getProfileType().name().toLowerCase(), pos, val));
+                pos++;
+            }
         }
     }
 }

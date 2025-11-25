@@ -30,20 +30,6 @@ batteryStatusPerHour(B,M,0,0) :- assign(M,B).
 { charge_amt(B,M,T,A) : amount(A) } =1 :-
     action(B,M,T,charge).
 
-batteryStatusPerHour(B,M,T,E2) :-
-    time(T), T > 0,
-    batteryStatusPerHour(B,M,T-1,E1),
-    action(B,M,T,charge),
-    charge_amt(B,M,T,A),
-    E2 = E1 + A.
-
-batteryStatusPerHour(B,M,T,E2) :-
-    time(T), T > 0,
-    batteryStatusPerHour(B,M,T-1,E1),
-    action(B,M,T,discharge),
-    discharge_amt(B,M,T,A),
-    E2 = E1 - A.
-
 % effect of battery charge
 batteryStatusPerHour(B,M,T,E2) :-
     batteryStatusPerHour(B,M,T-1,E1),
@@ -64,12 +50,12 @@ batteryStatusPerHour(B,M,T,E2) :-
    C < (E+A).
 
 % for each action from battery B and member M at time t choose a amount of charge (value 1 to 5)
-{ discharge_amt(B,M,T,A) : amount(A) } <=  1 :- action(B,M,T,discharge).
+{ discharge_amt(B,M,T,A) : amount(A) } =  1 :- action(B,M,T,discharge).
 
 % effect of battery discharge
 batteryStatusPerHour(B,M,T,E2) :-
     batteryStatusPerHour(B,M,T-1,E1),
-    T>0, T<24,
+    T>0,
     action(B,M,T,discharge),
     discharge_amt(B,M,T,A),
     E2 = E1 - A.
@@ -80,14 +66,11 @@ batteryStatusPerHour(B,M,T,E2) :-
    battery(B,C,_),
    (E-A) < 0.
 
-
+batteryStatusPerHour(B,M,T,E) :- action(B,M,T,nothing), batteryStatusPerHour(B,M,T-1,E).
 
 % the sum of all  cost battery assign to a specific member is not greater to the budget
 totalPrice(T) :- #sum{C,M: battery(B,_,C), assign(M,B)}=T.
 :- budget(B), totalPrice(T), T > B.
-
-
-
 
 consumers_consumption_per_hour(T,V) :-
     time(T),

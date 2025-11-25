@@ -77,8 +77,9 @@ public class ASPFactMapper {
     }
 
     private static void profilesAndGraphsToFacts2(StringBuilder facts, MemberDetailDto member) {
-        int pos = 0;
+
         for (ProfileDto profile : member.getProfiles()) {
+            int pos = 0;
             for (Integer val: profile.getGraph()) {
                 facts.append(String.format("profile(%d,%s,%d,%d).\n",
                     member.getId(), profile.getProfileType().name().toLowerCase(), pos, val));

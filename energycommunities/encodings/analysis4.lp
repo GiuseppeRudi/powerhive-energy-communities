@@ -5,7 +5,7 @@
 
 % batteryStatusPerHour(BatteryID, MemberId, Time , Value)
 
-amount(1..5).
+amount(2).
 time(0..23).
 
 
@@ -37,13 +37,13 @@ batteryStatusPerHour(B,M,T,E2) :-
     action(B,M,T,charge),
     charge_amt(B,M,T,A),
     E2 = E1 + A.
-    
+
 % it not possible to charge a battery with a specific amount A if the production P at time t if A > P
 :- charge_amt(B,M,T,A),
    profile(M,producer,T,V),
    A>V.
-   
-% is not possible to charge a battery B connected to member M if the maximum capacity C is less than the current batteryStatusPerHour E plus the amount of charge A 
+
+% is not possible to charge a battery B connected to member M if the maximum capacity C is less than the current batteryStatusPerHour E plus the amount of charge A
 :- charge_amt(B,M,T,A),
    batteryStatusPerHour(B,M,T,E),
    battery(B,C,_),
@@ -89,24 +89,12 @@ energy_snapshot(T,B,A-B) :- consumers_consumption_per_hour(T,A), producers_produ
 
 max_gap(K) :- K = #max{0; Z : energy_snapshot(_,_,Z)}.
 
-surplus_energy_per_member(M,T,Value2-Value1) :-
-    profile(M,producer,T,Value1),
-    profile(M,consumer,T,Value2),
-    Value1<=Value2.
-
-surplus_energy_per_member(M,T,Value1-Value2) :-
-    profile(M,producer,T,Value1),
-    profile(M,consumer,T,Value2),
-    Value1>Value2.
 
 % vincoli deboli per minimizzare gap
-:~ max_gap(K). [K@5] % minimizza il gap maggiore
-:~ energy_snapshot(T,_,K). [K@4,T] % minimizza il bilancio totale (efficienza)
-
+:~ max_gap(K). [K@3] % minimizza il gap maggiore
+:~ totalPrice(T). [T@2]
+:~ energy_snapshot(T,_,K). [K@1,T] % minimizza il bilancio totale (efficienza)
 % i prefer to choose a best combinations that minimize the cost of all batteries
-:~ totalPrice(T). [T@3]
-:~ producers_production_per_hour(T,P), consumers_consumption_per_hour(T,C). [C-P@2,T]
-:~ surplus_energy_per_member(M,T,S). [S@1,M,T] % massimizzare l'autoconsumo
 
 %#show consumers_consumption_per_hour/2.
 %#show producers_production_per_hour/2.
@@ -114,4 +102,3 @@ surplus_energy_per_member(M,T,Value1-Value2) :-
 
 #show assign/2.
 #show batteryStatusPerHour/4.
-#show battery/3.

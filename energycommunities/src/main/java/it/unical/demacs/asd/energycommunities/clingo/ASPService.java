@@ -6,6 +6,7 @@ import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import it.unical.demacs.asd.energycommunities.dto.analysis.result.*;
 import it.unical.demacs.asd.energycommunities.dto.battery.BatteryDto;
+import it.unical.demacs.asd.energycommunities.dto.battery.BatteryStatusDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
@@ -292,29 +293,66 @@ public class ASPService {
         });
     }
 
+
     public ResultAnalysis4Dto createBestModel4Dto(List<MemberDetailDto> members, String[] bestModel) {
         ResultAnalysis4Dto resultAnalysis4Dto = new ResultAnalysis4Dto();
-        Map<Long,Long> assignment=new HashMap<>();
+
+        Map<Long, Long> assignment = new HashMap<>();
+
+        // memberId-batteryId -> BatteryStatusDto
+        Map<String, BatteryStatusDto> tmp = new HashMap<>();
 
         Pattern assignPattern = Pattern.compile("assign\\((\\d+),(\\d+)\\)");
-
+        Pattern profileBatteryPattern = Pattern.compile("batteryStatusPerHour\\((\\d+),(\\d+),(\\d+),(\\d+)\\)");
 
         for (String a : bestModel) {
-            Matcher assignMatcher = assignPattern.matcher(a);
 
-            if (assignMatcher.find()) {
+            // --- assign(M,B) ---
+            Matcher assignMatcher = assignPattern.matcher(a);
+            while (assignMatcher.find()) { // nel caso ci siano più assign nella stessa stringa
                 long memberId = Long.parseLong(assignMatcher.group(1));
                 long batteryId = Long.parseLong(assignMatcher.group(2));
+                assignment.put(memberId, batteryId);
+            }
 
-                assignment.put(memberId,batteryId);
+            // --- batteryStatusPerHour(B,M,T,E) ---
+            Matcher profileBatteryMatcher = profileBatteryPattern.matcher(a);
+            while (profileBatteryMatcher.find()) {
+                long batteryId = Long.parseLong(profileBatteryMatcher.group(1));
+                long memberId = Long.parseLong(profileBatteryMatcher.group(2));
+                int time = Integer.parseInt(profileBatteryMatcher.group(3));   // 0..23
+                int energy = Integer.parseInt(profileBatteryMatcher.group(4));
 
+                String key = memberId + "-" + batteryId;
+
+                BatteryStatusDto dto = tmp.computeIfAbsent(key, k -> {
+                    BatteryStatusDto d = new BatteryStatusDto();
+                    d.setMemberId(memberId);
+                    d.setBatteryId(batteryId);
+                    // assicuriamoci che l'array sia creato (se non lo fai nel costruttore)
+                    if (d.getEnergyByHour() == null) {
+                        d.setEnergyByHour(new int[24]);
+                    }
+                    return d;
+                });
+
+                // salva l’energia per l’ora T
+                if (time >= 0 && time < 24) {
+                    dto.getEnergyByHour()[time] = energy;
+                }
             }
         }
 
+        // converto la mappa in lista
+        List<BatteryStatusDto> batteryStatuses = new ArrayList<>(tmp.values());
+
         resultAnalysis4Dto.setAssignment(assignment);
+        resultAnalysis4Dto.setBatteryStatus(batteryStatuses);
 
         return resultAnalysis4Dto;
     }
+
+
 
     public ResultAnalysis1Dto createBestModel1Dto(List<MemberDetailDto> members, String[] bestModel) {
         ResultAnalysis1Dto resultAnalysis1Dto = new ResultAnalysis1Dto();

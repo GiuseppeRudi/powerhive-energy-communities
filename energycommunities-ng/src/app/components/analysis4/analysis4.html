@@ -1,0 +1,202 @@
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title></title>
+</head>
+
+<div class="content-div">
+  <div class="disclaimer">
+    <p><strong>Energy Community Analysis 1 Dashboard</strong></p>
+    <p>
+      For each member, given a set of production and consumption profiles,
+      our app applies a decision-making algorithm to select the optimal production
+      and consumption profile for each member, in order to optimize the shared energy
+      within the energy community.
+    </p>
+  </div>
+
+  <!-- Azioni solo se ci sono dati -->
+  <app-analysis-actions
+    [resultAnalysis]="resultAnalysis"
+    [typeAnalysis]="typeAnalisys"
+    [history]="history"
+    (terminated)="resetAnalysisData()"
+  ></app-analysis-actions>
+
+
+  <!-- Member Profiles -->
+  <div class="chart-section">
+    <h2 class="section-title">Optimal Member Profiles Chosen</h2>
+    <div class="members-list">
+      <div *ngIf="!resultAnalysis || !resultAnalysis.assignments || resultAnalysis.assignments.length === 0" class="loading-container">
+        <app-generation-loader [status] = statusMessage></app-generation-loader>
+        <div *ngIf="statusWarning" class="warning-box">
+          <h4 class="warning-title">Grounding taking long time</h4>
+          <p class="warning-text">
+            Probably you sent a large amount of data to the solver.
+            If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+            or try to send a smaller amount data to the solver.
+            You can then track the progress in the “Ongoing Analyses” page.
+          </p>
+          <br>
+          <button class="btn btn-async" (click)="runAnalysisAsync()">
+            <i class="fa-solid fa-rocket"></i> Run Asynchronously
+          </button>
+        </div>
+      </div>
+
+
+      <div *ngFor="let member of resultAnalysis?.assignments" class="member-card">
+        <div class="member-header" (click)="toggleMember(member.id)">
+          <div class="member-info">
+            <h3 class="member-name">{{ member.fullName }}</h3>
+            <span class="member-badge" [class]="getMemberTypeLabel(member).toLowerCase()">
+              {{ getMemberTypeLabel(member) }}
+            </span>
+          </div>
+          <div class="expand-icon" [class.expanded]="isMemberExpanded(member.id)">
+            <i class="fa-solid fa-square-caret-down"></i>
+          </div>
+        </div>
+
+        <div class="member-content" [class.expanded]="isMemberExpanded(member.id)">
+          <div *ngIf="chartDataMap.get(member.id)">
+            <h4>Production/Consumption Graph</h4>
+            <app-energy-chart
+              [data]="chartDataMap.get(member.id)!"
+              [options]="chartOptions"
+              [selectedChartType]="'line'">
+            </app-energy-chart>
+          </div>
+          <div *ngIf="!chartDataMap.get(member.id)" class="no-data">
+            <p>No energy profiles available for this member.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Optimal Consumption Profiles -->
+  <div class="chart-section">
+    <h2 class="section-title">Optimal Consumption Profiles</h2>
+    <div *ngIf="!optConsProfChart" class="loading-container">
+      <app-generation-loader [status] = statusMessage></app-generation-loader>
+      <div *ngIf="statusWarning" class="warning-box">
+        <h4 class="warning-title">Grounding taking long time</h4>
+        <p class="warning-text">
+          Probably you sent a large amount of data to the solver.
+          If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+          or try to send a smaller amount data to the solver.
+          You can then track the progress in the “Ongoing Analyses” page.
+        </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
+      </div>
+    </div>
+    <div class="chart-wrapper" *ngIf="optConsProfChart">
+      <app-energy-chart
+        [data]="optConsProfChart"
+        [options]="chartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+  </div>
+
+  <!-- Optimal Production Profiles -->
+  <div class="chart-section">
+    <h2 class="section-title">Optimal Production Profiles</h2>
+    <div *ngIf="!optProdProfChart" class="loading-container">
+      <app-generation-loader [status] = statusMessage></app-generation-loader>
+      <div *ngIf="statusWarning" class="warning-box">
+        <h4 class="warning-title">Grounding taking long time</h4>
+        <p class="warning-text">
+          Probably you sent a large amount of data to the solver.
+          If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+          or try to send a smaller amount data to the solver.
+          You can then track the progress in the “Ongoing Analyses” page.
+        </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
+      </div>
+    </div>
+    <div class="chart-wrapper" *ngIf="optProdProfChart">
+      <app-energy-chart
+        [data]="optProdProfChart"
+        [options]="chartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+  </div>
+
+  <!-- Total Production vs Consumption -->
+  <div class="chart-section">
+    <h2 class="section-title">Total Production vs Consumption</h2>
+    <div *ngIf="!totalComparisonChart" class="loading-container">
+      <app-generation-loader [status] = statusMessage></app-generation-loader>
+      <div *ngIf="statusWarning" class="warning-box">
+        <h4 class="warning-title">Grounding taking long time</h4>
+        <p class="warning-text">
+          Probably you sent a large amount of data to the solver.
+          If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+          or try to send a smaller amount data to the solver.
+          You can then track the progress in the “Ongoing Analyses” page.
+        </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
+      </div>
+    </div>
+    <div class="chart-wrapper" *ngIf="totalComparisonChart">
+      <app-energy-chart
+        [data]="totalComparisonChart"
+        [options]="chartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+  </div>
+
+  <!-- KPI Indexes -->
+  <div class="chart-section">
+    <h2 class="section-title">Key Performance Indicators (KPIs)</h2>
+    <div *ngIf="!kpiChart" class="loading-container">
+      <app-generation-loader [status] = statusMessage></app-generation-loader>
+      <div *ngIf="statusWarning" class="warning-box">
+        <h4 class="warning-title">Grounding taking long time</h4>
+        <p class="warning-text">
+          Probably you sent a large amount of data to the solver.
+          If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+          (<strong>but you have to redo the generation</strong>)
+          or try to send a smaller amount data to the solver.
+          You can then track the progress in the “Ongoing Analyses” page.
+        </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
+      </div>
+    </div>
+    <div class="chart-wrapper" *ngIf="kpiChart">
+      <app-energy-chart
+        [data]="kpiChart"
+        [options]="kpiChartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+
+    <div class="kpi-legend" *ngIf="kpiChart">
+      <div class="kpi-item">
+        <span class="kpi-color" style="background-color: blue;"></span>
+        <strong>Shared Energy:</strong> Percentage of produced energy shared within the community
+      </div>
+      <div class="kpi-item">
+        <span class="kpi-color" style="background-color: orange;"></span>
+        <strong>Self-Sufficiency:</strong> Percentage of energy demand met by local production
+      </div>
+    </div>
+  </div>
+</div>
+

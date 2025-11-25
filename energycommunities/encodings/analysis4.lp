@@ -101,8 +101,8 @@ max_gap(K) :- K = #max{0; Z : energy_snapshot(_,_,Z)}.
 % :~ producers_production_per_hour(T,P), consumers_consumption_per_hour(T,C). [C-P@2,T]
 % :~ surplus_energy_per_member(M,T,S). [S@1,M,T] % massimizzare l'autoconsumo
 
-%#show consumers_consumption_per_hour/2.
-%#show producers_production_per_hour/2.
+#show consumers_consumption_per_hour/2.
+#show producers_production_per_hour/2.
 %#show energy_snapshot/3.
 
 #show assign/2.

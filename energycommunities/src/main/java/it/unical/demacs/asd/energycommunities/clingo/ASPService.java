@@ -86,9 +86,6 @@ public class ASPService {
         }
     }
 
-
-
-
     public ResultAnalysis2Dto generateOptimalCommunityDim(List<MemberDetailDto> members, int dim){
         int analysis = 2;
         String facts = ASPFactMapper.toFacts2(members,analysis,dim);
@@ -311,9 +308,13 @@ public class ASPService {
 
         // memberId-batteryId -> BatteryStatusDto
         Map<String, BatteryStatusDto> tmp = new HashMap<>();
+        Map<Integer, Integer> consPerHour = new HashMap<>();
+        Map<Integer, Integer> prodPerHour = new HashMap<>();
 
         Pattern assignPattern = Pattern.compile("assign\\((\\d+),(\\d+)\\)");
         Pattern profileBatteryPattern = Pattern.compile("batteryStatusPerHour\\((\\d+),(\\d+),(\\d+),(\\d+)\\)");
+        Pattern consumptionPerHour = Pattern.compile("consumers_consumption_per_hour\\((\\d+),(\\d+)\\)");
+        Pattern productionPerHour = Pattern.compile("producers_production_per_hour\\((\\d+),(\\d+)\\)");
 
         for (String a : bestModel) {
 
@@ -323,6 +324,19 @@ public class ASPService {
                 long memberId = Long.parseLong(assignMatcher.group(1));
                 long batteryId = Long.parseLong(assignMatcher.group(2));
                 assignment.put(memberId, batteryId);
+            }
+
+            Matcher consumptionPerHourMatcher = consumptionPerHour.matcher(a);
+            while (consumptionPerHourMatcher.find()) {
+                int time = Integer.parseInt(consumptionPerHourMatcher.group(1));
+                int value = Integer.parseInt(consumptionPerHourMatcher.group(2));
+                consPerHour.put(time, value);
+            }
+            Matcher productionPerHourMatcher = productionPerHour.matcher(a);
+            while (productionPerHourMatcher.find()) {
+                int time = Integer.parseInt(productionPerHourMatcher.group(1));
+                int value = Integer.parseInt(productionPerHourMatcher.group(2));
+                prodPerHour.put(time, value);
             }
 
             // --- batteryStatusPerHour(B,M,T,E) ---
@@ -358,6 +372,15 @@ public class ASPService {
 
         resultAnalysis4Dto.setAssignment(assignment);
         resultAnalysis4Dto.setBatteryStatus(batteryStatuses);
+
+        List<Double> totalProduction = calculateTotal(consPerHour);
+        List<Double> totalConsumption = calculateTotal(prodPerHour);
+
+        resultAnalysis4Dto.setKpi1(calculateKpi(totalConsumption, totalProduction));
+        resultAnalysis4Dto.setKpi2(calculateKpi(totalProduction, totalConsumption));
+
+        resultAnalysis4Dto.setTotalProduction(totalProduction);
+        resultAnalysis4Dto.setTotalConsumption(totalConsumption);
 
         return resultAnalysis4Dto;
     }
@@ -493,6 +516,15 @@ public class ASPService {
                     }
                 }
             }
+        }
+        return totals;
+    }
+
+    private List<Double> calculateTotal(Map<Integer,Integer> energyPerHour) {
+        List<Double> totals = new ArrayList<>(Collections.nCopies(24, 0.0));
+
+        for(int i = 0; i < energyPerHour.size(); i++){
+            totals.set(i, Double.valueOf(energyPerHour.get(i)));
         }
         return totals;
     }

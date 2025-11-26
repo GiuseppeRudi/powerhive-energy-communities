@@ -2,6 +2,7 @@ package it.unical.demacs.asd.energycommunities.config;
 
 import it.unical.demacs.asd.energycommunities.data.entities.*;
 import it.unical.demacs.asd.energycommunities.dto.analysis.OngoingAnalysisDto;
+import it.unical.demacs.asd.energycommunities.dto.battery.BatteryDto;
 import it.unical.demacs.asd.energycommunities.dto.history.HistoryDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.history.HistorySummaryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
@@ -29,35 +30,34 @@ public class ModelMapperConfig {
                 .setFieldMatchingEnabled(true)
                 .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE);
 
-
         modelMapper.createTypeMap(Member.class, MemberSummaryDto.class)
-                        .setConverter(context -> {
-                            Member source = context.getSource();
-                            MemberSummaryDto dto = new MemberSummaryDto();
-                            dto.setId(source.getId());
-                            dto.setFullName(source.getFullName());
-                            dto.setEmail(source.getEmail());
-                            dto.setEmail(source.getEmail());
-                            dto.setMemberType(source.getMemberType());
-                            return dto;
-                        });
+                .setConverter(context -> {
+                    Member source = context.getSource();
+                    MemberSummaryDto dto = new MemberSummaryDto();
+                    dto.setId(source.getId());
+                    dto.setFullName(source.getFullName());
+                    dto.setEmail(source.getEmail());
+                    dto.setEmail(source.getEmail());
+                    dto.setMemberType(source.getMemberType());
+                    return dto;
+                });
 
         modelMapper.createTypeMap(Plan.class, PlanSummaryDto.class)
-                        .setConverter( context -> {
-                            Plan source = context.getSource();
-                            PlanSummaryDto dto = new PlanSummaryDto();
-                            dto.setId(source.getId());
+                .setConverter(context -> {
+                    Plan source = context.getSource();
+                    PlanSummaryDto dto = new PlanSummaryDto();
+                    dto.setId(source.getId());
 
-                            if (source.getMembers() != null) {
-                                dto.setMembers(source.getMembers().stream()
-                                        .map(member -> modelMapper.map(member, MemberSummaryDto.class))
-                                        .collect(Collectors.toList()));
-                            }
-                            return dto;
-                        });
+                    if (source.getMembers() != null) {
+                        dto.setMembers(source.getMembers().stream()
+                                .map(member -> modelMapper.map(member, MemberSummaryDto.class))
+                                .collect(Collectors.toList()));
+                    }
+                    return dto;
+                });
 
         modelMapper.createTypeMap(Plan.class, PlanDetailDto.class)
-                .setConverter( context -> {
+                .setConverter(context -> {
                     Plan source = context.getSource();
                     PlanDetailDto dto = new PlanDetailDto();
                     dto.setId(source.getId());
@@ -70,9 +70,8 @@ public class ModelMapperConfig {
                     return dto;
                 });
 
-
         modelMapper.createTypeMap(History.class, HistoryDetailDto.class)
-                .setConverter( context -> {
+                .setConverter(context -> {
                     History source = context.getSource();
                     HistoryDetailDto dto = new HistoryDetailDto();
                     dto.setId(source.getId());
@@ -83,9 +82,8 @@ public class ModelMapperConfig {
                     return dto;
                 });
 
-
         modelMapper.createTypeMap(History.class, HistorySummaryDto.class)
-                .setConverter( context -> {
+                .setConverter(context -> {
                     History source = context.getSource();
                     HistorySummaryDto dto = new HistorySummaryDto();
                     dto.setId(source.getId());
@@ -96,7 +94,7 @@ public class ModelMapperConfig {
                 });
 
         modelMapper.createTypeMap(OngoingAnalysis.class, OngoingAnalysisDto.class)
-                .setConverter( context -> {
+                .setConverter(context -> {
                     OngoingAnalysis source = context.getSource();
                     OngoingAnalysisDto dto = new OngoingAnalysisDto();
                     dto.setId(source.getId());
@@ -109,32 +107,30 @@ public class ModelMapperConfig {
                     return dto;
                 });
 
-
-
         modelMapper.createTypeMap(Profile.class, ProfileDto.class)
-                        .setConverter(context -> {
-                            Profile source = context.getSource();
-                            ProfileDto dto = new ProfileDto();
-                            dto.setId(source.getId());
-                            dto.setProfileType(source.getType());
-                            dto.setGraph(source.getProfileGraph().getGraph());
-                            return dto;
-                        });
+                .setConverter(context -> {
+                    Profile source = context.getSource();
+                    ProfileDto dto = new ProfileDto();
+                    dto.setId(source.getId());
+                    dto.setProfileType(source.getType());
+                    dto.setGraph(source.getProfileGraph().getGraph());
+                    return dto;
+                });
 
         modelMapper.createTypeMap(Member.class, MemberDetailDto.class)
-                        .setConverter(context ->{
-                            Member source = context.getSource();
-                            MemberDetailDto dto = new MemberDetailDto();
-                            dto.setId(source.getId());
-                            dto.setFullName(source.getFullName());
-                            dto.setEmail(source.getEmail());
-                            dto.setMemberType(source.getMemberType());
-                            dto.setProfiles(source.getProfiles().stream()
-                                    .map(profile -> modelMapper.map(profile, ProfileDto.class))
-                                    .toList());
+                .setConverter(context -> {
+                    Member source = context.getSource();
+                    MemberDetailDto dto = new MemberDetailDto();
+                    dto.setId(source.getId());
+                    dto.setFullName(source.getFullName());
+                    dto.setEmail(source.getEmail());
+                    dto.setMemberType(source.getMemberType());
+                    dto.setProfiles(source.getProfiles().stream()
+                            .map(profile -> modelMapper.map(profile, ProfileDto.class))
+                            .toList());
 
-                            return dto;
-                        });
+                    return dto;
+                });
 
         modelMapper.createTypeMap(User.class, UserDto.class)
                 .setConverter(context -> {
@@ -144,12 +140,23 @@ public class ModelMapperConfig {
                     dto.setUsername(source.getUsername());
                     dto.setEmail(source.getEmail());
 
-                    if(source.getPlan() != null) {
+                    if (source.getPlan() != null) {
                         dto.setPlan_id(source.getPlan().getId());
                     }
                     return dto;
                 });
 
+        modelMapper.createTypeMap(Battery.class, BatteryDto.class)
+                .setConverter(context -> {
+                    Battery source = context.getSource();
+                    BatteryDto dto = new BatteryDto();
+                    dto.setId(source.getId());
+                    dto.setPlan(modelMapper.map(source.getPlan(), PlanSummaryDto.class));
+                    dto.setModel(source.getModel());
+                    dto.setCapacity(source.getCapacity());
+                    dto.setPrice(source.getPrice());
+                    return dto;
+                });
 
         return modelMapper;
     }

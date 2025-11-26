@@ -31,8 +31,10 @@ export class Analysis4 implements OnInit,OnDestroy {
   chartDataMap: Map<number, ChartData<'line'>> = new Map();
   optConsProfChart?: ChartData<'line'>;
   optProdProfChart?: ChartData<'line'>;
-  totalComparisonChart?: ChartData<'line'>;
-  kpiChart?: ChartData<'line'>;
+  totalComparisonChartWBatteries?: ChartData<'line'>;
+  totalComparisonChartWOBatteries?: ChartData<'line'>;
+  kpiChartWBatteries?: ChartData<'line'>;
+  kpiChartWOBatteries?: ChartData<'line'>;
 
   chartOptions: ChartOptions<'line'> = {
     responsive: true,
@@ -191,14 +193,12 @@ export class Analysis4 implements OnInit,OnDestroy {
       let graph: number[] = [];
 
       if(producers.length != 0) graph = [...producers[0].graph];
-      console.log("Prima " + graph);
+      //console.log("Prima " + graph);
       const batteryStatus = batteryStatuses?.find(b => b.memberId == member.id);
-      console.log(batteryStatus);
       if (batteryStatus) {
         batteryStatus.energyByHour.forEach((value, index) => {
           if(index!=0) {
             const previousStatus = batteryStatus.energyByHour.at(index - 1);
-            console.log(index + " " + previousStatus + " " + value);
             if (graph) {
               graph[index] = graph[index] - (value - (previousStatus ?? 0));
             }
@@ -206,15 +206,25 @@ export class Analysis4 implements OnInit,OnDestroy {
         });
       }
 
-      console.log("Dopo " + graph);
+      //console.log("Dopo " + graph);
 
       const datasetsProducers = producers.map((p,index) => ({
-        label: 'Producer Profile ' + p.id,
-        data: graph ?? p.graph,
+        label: 'Producer Profile ' + p.id + (batteryStatus != undefined ? " w/ battery" : ""),
+        data: p.graph,
         borderColor: colors[index % colors.length],
         backgroundColor: 'transparent',
         tension: 0.25
       }));
+
+      if(producers.length != 0 && batteryStatus != undefined) {
+        datasetsProducers.push({
+          label: 'Producer Profile ' + producers[0].id + " w/o battery",
+          data: graph,
+          borderColor: colors[1],
+          backgroundColor: 'transparent',
+          tension: 0.25
+        })
+      }
 
       const datasetsConsumers = consumers.map((p, index) => ({
         label: 'Consumer Profile ' + p.id,
@@ -269,7 +279,7 @@ export class Analysis4 implements OnInit,OnDestroy {
     if (!this.resultAnalysis) return;
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
 
-    this.totalComparisonChart = {
+    this.totalComparisonChartWBatteries = {
       labels,
       datasets: [
         {
@@ -288,13 +298,33 @@ export class Analysis4 implements OnInit,OnDestroy {
         }
       ]
     };
+
+    this.totalComparisonChartWOBatteries = {
+      labels,
+      datasets: [
+        {
+          label: 'Total Production',
+          data: this.resultAnalysis.startingCommunity.totalProduction,
+          borderColor: 'red',
+          backgroundColor: 'transparent',
+          tension: 0.25,
+        },
+        {
+          label: 'Total Consumption',
+          data: this.resultAnalysis.startingCommunity.totalConsumption,
+          borderColor: 'green',
+          backgroundColor: 'transparent',
+          tension: 0.25,
+        }
+      ]
+    };
   }
 
   buildKpiChart() {
     if (!this.resultAnalysis) return;
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
 
-    this.kpiChart = {
+    this.kpiChartWBatteries = {
       labels,
       datasets: [
         {
@@ -307,6 +337,26 @@ export class Analysis4 implements OnInit,OnDestroy {
         {
           label: 'Self-Sufficiency (KPI2)',
           data: this.resultAnalysis.kpi2,
+          borderColor: 'orange',
+          backgroundColor: 'transparent',
+          tension: 0.25,
+        }
+      ]
+    };
+
+    this.kpiChartWOBatteries = {
+      labels,
+      datasets: [
+        {
+          label: 'Shared Energy (KPI1)',
+          data: this.resultAnalysis.startingCommunity.kpi1,
+          borderColor: 'blue',
+          backgroundColor: 'transparent',
+          tension: 0.25,
+        },
+        {
+          label: 'Self-Sufficiency (KPI2)',
+          data: this.resultAnalysis.startingCommunity.kpi2,
           borderColor: 'orange',
           backgroundColor: 'transparent',
           tension: 0.25,
@@ -343,8 +393,10 @@ export class Analysis4 implements OnInit,OnDestroy {
     this.chartDataMap.clear();
     this.optConsProfChart = undefined;
     this.optProdProfChart = undefined;
-    this.totalComparisonChart = undefined;
-    this.kpiChart = undefined;
+    this.totalComparisonChartWBatteries = undefined;
+    this.totalComparisonChartWOBatteries = undefined;
+    this.kpiChartWBatteries = undefined;
+    this.kpiChartWOBatteries = undefined;
   }
 
   runAnalysisAsync() {

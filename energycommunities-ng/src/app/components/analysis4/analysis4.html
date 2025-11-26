@@ -22,6 +22,18 @@
     (terminated)="resetAnalysisData()"
   ></app-analysis-actions>
 
+  <h2 class="section-title">Batteries Available</h2>
+
+  <div class="batteries-grid">
+    <div class="battery-card" *ngFor="let m of resultAnalysis?.batteries">
+      <div class="battery-avatar">{{ m.id }}</div>
+      <p class="name">{{ m.model }}</p>
+      <div class="info-block">
+        <div class="info-row"><span class="label">Capacity:</span> <span>{{ m.capacity }} kWh</span></div>
+        <div class="info-row"><span class="label">Price:</span> <span class="price">{{ m.price }} €</span></div>
+      </div>
+    </div>
+  </div>
 
   <!-- Member Profiles -->
   <div class="chart-section">
@@ -142,8 +154,8 @@
 
   <!-- Total Production vs Consumption -->
   <div class="chart-section">
-    <h2 class="section-title">Total Production vs Consumption</h2>
-    <div *ngIf="!totalComparisonChart" class="loading-container">
+    <h2 class="section-title">Total Production vs Consumption (W/ Batteries)</h2>
+    <div *ngIf="!totalComparisonChartWBatteries" class="loading-container">
       <app-generation-loader [status] = statusMessage></app-generation-loader>
       <div *ngIf="statusWarning" class="warning-box">
         <h4 class="warning-title">Grounding taking long time</h4>
@@ -159,9 +171,36 @@
         </button>
       </div>
     </div>
-    <div class="chart-wrapper" *ngIf="totalComparisonChart">
+    <div class="chart-wrapper" *ngIf="totalComparisonChartWBatteries">
       <app-energy-chart
-        [data]="totalComparisonChart"
+        [data]="totalComparisonChartWBatteries"
+        [options]="chartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <h2 class="section-title">Total Production vs Consumption (W/O Batteries)</h2>
+    <div *ngIf="!totalComparisonChartWOBatteries" class="loading-container">
+      <app-generation-loader [status] = statusMessage></app-generation-loader>
+      <div *ngIf="statusWarning" class="warning-box">
+        <h4 class="warning-title">Grounding taking long time</h4>
+        <p class="warning-text">
+          Probably you sent a large amount of data to the solver.
+          If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+          or try to send a smaller amount data to the solver.
+          You can then track the progress in the “Ongoing Analyses” page.
+        </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
+      </div>
+    </div>
+    <div class="chart-wrapper" *ngIf="totalComparisonChartWOBatteries">
+      <app-energy-chart
+        [data]="totalComparisonChartWOBatteries"
         [options]="chartOptions"
         [selectedChartType]="'line'">
       </app-energy-chart>
@@ -170,8 +209,8 @@
 
   <!-- KPI Indexes -->
   <div class="chart-section">
-    <h2 class="section-title">Key Performance Indicators (KPIs)</h2>
-    <div *ngIf="!kpiChart" class="loading-container">
+    <h2 class="section-title">Key Performance Indicators (KPIs) (W/ Batteries)</h2>
+    <div *ngIf="!kpiChartWBatteries" class="loading-container">
       <app-generation-loader [status] = statusMessage></app-generation-loader>
       <div *ngIf="statusWarning" class="warning-box">
         <h4 class="warning-title">Grounding taking long time</h4>
@@ -188,15 +227,54 @@
         </button>
       </div>
     </div>
-    <div class="chart-wrapper" *ngIf="kpiChart">
+    <div class="chart-wrapper" *ngIf="kpiChartWBatteries">
       <app-energy-chart
-        [data]="kpiChart"
+        [data]="kpiChartWBatteries"
         [options]="kpiChartOptions"
         [selectedChartType]="'line'">
       </app-energy-chart>
     </div>
 
-    <div class="kpi-legend" *ngIf="kpiChart">
+    <div class="kpi-legend" *ngIf="kpiChartWBatteries">
+      <div class="kpi-item">
+        <span class="kpi-color" style="background-color: blue;"></span>
+        <strong>Shared Energy:</strong> Percentage of produced energy shared within the community
+      </div>
+      <div class="kpi-item">
+        <span class="kpi-color" style="background-color: orange;"></span>
+        <strong>Self-Sufficiency:</strong> Percentage of energy demand met by local production
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-section">
+    <h2 class="section-title">Key Performance Indicators (KPIs) (W/O Batteries)</h2>
+    <div *ngIf="!kpiChartWOBatteries" class="loading-container">
+      <app-generation-loader [status] = statusMessage></app-generation-loader>
+      <div *ngIf="statusWarning" class="warning-box">
+        <h4 class="warning-title">Grounding taking long time</h4>
+        <p class="warning-text">
+          Probably you sent a large amount of data to the solver.
+          If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+          (<strong>but you have to redo the generation</strong>)
+          or try to send a smaller amount data to the solver.
+          You can then track the progress in the “Ongoing Analyses” page.
+        </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
+      </div>
+    </div>
+    <div class="chart-wrapper" *ngIf="kpiChartWOBatteries">
+      <app-energy-chart
+        [data]="kpiChartWOBatteries"
+        [options]="kpiChartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+
+    <div class="kpi-legend" *ngIf="kpiChartWOBatteries">
       <div class="kpi-item">
         <span class="kpi-color" style="background-color: blue;"></span>
         <strong>Shared Energy:</strong> Percentage of produced energy shared within the community

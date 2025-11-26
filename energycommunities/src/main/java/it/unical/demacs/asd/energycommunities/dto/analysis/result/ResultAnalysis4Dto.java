@@ -17,6 +17,8 @@ public class ResultAnalysis4Dto {
     List<Double> kpi2;
     List<Double> totalConsumption;
     List<Double> totalProduction;
-    Map<Long,Long> assignment;
+    Map<Long,Long> assignments;
     List<BatteryStatusDto> batteryStatus;
+    SingleAnalysis startingCommunity;
+    List<BatteryDto> batteries;
 }

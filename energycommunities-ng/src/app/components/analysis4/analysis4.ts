@@ -10,12 +10,7 @@ import { GenerationLoader } from '../generation-loader/generation-loader';
 import { HistoryService } from '../../services/history.service';
 import {HistorySummary} from '../../model/history/HistorySummary';
 import {FormsModule} from '@angular/forms';
-import {ResultAnalysis_3} from '../../model/analysis/ResultAnalysis_3';
-import {SingleAnalysis} from '../../model/analysis/SingleAnalysis';
-import {Analysis3Request} from '../../model/analysis/Analysis3Request';
 import {AnalysisActionsComponent} from '../analysis-save/analysis-save';
-import {CommunityData} from '../../model/CommunityData';
-import {ResultAnalysis_1} from '../../model/analysis/ResultAnalysis_1';
 import {ClingoEventsService} from '../../services/clingo-events.service';
 import {User} from '../../model/User';
 import {ResultAnalysis_4} from '../../model/analysis/ResultAnalysis_4';
@@ -85,7 +80,12 @@ export class Analysis4 implements OnInit,OnDestroy {
 
     if(this.resultAnalysis != null) {
       this.typeAnalisys = 0;
-      this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+      this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+      this.resultAnalysis.assignments = new Map(
+        Object.entries(history.state?.result.assignments).map(
+          ([key, value]) => [Number(key), value as number]
+        )
+      );
       this.buildAllCharts();
       return;
     }
@@ -99,29 +99,29 @@ export class Analysis4 implements OnInit,OnDestroy {
         this.historyService.getHistoryById(historyId).subscribe({
           next: history => {
             this.history = history;
-            this.resultAnalysis = history.analysisData as ResultAnalysis_1;
-            this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+            // this.resultAnalysis = history.analysisData as ResultAnalysis_4;
+            // this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
             this.buildAllCharts();
           },
           error: err => console.error('Errore caricamento history:', err)
         });
       } else {
-        // this.clingoEvents.connect((eventName,analysisId) => {
-        //   console.log(eventName);
-        //   console.log(analysisId);
-        //   if (analysisId == -1) {
-        //     if (eventName === 'GROUNDING_STARTED') {
-        //       this.statusMessage = 'Grounding...';
-        //     }
-        //     if (eventName === 'GROUNDING_FINISHED') {
-        //       this.statusMessage = 'Solving...';
-        //       if (this.statusWarning) this.statusWarning = false
-        //     }
-        //     if (eventName === 'GROUNDING_STILL_RUNNING') {
-        //       this.statusWarning = true
-        //     }
-        //   }
-        // });
+        this.clingoEvents.connect((eventName,analysisId) => {
+          console.log(eventName);
+          console.log(analysisId);
+          if (analysisId == -1) {
+            if (eventName === 'GROUNDING_STARTED') {
+              this.statusMessage = 'Grounding...';
+            }
+            if (eventName === 'GROUNDING_FINISHED') {
+              this.statusMessage = 'Solving...';
+              if (this.statusWarning) this.statusWarning = false
+            }
+            if (eventName === 'GROUNDING_STILL_RUNNING') {
+              this.statusWarning = true
+            }
+          }
+        });
         // // Nuova analisi
         // this.typeAnalisys = 0;
 
@@ -135,7 +135,12 @@ export class Analysis4 implements OnInit,OnDestroy {
             next: (data) => {
               this.resultAnalysis = data;
               console.log(data);
-              // this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+              this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+              this.resultAnalysis.assignments = new Map(
+                Object.entries(data.assignments).map(
+                  ([key, value]) => [Number(key), value as number]
+                )
+              );
               this.buildAllCharts();
             },
             error: (err) => console.error(err)
@@ -158,6 +163,14 @@ export class Analysis4 implements OnInit,OnDestroy {
     return this.memberExpandedState.get(memberId) || false;
   }
 
+  hasBattery(memberId: number): boolean {
+    return this.resultAnalysis?.assignments?.has(memberId) ?? false;
+  }
+
+  getBatteryType(memberId: number): number | null {
+    return this.resultAnalysis?.assignments?.get(memberId) ?? null;
+  }
+
   buildAllCharts() {
     this.buildMemberCharts();
     this.buildOptConsProdProfChart();
@@ -170,13 +183,34 @@ export class Analysis4 implements OnInit,OnDestroy {
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
     const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'black', 'brown'];
 
-    this.resultAnalysis.assignments.forEach(member => {
+    this.resultAnalysis.startingCommunity.assignments.forEach(member => {
       const producers = member.profiles.filter(p => p.profileType === 'PRODUCER');
       const consumers = member.profiles.filter(p => p.profileType === 'CONSUMER');
+      const batteryStatuses = this.resultAnalysis?.batteryStatus;
 
-      const datasetsProducers = producers.map((p, index) => ({
+      let graph: number[] = [];
+
+      if(producers.length != 0) graph = [...producers[0].graph];
+      console.log("Prima " + graph);
+      const batteryStatus = batteryStatuses?.find(b => b.memberId == member.id);
+      console.log(batteryStatus);
+      if (batteryStatus) {
+        batteryStatus.energyByHour.forEach((value, index) => {
+          if(index!=0) {
+            const previousStatus = batteryStatus.energyByHour.at(index - 1);
+            console.log(index + " " + previousStatus + " " + value);
+            if (graph) {
+              graph[index] = graph[index] - (value - (previousStatus ?? 0));
+            }
+          }
+        });
+      }
+
+      console.log("Dopo " + graph);
+
+      const datasetsProducers = producers.map((p,index) => ({
         label: 'Producer Profile ' + p.id,
-        data: p.graph,
+        data: graph ?? p.graph,
         borderColor: colors[index % colors.length],
         backgroundColor: 'transparent',
         tension: 0.25
@@ -202,7 +236,7 @@ export class Analysis4 implements OnInit,OnDestroy {
     const datasetsConsumers: any[] = [];
     const datasetsProducers: any[] = [];
 
-    this.resultAnalysis.assignments.forEach((member, index) => {
+    this.resultAnalysis.startingCommunity.assignments.forEach((member, index) => {
       const consumer = member.profiles.find(p => p.profileType === 'CONSUMER');
       const producer = member.profiles.find(p => p.profileType === 'PRODUCER');
 
@@ -294,7 +328,11 @@ export class Analysis4 implements OnInit,OnDestroy {
 
   resetAnalysisData() {
     if (this.resultAnalysis) {
-      this.resultAnalysis.assignments = [];
+      this.resultAnalysis.startingCommunity.assignments = [];
+      this.resultAnalysis.startingCommunity.kpi1 = [];
+      this.resultAnalysis.startingCommunity.kpi2 = [];
+      this.resultAnalysis.startingCommunity.totalConsumption = [];
+      this.resultAnalysis.startingCommunity.totalProduction = [];
       this.resultAnalysis.kpi1 = [];
       this.resultAnalysis.kpi2 = [];
       this.resultAnalysis.totalConsumption = [];

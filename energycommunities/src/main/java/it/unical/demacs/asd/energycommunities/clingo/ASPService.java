@@ -80,7 +80,7 @@ public class ASPService {
         String[] bestModel = calculateBestModel(facts,analysis,-1);
 
         if (bestModel != null) {
-            return createBestModel4Dto(members, bestModel);
+            return createBestModel4Dto(members, batteries, bestModel);
         }  else {
             return null;
         }
@@ -301,7 +301,7 @@ public class ASPService {
     }
 
 
-    public ResultAnalysis4Dto createBestModel4Dto(List<MemberDetailDto> members, String[] bestModel) {
+    public ResultAnalysis4Dto createBestModel4Dto(List<MemberDetailDto> members, List<BatteryDto> batteries, String[] bestModel) {
         ResultAnalysis4Dto resultAnalysis4Dto = new ResultAnalysis4Dto();
 
         Map<Long, Long> assignment = new HashMap<>();
@@ -370,17 +370,30 @@ public class ASPService {
         // converto la mappa in lista
         List<BatteryStatusDto> batteryStatuses = new ArrayList<>(tmp.values());
 
-        resultAnalysis4Dto.setAssignment(assignment);
+        resultAnalysis4Dto.setAssignments(assignment);
         resultAnalysis4Dto.setBatteryStatus(batteryStatuses);
 
         List<Double> totalProduction = calculateTotal(consPerHour);
         List<Double> totalConsumption = calculateTotal(prodPerHour);
+        resultAnalysis4Dto.setTotalProduction(totalProduction);
+        resultAnalysis4Dto.setTotalConsumption(totalConsumption);
 
         resultAnalysis4Dto.setKpi1(calculateKpi(totalConsumption, totalProduction));
         resultAnalysis4Dto.setKpi2(calculateKpi(totalProduction, totalConsumption));
 
-        resultAnalysis4Dto.setTotalProduction(totalProduction);
-        resultAnalysis4Dto.setTotalConsumption(totalConsumption);
+        SingleAnalysis startingCommunity = new SingleAnalysis();
+        totalProduction = calculateTotal(members, ProfileType.PRODUCER);
+        totalConsumption = calculateTotal(members, ProfileType.CONSUMER);
+        startingCommunity.setAssignments(members);
+        startingCommunity.setTotalProduction(totalProduction);
+        startingCommunity.setTotalConsumption(totalConsumption);
+        startingCommunity.setKpi1(calculateKpi(totalConsumption, totalProduction));
+        startingCommunity.setKpi2(calculateKpi(totalProduction, totalConsumption));
+
+        resultAnalysis4Dto.setStartingCommunity(startingCommunity);
+
+        resultAnalysis4Dto.setBatteries(batteries);
+
 
         return resultAnalysis4Dto;
     }

@@ -208,3 +208,29 @@
   font-size: 1.2em;
   margin-right: 8px;
 }
+
+.battery-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.battery-icon {
+  font-size: 1.4rem;
+  color: #4caf50;
+}
+
+.battery-number {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #4caf50;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 5px;
+  border-radius: 50%;
+  line-height: 1;
+  border: 1px solid white;
+  box-shadow: 0 0 4px rgba(0,0,0,0.3);
+}

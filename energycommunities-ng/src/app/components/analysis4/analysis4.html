@@ -27,7 +27,7 @@
   <div class="chart-section">
     <h2 class="section-title">Optimal Member Profiles Chosen</h2>
     <div class="members-list">
-      <div *ngIf="!resultAnalysis || !resultAnalysis.assignments || resultAnalysis.assignments.length === 0" class="loading-container">
+      <div *ngIf="!resultAnalysis || !resultAnalysis.assignments || resultAnalysis.assignments.size === 0" class="loading-container">
         <app-generation-loader [status] = statusMessage></app-generation-loader>
         <div *ngIf="statusWarning" class="warning-box">
           <h4 class="warning-title">Grounding taking long time</h4>
@@ -45,14 +45,23 @@
       </div>
 
 
-      <div *ngFor="let member of resultAnalysis?.assignments" class="member-card">
+      <div *ngFor="let member of resultAnalysis?.startingCommunity?.assignments" class="member-card">
         <div class="member-header" (click)="toggleMember(member.id)">
           <div class="member-info">
-            <h3 class="member-name">{{ member.fullName }}</h3>
+            <h3 class="member-name">
+              {{ member.fullName }}
+
+              <div class="battery-wrapper" *ngIf="hasBattery(member.id)">
+                <i class="fa-solid fa-battery-full battery-icon"></i>
+                <span class="battery-number">{{ getBatteryType(member.id) }}</span>
+              </div>
+            </h3>
+
             <span class="member-badge" [class]="getMemberTypeLabel(member).toLowerCase()">
               {{ getMemberTypeLabel(member) }}
             </span>
           </div>
+
           <div class="expand-icon" [class.expanded]="isMemberExpanded(member.id)">
             <i class="fa-solid fa-square-caret-down"></i>
           </div>

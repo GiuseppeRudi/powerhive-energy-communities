@@ -1,26 +1,153 @@
-<head>
+<head xmlns="http://www.w3.org/1999/html">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <title></title>
 </head>
 
 <div class="content-div">
   <div class="disclaimer">
-    <p><strong>Energy Community Analysis 1 Dashboard</strong></p>
+    <p><strong>Optimal Battery Assignment</strong></p>
     <p>
-      For each member, given a set of production and consumption profiles,
-      our app applies a decision-making algorithm to select the optimal production
-      and consumption profile for each member, in order to optimize the shared energy
-      within the energy community.
+      For each energy community, given a set of candidate batteries and a predefined budget,
+      our app runs an optimization algorithm that selects which producers should be equipped
+      with batteries and dynamically schedules charge/discharge operations.
+      The goal is to maximize the shared energy within the community while minimizing the total investment.
+      In addition, the system provides a cost analysis to estimate the payback time of the investment.
     </p>
   </div>
 
-  <!-- Azioni solo se ci sono dati -->
-  <app-analysis-actions
-    [resultAnalysis]="resultAnalysis"
-    [typeAnalysis]="typeAnalisys"
-    [history]="history"
-    (terminated)="resetAnalysisData()"
-  ></app-analysis-actions>
+
+  <div *ngIf="!summary && resultAnalysis" class="analysis-control">
+    <label for="energyCost" class="analysis-label">
+      Energy Cost:
+    </label>
+
+    <div class="analysis-input-group">
+      <input
+        id="energyCost"
+        type="text"
+        class="analysis-input"
+        [(ngModel)]="energyCost"
+        placeholder="Insert energy cost for kWh"
+      />
+
+      <button class="btn analysis-btn" (click)="updateSummary()">
+        Analize
+      </button>
+    </div>
+
+    <p class="analysis-hint">
+      Insert cost of energy in €/kWh to calculate costs and payback
+    </p>
+  </div>
+
+
+  <div class="analysis-section" *ngIf="summary as s">
+    <div class="analysis-card">
+      <div class="analysis-header">
+        <h3> Costs Analysis</h3>
+        <p class="analysis-subtitle">
+          Comparison between the costs with/without batteries and visualisation of time to return of investment.
+        </p>
+      </div>
+
+      <div class="analysis-content">
+        <div class="analysis-metrics">
+          <div class="metric-box metric-box--neutral">
+            <div class="metric-label">Annual cost without batteries</div>
+            <div class="metric-value">
+              {{ s.annualCostWithoutBattery | number:'1.0-2' }} € / year
+            </div>
+          </div>
+
+          <div class="metric-box metric-box--neutral">
+            <div class="metric-label">Annual cost with batteries</div>
+            <div class="metric-value">
+              {{ s.annualCostWithBattery | number:'1.0-2' }} € / year
+            </div>
+          </div>
+
+          <div class="metric-box metric-box--positive" *ngIf="s.annualSavings > 0; else noSavings">
+            <div class="metric-label">Annual savings thanks to batteries</div>
+            <div class="metric-value">
+              {{ s.annualSavings | number:'1.0-2' }} € / year
+            </div>
+          </div>
+
+          <ng-template #noSavings>
+            <div class="metric-box metric-box--negative">
+              <div class="metric-label">Annual savings thanks to batteries</div>
+              <div class="metric-value">
+                0 € / year
+              </div>
+            </div>
+          </ng-template>
+
+          <div class="metric-box metric-box--neutral">
+            <div class="metric-label">Battery investment</div>
+            <div class="metric-value">
+              {{ s.batteryInvestment | number:'1.0-2' }} €
+            </div>
+          </div>
+
+          <div class="metric-box metric-box--neutral">
+            <ng-container *ngIf="s.paybackYears !== null; else noPayback">
+              <div class="metric-label">Payback time</div>
+              <div class="metric-value">
+                {{ s.paybackYears | number:'1.1-1' }} years
+              </div>
+            </ng-container>
+            <ng-template #noPayback>
+              <div class="metric-label">Payback time</div>
+              <div class="metric-value metric-value--bad">
+                never (annual savings ≤ 0)
+              </div>
+            </ng-template>
+          </div>
+
+          <div class="metric-box metric-box--conclusion">
+            <div class="metric-label">Is it convenient to invest in batteries?</div>
+            <div class="metric-value">
+            <span
+              class="convenience-pill"
+              [ngClass]="{ 'convenience-pill--yes': s.isConvenient, 'convenience-pill--no': !s.isConvenient }"
+            >
+              {{ s.isConvenient ? 'Yes' : 'No' }}
+            </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLONNA: GRAFICO -->
+        <div class="analysis-chart">
+          <h4 class="chart-title">Return of Investment</h4>
+          <div class="chart-wrapper">
+            <!-- ng2-charts + Chart.js -->
+            <canvas
+              baseChart
+              [data]="paybackChartData"
+              [options]="paybackChartOptions"
+              [type]="'line'">
+            </canvas>
+          </div>
+          <p class="chart-caption">
+            The graph shows the <strong>cumulative savings month by month</strong> compared to the
+            <strong>initial investment</strong> in the battery. The point where the curves intersect
+            is the<strong> estimated payback period</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+<!--  &lt;!&ndash; Azioni solo se ci sono dati &ndash;&gt;-->
+<!--  <app-analysis-actions-->
+<!--    [resultAnalysis]="resultAnalysis"-->
+<!--    [typeAnalysis]="typeAnalisys"-->
+<!--    [history]="history"-->
+<!--    (terminated)="resetAnalysisData()"-->
+<!--  ></app-analysis-actions>-->
 
 
   <!-- Member Profiles -->

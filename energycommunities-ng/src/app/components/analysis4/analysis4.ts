@@ -1,5 +1,5 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-import { ChartData, ChartOptions } from 'chart.js';
+import {ChartConfiguration, ChartData, ChartOptions} from 'chart.js';
 import { CommonModule } from '@angular/common';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
 import { MemberDetail } from '../../model/member/MemberDetail';
@@ -14,12 +14,15 @@ import {AnalysisActionsComponent} from '../analysis-save/analysis-save';
 import {ClingoEventsService} from '../../services/clingo-events.service';
 import {User} from '../../model/User';
 import {ResultAnalysis_4} from '../../model/analysis/ResultAnalysis_4';
+import {BatteryInvestmentSummary} from '../../model/BatteryInvestmentSummary';
+import {BatteryDto} from '../../model/battery/BatteryDto';
+import {BaseChartDirective} from 'ng2-charts';
 
 @Component({
   selector: 'app-analisys4',
   templateUrl: './analysis4.html',
   standalone: true,
-  imports: [CommonModule, EnergyChartComponent, GenerationLoader, FormsModule, AnalysisActionsComponent],
+  imports: [CommonModule, EnergyChartComponent, GenerationLoader, FormsModule, AnalysisActionsComponent, BaseChartDirective],
   styleUrls: ['./analysis4.css', '../analysis1/analysis1.css', '../welcome/welcome.css']
 })
 export class Analysis4 implements OnInit,OnDestroy {
@@ -30,6 +33,7 @@ export class Analysis4 implements OnInit,OnDestroy {
   memberExpandedState: Map<number, boolean> = new Map();
   chartDataMap: Map<number, ChartData<'line'>> = new Map();
   optConsProfChart?: ChartData<'line'>;
+  energyCost : number | null = null ;
   optProdProfChart?: ChartData<'line'>;
   totalComparisonChart?: ChartData<'line'>;
   kpiChart?: ChartData<'line'>;
@@ -46,6 +50,11 @@ export class Analysis4 implements OnInit,OnDestroy {
       tooltip: { enabled: true, mode: 'index', intersect: false }
     }
   };
+
+
+  // DATI GRAFICO
+  paybackChartData: ChartConfiguration<'line'>['data'] = { labels: [], datasets: [] };
+  paybackChartOptions: ChartConfiguration<'line'>['options'] = {};
 
   kpiChartOptions: ChartOptions<'line'> = {
     responsive: true,
@@ -73,6 +82,12 @@ export class Analysis4 implements OnInit,OnDestroy {
     private historyService: HistoryService,
     private clingoEvents: ClingoEventsService
   ) {}
+
+  summary: BatteryInvestmentSummary | null = null;
+
+  updateSummary(): void {
+    this.summary = this.calculateBatteryInvestmentSummary();
+  }
 
 
   ngOnInit() {
@@ -162,6 +177,231 @@ export class Analysis4 implements OnInit,OnDestroy {
   isMemberExpanded(memberId: number): boolean {
     return this.memberExpandedState.get(memberId) || false;
   }
+
+  calculateBatteryInvestmentSummary(): BatteryInvestmentSummary | null {
+    console.log(this.energyCost);
+    console.log(this.resultAnalysis);
+
+    // Controllo dati minimi
+    if (this.energyCost == null || this.energyCost <= 0 || !this.resultAnalysis) {
+      return null;
+    }
+
+    // 1) Costi giornalieri
+    const dailyCostWithout = this.calculateCostCommunityWithoutEnergyPerDay();
+    const dailyCostWith    = this.calculateCostCommunityWithBatteryPerDay();
+
+    // Se per qualche motivo le funzioni ritornano -1 in caso di errore
+    if (dailyCostWithout < 0 || dailyCostWith < 0) {
+      return null;
+    }
+
+    const batteries: BatteryDto[] = this.resultAnalysis.batteries || [];
+
+    let batteryInvestment = 0;
+    for (const battery of batteries) {
+      batteryInvestment += battery.price || 0;
+    }
+
+    // 2) Costi annui
+    const annualCostWithout = dailyCostWithout * 365;
+    const annualCostWith    = dailyCostWith * 365;
+
+    // 3) Risparmio annuo
+    const annualSavings = annualCostWithout - annualCostWith;
+
+    let paybackYears: number | null = null;
+    let isConvenient = false;
+
+    // Se il risparmio è <= 0, la batteria non conviene
+    if (annualSavings > 0 && batteryInvestment > 0) {
+      paybackYears = batteryInvestment / annualSavings;
+      isConvenient = paybackYears > 0; // di base sì, se rientri prima o poi
+    } else {
+      paybackYears = null;
+      isConvenient = false;
+    }
+
+    // ---- OGGETTO SUMMARY ----
+    const summary: BatteryInvestmentSummary = {
+      annualCostWithoutBattery: annualCostWithout,
+      annualCostWithBattery: annualCostWith,
+      annualSavings,
+      batteryInvestment,
+      paybackYears,
+      isConvenient,
+    };
+
+    // ---- CREAZIONE GRAFICO DINAMICO ----
+    const labels: string[] = [];
+    const cumulativeSavings: number[] = [];
+    const investmentLine: number[] = [];
+
+    const hasValidPayback =
+      paybackYears !== null &&
+      paybackYears > 0 &&
+      annualSavings > 0 &&
+      batteryInvestment > 0;
+
+    if (hasValidPayback && paybackYears) {
+      if (paybackYears <= 2) {
+        // --- SCALA MENSILE ---
+        const monthlySavings = annualSavings / 12;
+        const paybackMonths = paybackYears * 12;
+
+        // Mostro un po' di margine oltre il payback (es. +2 mesi)
+        const monthsToShow = Math.max(12, Math.ceil(paybackMonths) + 2);
+
+        let acc = 0;
+        for (let m = 1; m <= monthsToShow; m++) {
+          acc += monthlySavings;
+          labels.push(`${m}`);
+          cumulativeSavings.push(+acc.toFixed(2));
+          investmentLine.push(batteryInvestment);
+        }
+      } else {
+        // --- SCALA ANNUALE ---
+        // Mostro anni fino al payback + un po' di margine (es. +2 anni)
+        const yearsToShow = Math.ceil(paybackYears) + 2;
+
+        let acc = 0;
+        for (let y = 1; y <= yearsToShow; y++) {
+          acc += annualSavings;
+          labels.push(`${y}`);
+          cumulativeSavings.push(+acc.toFixed(2));
+          investmentLine.push(batteryInvestment);
+        }
+      }
+    } else {
+      // Nessun payback (risparmio <= 0): mostro 12 mesi "standard"
+      const monthlySavings = annualSavings / 12; // può essere 0 o negativo
+      let acc = 0;
+
+      for (let m = 1; m <= 12; m++) {
+        acc += monthlySavings;
+        labels.push(`${m}`);
+        cumulativeSavings.push(+acc.toFixed(2));
+        investmentLine.push(batteryInvestment);
+      }
+    }
+
+    this.paybackChartData = {
+      labels,
+      datasets: [
+        {
+          label: 'Cumulative savings',
+          data: cumulativeSavings,
+          fill: false,
+          tension: 0.3,
+          borderWidth: 3,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          borderColor: 'rgba(12,117,27,1)',
+          backgroundColor: 'rgba(12,117,27,0.3)'
+        },
+        {
+          label: 'Battery Investment',
+          data: investmentLine,
+          fill: false,
+          tension: 0,
+          borderDash: [8, 5],
+          borderWidth: 2,
+          pointRadius: 0,
+          borderColor: 'rgba(220,53,69,1)',
+          backgroundColor: 'rgba(220,53,69,0.3)'
+        }
+      ]
+    };
+
+    this.paybackChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx: any) => {
+              const val = ctx.parsed.y;
+              return `${ctx.dataset.label}: ${val.toLocaleString('it-IT', {
+                maximumFractionDigits: 0
+              })} €`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          title: {
+            display: true,
+            text: '€'
+          },
+          ticks: {
+            callback: (value: any) => `${value} €`
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: hasValidPayback && paybackYears! > 2 ? 'Years' : 'Months'
+          }
+        }
+      }
+    };
+
+    // RITORNO il summary (l’oggetto viene creato e il grafico già pronto)
+    return summary;
+  }
+
+
+  calculateCostCommunityWithoutEnergyPerDay(): number {
+    // Se non hai ancora i dati, ritorna -1 o lancia un errore, come preferisci
+    if (!this.resultAnalysis || !this.energyCost) {
+      return -1;
+    }
+
+    const consumptions = this.resultAnalysis.startingCommunity.totalConsumption;
+    const productions  = this.resultAnalysis.startingCommunity.totalProduction;
+
+    let importedEnergyPerDay = 0; // energia comprata dalla rete [kWh]
+
+    for (let i = 0; i < 24; i++) {
+      const consT = consumptions[i] ?? 0;  // se undefined, lo tratto come 0
+      const prodT = productions[i] ?? 0;
+
+      if (consT > prodT) {
+        importedEnergyPerDay += (consT - prodT);
+      }
+    }
+
+    // costo = energia importata * costo unitario
+    return importedEnergyPerDay * this.energyCost;
+  }
+
+  calculateCostCommunityWithBatteryPerDay(): number {
+    if (!this.resultAnalysis || !this.energyCost) {
+      return -1;
+    }
+
+    const consumptions = this.resultAnalysis.totalConsumption;
+    const productions  = this.resultAnalysis.totalProduction;
+
+    let importedEnergyPerDay = 0;
+
+    for (let i = 0; i < 24; i++) {
+      const consT = consumptions[i] ?? 0;
+      const prodT = productions[i] ?? 0;
+
+      if (consT > prodT) {
+        importedEnergyPerDay += (consT - prodT);
+      }
+    }
+
+    return importedEnergyPerDay * this.energyCost;
+  }
+
+
 
   hasBattery(memberId: number): boolean {
     return this.resultAnalysis?.assignments?.has(memberId) ?? false;

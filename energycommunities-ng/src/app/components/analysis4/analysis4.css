@@ -234,3 +234,275 @@
   border: 1px solid white;
   box-shadow: 0 0 4px rgba(0,0,0,0.3);
 }
+
+
+
+/* Sezione generale */
+.analysis-section {
+  padding: 2rem 1.5rem;
+  box-sizing: border-box;
+}
+
+/* Card principale dell'analisi */
+.analysis-card {
+  max-width: 1200px;
+  margin: 0 auto 2rem auto;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(12, 117, 27, 0.05);
+  animation: slideUpFade 0.8s ease forwards;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+/* Header della card */
+.analysis-header h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0c751b;
+  margin-bottom: 0.4rem;
+}
+
+.analysis-subtitle {
+  font-size: 0.95rem;
+  color: #555;
+  margin: 0;
+}
+
+/* Layout interno: metriche + grafico */
+.analysis-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-top: 1.8rem;
+}
+
+/* Colonna di sinistra: metriche */
+.analysis-metrics {
+  flex: 1 1 320px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+/* Box metrica */
+.metric-box {
+  background: #f7f9fb;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(12, 117, 27, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Varianti di accento */
+.metric-box--neutral {
+  border-left: 4px solid #a2f194;
+}
+
+.metric-box--positive {
+  border-left: 4px solid #0c751b;
+  background: #e6fde3;
+}
+
+.metric-box--negative {
+  border-left: 4px solid #d32f2f;
+  background: #fdeaea;
+}
+
+.metric-box--conclusion {
+  border-left: 4px solid #0c751b;
+}
+
+/* Testo metrica */
+.metric-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.metric-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.metric-value--bad {
+  color: #d32f2f;
+}
+
+
+/* Pill di convenienza Yes/No */
+.convenience-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.convenience-pill--yes {
+  background-color: #e6fde3;
+  color: #0c751b;
+}
+
+.convenience-pill--no {
+  background-color: #fdeaea;
+  color: #d32f2f;
+}
+
+/* Colonna di destra: grafico */
+.analysis-chart {
+  flex: 1 1 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.chart-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 260px;
+  max-height: 380px;
+}
+
+/* canvas responsivo */
+.chart-wrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.chart-caption {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Utility per colore testo (se non già presenti globalmente) */
+.text-success {
+  color: #0c751b;
+  font-weight: 600;
+}
+
+.text-danger {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .analysis-card {
+    padding: 1.5rem 1.5rem;
+  }
+
+  .analysis-content {
+    flex-direction: column;
+  }
+
+  .analysis-chart {
+    order: 2; /* opzionale: metti il grafico sotto le metriche */
+  }
+}
+
+@media (max-width: 576px) {
+  .analysis-section {
+    padding: 1.5rem 1rem;
+  }
+
+  .analysis-card {
+    padding: 1.25rem 1.25rem;
+  }
+
+  .analysis-header h3 {
+    font-size: 1.3rem;
+  }
+
+  .chart-wrapper {
+    min-height: 220px;
+  }
+}
+
+
+/* Contenitore del blocco di analisi */
+.analysis-control {
+  max-width: 520px;
+  margin: 2rem auto 1rem auto;
+  padding: 1.2rem 1.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(12, 117, 27, 0.06);
+  font-family: "Poppins", "Segoe UI", sans-serif;
+}
+
+/* Etichetta */
+.analysis-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 0.4rem;
+}
+
+/* Riga input + bottone */
+.analysis-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Input testo per il costo energia */
+.analysis-input {
+  flex: 1;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.6rem;
+  border: 1px solid #cdd6d9;
+  font-size: 0.95rem;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.analysis-input:focus {
+  border-color: #0c751b;
+  box-shadow: 0 0 0 2px rgba(12, 117, 27, 0.15);
+}
+
+/* Bottone di analisi: riusa .btn ma con un minimo di aggiustamento */
+.analysis-btn {
+  white-space: nowrap;
+  padding-inline: 1.4rem;
+}
+
+/* Testo di aiuto sotto il campo */
+.analysis-hint {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* Responsive: input e bottone vanno a colonna su schermi piccoli */
+@media (max-width: 600px) {
+  .analysis-input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .analysis-btn {
+    width: 100%;
+    text-align: center;
+  }
+}

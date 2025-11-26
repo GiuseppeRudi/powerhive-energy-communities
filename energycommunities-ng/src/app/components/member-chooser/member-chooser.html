@@ -5,12 +5,19 @@
 
 <div class="content-div">
   <div class="header-section">
-    <h1>Select Members for Analysis 1</h1>
-    <p class="description">
-      Choose which members you want to include in the energy community analysis.
-      The algorithm will optimize production and consumption profiles for the selected members.
+    <h1>Select Members for Optimal Profiles Analysis</h1>
+  </div>
+
+  <div class="disclaimer">
+    <p><strong>Analysis 1</strong></p>
+    <p>
+      For each member, given a set of production and consumption profiles,
+      our app applies a decision-making algorithm to select the optimal production
+      and consumption profile for each member, in order to optimize the shared energy
+      within the energy community.
     </p>
   </div>
+
 
   <div *ngIf="plan && plan.members.length > 0" class="member-selection-container">
 

@@ -40,10 +40,15 @@ export class Analysis3 implements OnInit {
 
   communities: CommunityData[] = [];
 
+  // Grafici esistenti per singola community
   optConsProfChart: Map<SingleAnalysis, ChartData<'line'>> = new Map();
   optProdProfChart: Map<SingleAnalysis, ChartData<'line'>> = new Map();
   totalComparisonChart: Map<SingleAnalysis, ChartData<'line'>> = new Map();
   kpiChart: Map<SingleAnalysis, ChartData<'line'>> = new Map();
+
+  // Grafici Globali
+  globalKpiChartData: ChartData<'line'> | undefined;
+  globalProdConsChartData: ChartData<'line'> | undefined;
 
   chartOptions: ChartOptions<'line'> = {
     responsive: true,
@@ -109,7 +114,6 @@ export class Analysis3 implements OnInit {
       this.historyId = +params['historyId'];
 
       if (this.historyId) {
-        // Caricamento da history (come prima)
         this.historyService.getHistoryById(this.historyId).subscribe({
           next: history => {
             this.history = history;
@@ -120,21 +124,16 @@ export class Analysis3 implements OnInit {
           error: err => console.error('Errore caricamento history:', err)
         });
       } else {
-
         this.analysis3Request = this.analysisService.getAnalysisResult()
-
         this.wantToRemove = this.analysis3Request?.wantToRemove;
         this.wantToAdd = this.analysis3Request?.wantToAdd;
         this.members = this.analysis3Request?.members;
-
 
         if (this.members && this.wantToRemove) {
           this.removedMembers = this.wantToRemove
             .map(id => this.members!.find(m => m.id === id))
             .filter((m): m is MemberDetail => m !== undefined);
         }
-
-
 
         if(this.members && this.members.length > 0 && this.wantToAdd  && this.wantToRemove) {
           this.analysisService.getResultAnalysis_3(this.members,this.wantToAdd,this.wantToRemove).subscribe({
@@ -149,8 +148,6 @@ export class Analysis3 implements OnInit {
       }
     });
   }
-
-
 
   setupCommunities() {
     if (!this.resultAnalysis) return;
@@ -210,12 +207,148 @@ export class Analysis3 implements OnInit {
     this.buildOptConsProdProfCharts();
     this.buildTotalComparisonChart();
     this.buildKpiChart();
+    this.buildGlobalKpiChart();
+    this.buildGlobalProdConsChart();
+  }
+
+  // --- GRAFICO 1: Production vs Consumption (Globale) ---
+  buildGlobalProdConsChart() {
+    if (!this.resultAnalysis) return;
+    const labels = Array.from({ length: 24 }, (_, i) => i.toString());
+
+    this.globalProdConsChartData = {
+      labels,
+      datasets: [
+        // --- DEFAULT (Grigio) ---
+        {
+          label: 'Default - Production',
+          data: this.resultAnalysis.defaultCommunity.totalProduction,
+          borderColor: '#757575',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          tension: 0.25
+        },
+        {
+          label: 'Default - Consumption',
+          data: this.resultAnalysis.defaultCommunity.totalConsumption,
+          borderColor: '#757575',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          borderDash: [5, 5],
+          tension: 0.25
+        },
+
+        // --- WANTED (Blu) ---
+        {
+          label: 'Wanted - Production',
+          data: this.resultAnalysis.wantedCommunity.totalProduction,
+          borderColor: '#1976D2',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          tension: 0.25
+        },
+        {
+          label: 'Wanted - Consumption',
+          data: this.resultAnalysis.wantedCommunity.totalConsumption,
+          borderColor: '#1976D2',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          borderDash: [5, 5],
+          tension: 0.25
+        },
+
+        // --- OPTIMAL (Verde) ---
+        {
+          label: 'Optimal - Production',
+          data: this.resultAnalysis.optimalCommunity.totalProduction,
+          borderColor: '#388E3C',
+          backgroundColor: 'transparent',
+          borderWidth: 3,
+          tension: 0.25
+        },
+        {
+          label: 'Optimal - Consumption',
+          data: this.resultAnalysis.optimalCommunity.totalConsumption,
+          borderColor: '#388E3C',
+          backgroundColor: 'transparent',
+          borderWidth: 3,
+          borderDash: [5, 5],
+          tension: 0.25
+        }
+      ]
+    };
+  }
+
+  // --- GRAFICO 2: KPIs (Globale) ---
+  buildGlobalKpiChart() {
+    if (!this.resultAnalysis) return;
+    const labels = Array.from({ length: 24 }, (_, i) => i.toString());
+
+    this.globalKpiChartData = {
+      labels,
+      datasets: [
+        // --- DEFAULT (Grigio) ---
+        {
+          label: 'Default - Shared Energy',
+          data: this.resultAnalysis.defaultCommunity.kpi1,
+          borderColor: '#757575',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          tension: 0.25
+        },
+        {
+          label: 'Default - Self-Sufficiency',
+          data: this.resultAnalysis.defaultCommunity.kpi2,
+          borderColor: '#757575',
+          backgroundColor: 'transparent',
+          borderDash: [5, 5],
+          borderWidth: 2,
+          tension: 0.25
+        },
+
+        // --- WANTED (Blu) ---
+        {
+          label: 'Wanted - Shared Energy',
+          data: this.resultAnalysis.wantedCommunity.kpi1,
+          borderColor: '#1976D2',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          tension: 0.25
+        },
+        {
+          label: 'Wanted - Self-Sufficiency',
+          data: this.resultAnalysis.wantedCommunity.kpi2,
+          borderColor: '#1976D2',
+          backgroundColor: 'transparent',
+          borderDash: [5, 5],
+          borderWidth: 2,
+          tension: 0.25
+        },
+
+        // --- OPTIMAL (Verde) ---
+        {
+          label: 'Optimal - Shared Energy',
+          data: this.resultAnalysis.optimalCommunity.kpi1,
+          borderColor: '#388E3C',
+          backgroundColor: 'transparent',
+          borderWidth: 3,
+          tension: 0.25
+        },
+        {
+          label: 'Optimal - Self-Sufficiency',
+          data: this.resultAnalysis.optimalCommunity.kpi2,
+          borderColor: '#388E3C',
+          backgroundColor: 'transparent',
+          borderDash: [5, 5],
+          borderWidth: 3,
+          tension: 0.25
+        }
+      ]
+    };
   }
 
   buildOptConsProdProfCharts() {
     if (!this.resultAnalysis) return;
-
-
     this.buildChartsForCommunity(this.resultAnalysis.defaultCommunity);
     this.buildChartsForCommunity(this.resultAnalysis.optimalCommunity);
     this.buildChartsForCommunity(this.resultAnalysis.wantedCommunity);
@@ -320,14 +453,12 @@ export class Analysis3 implements OnInit {
 
   getAvatarClass(memberId: any, showLegend: boolean): string {
     if (!showLegend) return 'avatar';
-
     if (this.isInRemovalList(memberId)) return 'to-remove';
     if (this.isInAdditionList(memberId)) return 'to-add';
     return 'avatar';
   }
 
   resetAnalysisData() {
-    // Pulisce tutti i dati dell’analisi
     this.resultAnalysis = null;
     this.history = undefined;
     this.members = undefined;
@@ -336,17 +467,14 @@ export class Analysis3 implements OnInit {
     this.removedMembers = [];
     this.addedMembers = [];
     this.analysis3Request = undefined;
-
-    // Pulisce le comunità e grafici
     this.communities = [];
     this.communityExpanded = null;
-
     this.optConsProfChart.clear();
     this.optProdProfChart.clear();
     this.totalComparisonChart.clear();
     this.kpiChart.clear();
-
+    this.globalKpiChartData = undefined;
+    this.globalProdConsChartData = undefined;
   }
 
 }
-

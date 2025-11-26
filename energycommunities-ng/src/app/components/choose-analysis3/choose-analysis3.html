@@ -6,11 +6,26 @@
 
 <div class="content-div">
   <div class="header-section">
-    <h1>Select Members for Analysis 3</h1>
-    <p class="description">
-      Configure your energy community by selecting default members, members to add, or members to remove.
-      The system will analyze the optimal configuration based on your choices.
+      <h1>Select Members for Community Adjustment Optimization</h1>
+  </div>
+
+  <div class="disclaimer">
+    <p><strong>📊 Energy Community Analysis 3 Dashboard</strong></p>
+    <p>
+      For each member, given a set of production and consumption profiles,
+      our app applies a decision-making algorithm to select the optimal production
+      and consumption profile for each member, in order to optimize the shared energy
+      within the energy community.
     </p>
+    <p>
+      In this analysis, you can select an initial set of members (default community),
+      choose who to remove and who to add, and compare the resulting communities:
+    </p>
+    <ul>
+      <li><strong>Default:</strong> members initially selected</li>
+      <li><strong>Wanted:</strong> selected members after applying your add/remove choices</li>
+      <li><strong>Optimal:</strong> the best combination computed by the algorithm</li>
+    </ul>
   </div>
 
   <div *ngIf="isLoading" class="loading-container">

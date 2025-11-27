@@ -28,15 +28,17 @@ export class Analysis4 implements OnInit,OnDestroy {
   typeAnalisys : number = 4
   resultAnalysis: ResultAnalysis_4 | null = null;
   memberExpandedState: Map<number, boolean> = new Map();
-  chartDataMap: Map<number, ChartData<'line'>> = new Map();
-  optConsProfChart?: ChartData<'line'>;
-  optProdProfChart?: ChartData<'line'>;
-  totalComparisonChartWBatteries?: ChartData<'line'>;
-  totalComparisonChartWOBatteries?: ChartData<'line'>;
-  kpiChartWBatteries?: ChartData<'line'>;
-  kpiChartWOBatteries?: ChartData<'line'>;
+  chartDataMap: Map<number, ChartData<any>> = new Map();
+  batteryMap: Map<number, ChartData<any>> = new Map();
+  allBatteriesChart?: ChartData<any>;
+  optConsProfChart?: ChartData<any>;
+  optProdProfChart?: ChartData<any>;
+  totalComparisonChartWBatteries?: ChartData<any>;
+  totalComparisonChartWOBatteries?: ChartData<any>;
+  kpiChartWBatteries?: ChartData<any>;
+  kpiChartWOBatteries?: ChartData<any>;
 
-  chartOptions: ChartOptions<'line'> = {
+  chartOptions: ChartOptions<any> = {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
@@ -49,12 +51,12 @@ export class Analysis4 implements OnInit,OnDestroy {
     }
   };
 
-  kpiChartOptions: ChartOptions<'line'> = {
+  kpiChartOptions: ChartOptions<any> = {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
       x: { title: { display: true, text: 'Hour (0-23)' } },
-      y: { title: { display: true, text: 'Percentage (%)' }, beginAtZero: true, max: 100 }
+      y: { title: { display: true, text: 'Percentage (%)' }, beginAtZero: true, max: 110 }
     },
     plugins: {
       legend: { display: true, position: 'top' },
@@ -175,6 +177,7 @@ export class Analysis4 implements OnInit,OnDestroy {
 
   buildAllCharts() {
     this.buildMemberCharts();
+    this.buildAllBatteriesChart();
     this.buildOptConsProdProfChart();
     this.buildTotalComparisonChart();
     this.buildKpiChart();
@@ -204,6 +207,17 @@ export class Analysis4 implements OnInit,OnDestroy {
             }
           }
         });
+
+        const batteryDataset = {
+          label: "Battery State",
+          data: batteryStatus.energyByHour,
+          borderColor: 'green',
+          backgroundColor: 'transparent',
+          tension: 0.25
+        };
+
+        this.batteryMap.set(member.id, { labels, datasets: [batteryDataset]});
+        console.log(this.batteryMap);
       }
 
       //console.log("Dopo " + graph);
@@ -233,9 +247,32 @@ export class Analysis4 implements OnInit,OnDestroy {
         backgroundColor: 'transparent',
         tension: 0.25
       }));
-
       this.chartDataMap.set(member.id, { labels, datasets: [...datasetsProducers, ...datasetsConsumers] });
     });
+  }
+
+  buildAllBatteriesChart() {
+    if (!this.resultAnalysis || !this.resultAnalysis.batteryStatus) return;
+
+    const labels = Array.from({ length: 24 }, (_, i) => i.toString());
+    const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'black', 'brown'];
+
+
+
+    const datasets = this.resultAnalysis.batteryStatus.map((b, index) => {
+      const member = this.resultAnalysis!.startingCommunity.assignments.find(m => m.id === b.memberId);
+
+      const memberName = member ? member.fullName : "Member " + b.memberId;
+
+      return {
+        label: memberName + "'s Battery",
+        data: b.energyByHour,
+        borderColor: colors[index % colors.length],
+        backgroundColor: 'transparent',
+      };
+    });
+
+    this.allBatteriesChart = { labels, datasets };
   }
 
   buildOptConsProdProfChart() {

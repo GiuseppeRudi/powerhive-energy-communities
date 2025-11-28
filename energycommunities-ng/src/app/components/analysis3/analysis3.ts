@@ -14,16 +14,7 @@ import {ResultAnalysis_3} from '../../model/analysis/ResultAnalysis_3';
 import {SingleAnalysis} from '../../model/analysis/SingleAnalysis';
 import {Analysis3Request} from '../../model/analysis/Analysis3Request';
 import {AnalysisActionsComponent} from '../analysis-save/analysis-save';
-import {ResultAnalysis_1} from '../../model/analysis/ResultAnalysis_1';
-
-interface CommunityData {
-  community: SingleAnalysis;
-  title: string;
-  icon: string;
-  iconColor: string;
-  showRemoved: boolean;
-  showLegend: boolean;
-}
+import {CommunityData} from '../../model/CommunityData';
 
 @Component({
   selector: 'app-analisys3',
@@ -81,7 +72,7 @@ export class Analysis3 implements OnInit {
       y: {
         title: { display: true, text: 'Percentage (%)' },
         beginAtZero: true,
-        max: 100,
+        suggestedMax: 100,
         grid: { display: true, color: 'rgba(0, 0, 0, 0.1)' }
       }
     },

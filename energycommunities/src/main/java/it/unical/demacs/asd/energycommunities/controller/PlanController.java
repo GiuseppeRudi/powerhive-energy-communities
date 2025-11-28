@@ -13,7 +13,7 @@ import javax.naming.NameNotFoundException;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileUtils;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
-import it.unical.demacs.asd.energycommunities.dto.ManualMemberDto;
+import it.unical.demacs.asd.energycommunities.dto.member.ManualMemberDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import it.unical.demacs.asd.energycommunities.dto.plan.PlanDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.plan.PlanSummaryDto;

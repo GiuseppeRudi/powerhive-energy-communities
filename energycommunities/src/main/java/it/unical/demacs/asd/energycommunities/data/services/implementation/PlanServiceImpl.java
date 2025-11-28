@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import it.unical.demacs.asd.energycommunities.data.dao.*;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
-import it.unical.demacs.asd.energycommunities.dto.ManualMemberDto;
+import it.unical.demacs.asd.energycommunities.dto.member.ManualMemberDto;
 import it.unical.demacs.asd.energycommunities.dto.plan.PlanSummaryDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.csv.CSVFormat;

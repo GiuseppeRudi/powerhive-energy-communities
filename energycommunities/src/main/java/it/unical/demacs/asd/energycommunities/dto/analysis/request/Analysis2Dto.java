@@ -1,4 +1,4 @@
-package it.unical.demacs.asd.energycommunities.dto.analysis;
+package it.unical.demacs.asd.energycommunities.dto.analysis.request;
 
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import lombok.Data;
@@ -6,8 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class Analysis3Dto {
+public class Analysis2Dto {
     private List<MemberDetailDto> members;
-    private List<Long> wantToAdd;
-    private List<Long> wantToRemove;
+    private int dimCommunity;
 }

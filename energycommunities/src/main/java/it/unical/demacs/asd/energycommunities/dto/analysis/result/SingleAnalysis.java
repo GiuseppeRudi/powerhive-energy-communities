@@ -1,4 +1,4 @@
-package it.unical.demacs.asd.energycommunities.dto.analysis;
+package it.unical.demacs.asd.energycommunities.dto.analysis.result;
 
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import lombok.Data;
@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class ResultAnalysis1Dto {
+public class SingleAnalysis {
     private List<MemberDetailDto> assignments;
     List<Double> kpi1;
     List<Double> kpi2;

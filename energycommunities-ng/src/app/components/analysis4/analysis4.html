@@ -1,0 +1,405 @@
+<head xmlns="http://www.w3.org/1999/html">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title></title>
+</head>
+
+<div class="content-div">
+  <div class="disclaimer">
+    <p><strong>Optimal Battery Assignment</strong></p>
+    <p>
+      For each energy community, given a set of candidate batteries and a predefined budget,
+      our app runs an optimization algorithm that selects which producers should be equipped
+      with batteries and dynamically schedules charge/discharge operations.
+      The goal is to maximize the shared energy within the community while minimizing the total investment.
+      In addition, the system provides a cost analysis to estimate the payback time of the investment.
+    </p>
+  </div>
+
+
+  <div *ngIf="!summary && resultAnalysis" class="analysis-control">
+    <label for="energyCost" class="analysis-label">
+      Energy Cost:
+    </label>
+
+    <div class="analysis-input-group">
+      <input
+        id="energyCost"
+        type="text"
+        class="analysis-input"
+        [(ngModel)]="energyCost"
+        placeholder="Insert energy cost for kWh"
+      />
+
+      <button class="btn analysis-btn" (click)="updateSummary()">
+        Analize
+      </button>
+    </div>
+
+    <p class="analysis-hint">
+      Insert cost of energy in €/kWh to calculate costs and payback
+    </p>
+  </div>
+
+
+  <div class="analysis-section" *ngIf="summary as s">
+    <div class="analysis-card">
+      <div class="analysis-header">
+        <h3> Costs Analysis</h3>
+        <p class="analysis-subtitle">
+          Comparison between the costs with/without batteries and visualisation of time to return of investment.
+        </p>
+      </div>
+
+      <div class="analysis-content">
+        <div class="analysis-metrics">
+          <div class="metric-box metric-box--neutral">
+            <div class="metric-label">Annual cost without batteries</div>
+            <div class="metric-value">
+              {{ s.annualCostWithoutBattery | number:'1.0-2' }} € / year
+            </div>
+          </div>
+
+          <div class="metric-box metric-box--neutral">
+            <div class="metric-label">Annual cost with batteries</div>
+            <div class="metric-value">
+              {{ s.annualCostWithBattery | number:'1.0-2' }} € / year
+            </div>
+          </div>
+
+          <div class="metric-box metric-box--positive" *ngIf="s.annualSavings > 0; else noSavings">
+            <div class="metric-label">Annual savings thanks to batteries</div>
+            <div class="metric-value">
+              {{ s.annualSavings | number:'1.0-2' }} € / year
+            </div>
+          </div>
+
+          <ng-template #noSavings>
+            <div class="metric-box metric-box--negative">
+              <div class="metric-label">Annual savings thanks to batteries</div>
+              <div class="metric-value">
+                0 € / year
+              </div>
+            </div>
+          </ng-template>
+
+          <div class="metric-box metric-box--neutral">
+            <div class="metric-label">Battery investment</div>
+            <div class="metric-value">
+              {{ s.batteryInvestment | number:'1.0-2' }} €
+            </div>
+          </div>
+
+          <div class="metric-box metric-box--neutral">
+            <ng-container *ngIf="s.paybackYears !== null; else noPayback">
+              <div class="metric-label">Payback time</div>
+              <div class="metric-value">
+                {{ s.paybackYears | number:'1.1-1' }} years
+              </div>
+            </ng-container>
+            <ng-template #noPayback>
+              <div class="metric-label">Payback time</div>
+              <div class="metric-value metric-value--bad">
+                never (annual savings ≤ 0)
+              </div>
+            </ng-template>
+          </div>
+
+          <div class="metric-box metric-box--conclusion">
+            <div class="metric-label">Is it convenient to invest in batteries?</div>
+            <div class="metric-value">
+            <span
+              class="convenience-pill"
+              [ngClass]="{ 'convenience-pill--yes': s.isConvenient, 'convenience-pill--no': !s.isConvenient }"
+            >
+              {{ s.isConvenient ? 'Yes' : 'No' }}
+            </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- COLONNA: GRAFICO -->
+        <div class="analysis-chart">
+          <h4 class="chart-title">Return of Investment</h4>
+          <div class="chart-wrapper">
+            <!-- ng2-charts + Chart.js -->
+            <canvas
+              baseChart
+              [data]="paybackChartData"
+              [options]="paybackChartOptions"
+              [type]="'line'">
+            </canvas>
+          </div>
+          <p class="chart-caption">
+            The graph shows the <strong>cumulative savings month by month</strong> compared to the
+            <strong>initial investment</strong> in the battery. The point where the curves intersect
+            is the<strong> estimated payback period</strong>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+<!--  &lt;!&ndash; Azioni solo se ci sono dati &ndash;&gt;-->
+<!--  <app-analysis-actions-->
+<!--    [resultAnalysis]="resultAnalysis"-->
+<!--    [typeAnalysis]="typeAnalisys"-->
+<!--    [history]="history"-->
+<!--    (terminated)="resetAnalysisData()"-->
+<!--  ></app-analysis-actions>-->
+
+  <h2 class="section-title" *ngIf = "resultAnalysis">Batteries Available</h2>
+
+  <div class="batteries-grid">
+    <div class="battery-card" *ngFor="let m of resultAnalysis?.batteries">
+      <div class="battery-avatar">{{ m.id }}</div>
+      <p class="name">{{ m.model }}</p>
+      <div class="info-block">
+        <div class="info-row"><span class="label">Capacity:</span> <span>{{ m.capacity }} kWh</span></div>
+        <div class="info-row"><span class="label">Price:</span> <span class="price">{{ m.price }} €</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Member Profiles -->
+  <div class="chart-section">
+    <h2 class="section-title">Optimal Battery Assignment</h2>
+    <div class="members-list">
+      <div *ngIf="!resultAnalysis || !resultAnalysis.assignments || resultAnalysis.assignments.size === 0" class="loading-container">
+        <app-generation-loader [status] = statusMessage></app-generation-loader>
+        <div *ngIf="statusWarning" class="warning-box">
+          <h4 class="warning-title">Grounding taking long time</h4>
+          <p class="warning-text">
+            Probably you sent a large amount of data to the solver.
+            If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+            or try to send a smaller amount data to the solver.
+            You can then track the progress in the “Ongoing Analyses” page.
+          </p>
+          <br>
+          <button class="btn btn-async" (click)="runAnalysisAsync()">
+            <i class="fa-solid fa-rocket"></i> Run Asynchronously
+          </button>
+        </div>
+      </div>
+
+
+      <div *ngFor="let member of resultAnalysis?.startingCommunity?.assignments" class="member-card">
+        <div class="member-header" (click)="toggleMember(member.id)">
+          <div class="member-info">
+            <h3 class="member-name">
+              {{ member.fullName }}
+
+              <div class="battery-wrapper" *ngIf="hasBattery(member.id)">
+                <i class="fa-solid fa-battery-full battery-icon"></i>
+                <span class="battery-number">{{ getBatteryType(member.id) }}</span>
+              </div>
+            </h3>
+
+            <span class="member-badge" [class]="getMemberTypeLabel(member).toLowerCase()">
+              {{ getMemberTypeLabel(member) }}
+            </span>
+          </div>
+
+          <div class="expand-icon" [class.expanded]="isMemberExpanded(member.id)">
+            <i class="fa-solid fa-square-caret-down"></i>
+          </div>
+        </div>
+
+        <div class="member-content" [class.expanded]="isMemberExpanded(member.id)">
+          <div *ngIf="chartDataMap.get(member.id)">
+            <h4 *ngIf="member.memberType=='PROSUMER'">Production & Consumption Graph</h4>
+            <h4 *ngIf="member.memberType=='PRODUCER'">Production Graph</h4>
+            <h4 *ngIf="member.memberType=='CONSUMER'">Consumption Graph</h4>
+            <app-energy-chart
+              [data]="chartDataMap.get(member.id)!"
+              [options]="chartOptions"
+              [selectedChartType]="'line'">
+            </app-energy-chart>
+          </div>
+          <div *ngIf="batteryMap.get(member.id)" class="battery-chart-wrapper">
+            <h4>Battery Charge / Discharge Graph</h4>
+            <app-energy-chart
+              [data]="batteryMap.get(member.id)!"
+              [options]="chartOptions"
+              [selectedChartType]="'line'">
+            </app-energy-chart>
+          </div>
+          <div *ngIf="!chartDataMap.get(member.id)" class="no-data">
+            <p>No energy profiles available for this member.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chart-section" *ngIf="allBatteriesChart">
+    <h2 class="section-title">Batteries State of Charge</h2>
+    <div class="chart-wrapper">
+      <app-energy-chart
+        [data]="allBatteriesChart"
+        [options]="chartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+  </div>
+
+  <!-- Consumption Profiles -->
+  <div class="chart-section">
+    <h2 class="section-title">Consumption Profiles</h2>
+    <div *ngIf="!optConsProfChart" class="loading-container">
+      <app-generation-loader [status] = statusMessage></app-generation-loader>
+      <div *ngIf="statusWarning" class="warning-box">
+        <h4 class="warning-title">Grounding taking long time</h4>
+        <p class="warning-text">
+          Probably you sent a large amount of data to the solver.
+          If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+          or try to send a smaller amount data to the solver.
+          You can then track the progress in the “Ongoing Analyses” page.
+        </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
+      </div>
+    </div>
+    <div class="chart-wrapper" *ngIf="optConsProfChart">
+      <app-energy-chart
+        [data]="optConsProfChart"
+        [options]="chartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+  </div>
+
+  <!-- Production Profiles -->
+  <div class="chart-section">
+    <h2 class="section-title">Production Profiles</h2>
+    <div *ngIf="!optProdProfChart" class="loading-container">
+      <app-generation-loader [status] = statusMessage></app-generation-loader>
+      <div *ngIf="statusWarning" class="warning-box">
+        <h4 class="warning-title">Grounding taking long time</h4>
+        <p class="warning-text">
+          Probably you sent a large amount of data to the solver.
+          If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+          or try to send a smaller amount data to the solver.
+          You can then track the progress in the “Ongoing Analyses” page.
+        </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
+      </div>
+    </div>
+    <div class="chart-wrapper" *ngIf="optProdProfChart">
+      <app-energy-chart
+        [data]="optProdProfChart"
+        [options]="chartOptions"
+        [selectedChartType]="'line'">
+      </app-energy-chart>
+    </div>
+  </div>
+
+  <!-- Total Production vs Consumption -->
+  <div class="chart-section">
+    <h2 class="section-title">Total Production vs Total Consumption</h2>
+
+    <div class="dual-chart-container">
+
+      <div class="dual-chart-box">
+        <h3 class="chart-subtitle">With Batteries</h3>
+        <div *ngIf="!totalComparisonChartWBatteries" class="loading-container">
+          <app-generation-loader [status]="statusMessage"></app-generation-loader>
+        </div>
+        <div *ngIf="totalComparisonChartWBatteries">
+          <app-energy-chart
+            [data]="totalComparisonChartWBatteries"
+            [options]="chartOptions"
+            [selectedChartType]="'line'">
+          </app-energy-chart>
+        </div>
+      </div>
+
+      <div class="dual-chart-box">
+        <h3 class="chart-subtitle">Without Batteries</h3>
+        <div *ngIf="!totalComparisonChartWOBatteries" class="loading-container">
+          <app-generation-loader [status]="statusMessage"></app-generation-loader>
+        </div>
+        <div *ngIf="totalComparisonChartWOBatteries">
+          <app-energy-chart
+            [data]="totalComparisonChartWOBatteries"
+            [options]="chartOptions"
+            [selectedChartType]="'line'">
+          </app-energy-chart>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- KPI Indexes -->
+  <div class="chart-section">
+    <h2 class="section-title">Key Performance Indicators (KPIs)</h2>
+
+    <div class="dual-chart-container">
+
+      <div class="dual-chart-box">
+        <h3 class="chart-subtitle">With Batteries</h3>
+
+        <div *ngIf="!kpiChartWBatteries" class="loading-container">
+          <app-generation-loader [status]="statusMessage"></app-generation-loader>
+        </div>
+
+        <div *ngIf="kpiChartWBatteries">
+          <app-energy-chart
+            [data]="kpiChartWBatteries"
+            [options]="kpiChartOptions"
+            [selectedChartType]="'line'">
+          </app-energy-chart>
+
+          <div class="kpi-legend">
+            <div class="kpi-item">
+              <span class="kpi-color" style="background-color: blue;"></span>
+              <strong>Shared Energy:</strong> Percentage of produced energy shared within the community
+            </div>
+            <div class="kpi-item">
+              <span class="kpi-color" style="background-color: orange;"></span>
+              <strong>Self-Sufficiency:</strong> Percentage of energy demand met by local production
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dual-chart-box">
+        <h3 class="chart-subtitle">Without Batteries</h3>
+
+        <div *ngIf="!kpiChartWOBatteries" class="loading-container">
+          <app-generation-loader [status]="statusMessage"></app-generation-loader>
+        </div>
+
+        <div *ngIf="kpiChartWOBatteries">
+          <app-energy-chart
+            [data]="kpiChartWOBatteries"
+            [options]="kpiChartOptions"
+            [selectedChartType]="'line'">
+          </app-energy-chart>
+
+          <div class="kpi-legend">
+            <div class="kpi-item">
+              <span class="kpi-color" style="background-color: blue;"></span>
+              <strong>Shared Energy:</strong> Percentage of produced energy shared within the community
+            </div>
+            <div class="kpi-item">
+              <span class="kpi-color" style="background-color: orange;"></span>
+              <strong>Self-Sufficiency:</strong> Percentage of energy demand met by local production
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+

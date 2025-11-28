@@ -2,7 +2,7 @@ package it.unical.demacs.asd.energycommunities.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import it.unical.demacs.asd.energycommunities.dto.history.HistoryDetailDto;
-import it.unical.demacs.asd.energycommunities.dto.analysis.SaveAnalysisRequestDto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.history.SaveAnalysisRequestDto;
 import it.unical.demacs.asd.energycommunities.dto.history.HistorySummaryDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

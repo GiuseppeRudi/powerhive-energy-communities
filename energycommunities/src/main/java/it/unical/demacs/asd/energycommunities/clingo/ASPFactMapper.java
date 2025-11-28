@@ -1,6 +1,7 @@
 package it.unical.demacs.asd.energycommunities.clingo;
 
 import it.unical.demacs.asd.energycommunities.data.entities.*;
+import it.unical.demacs.asd.energycommunities.dto.battery.BatteryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 
@@ -23,6 +24,27 @@ public class ASPFactMapper {
 
             profilesAndGraphsToFacts(facts, member);
         }
+        return facts.toString();
+    }
+
+    public static String toFacts4(List<MemberDetailDto> members, List<BatteryDto> batteries, int  budget) {
+        StringBuilder facts = new StringBuilder();
+
+        for (MemberDetailDto member : members) {
+            facts.append(String.format("member(%d,%s).\n",
+                    member.getId(), member.getMemberType().name().toLowerCase()));
+
+            profilesAndGraphsToFacts2(facts, member);
+        }
+
+
+        for (BatteryDto battery : batteries) {
+            facts.append(String.format("battery(%d,%d,%d).\n",
+                    battery.getId(), battery.getCapacity(), battery.getPrice()));
+        }
+
+        facts.append(String.format("budget(%d).\n", budget));
+
         return facts.toString();
     }
 
@@ -51,6 +73,18 @@ public class ASPFactMapper {
                 pos++;
             }
 
+        }
+    }
+
+    private static void profilesAndGraphsToFacts2(StringBuilder facts, MemberDetailDto member) {
+
+        for (ProfileDto profile : member.getProfiles()) {
+            int pos = 0;
+            for (Integer val: profile.getGraph()) {
+                facts.append(String.format("profile(%d,%s,%d,%d).\n",
+                    member.getId(), profile.getProfileType().name().toLowerCase(), pos, val));
+                pos++;
+            }
         }
     }
 }

@@ -19,9 +19,9 @@ public class BatteryDto {
     private String model;
 
     @NotNull
-    private Float capacity;
+    private int capacity;
 
     @NotNull
-    private Float price;
+    private int price;
 
 }

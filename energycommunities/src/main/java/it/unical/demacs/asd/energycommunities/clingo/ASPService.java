@@ -4,10 +4,9 @@ import it.unical.demacs.asd.energycommunities.controller.ClingoStreamController;
 import it.unical.demacs.asd.energycommunities.data.dao.OngoingAnalysisDao;
 import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
-import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis1Dto;
-import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis2Dto;
-import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis3Dto;
-import it.unical.demacs.asd.energycommunities.dto.analysis.SingleAnalysis;
+import it.unical.demacs.asd.energycommunities.dto.analysis.result.*;
+import it.unical.demacs.asd.energycommunities.dto.battery.BatteryDto;
+import it.unical.demacs.asd.energycommunities.dto.battery.BatteryStatusDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +22,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,6 +74,18 @@ public class ASPService {
         }
     }
 
+    public ResultAnalysis4Dto generateChooseBatteries(List<MemberDetailDto> members, List<BatteryDto> batteries, int budget) {
+        int analysis = 4;
+        String facts = ASPFactMapper.toFacts4(members,batteries,budget);
+        String[] bestModel = calculateBestModel(facts,analysis,-1);
+
+        if (bestModel != null) {
+            return createBestModel4Dto(members, batteries, bestModel);
+        }  else {
+            return null;
+        }
+    }
+
     public ResultAnalysis2Dto generateOptimalCommunityDim(List<MemberDetailDto> members, int dim){
         int analysis = 2;
         String facts = ASPFactMapper.toFacts2(members,analysis,dim);
@@ -89,6 +98,7 @@ public class ASPService {
             return null;
         }
     }
+
 
     public ResultAnalysis3Dto generateOptimalCommunity(List<MemberDetailDto> members , List<Long> wantToAdd, List<Long> wantToRemove){
         int analysis = 3;
@@ -183,16 +193,28 @@ public class ASPService {
 
         System.out.println("Starting...");
 
-        try (Control ctl = new Control("0", "--opt-mode=opt")) {
+        try (Control ctl = new Control("0", "--opt-mode=opt", "--parallel-mode=12")) {
             long startClingo = System.currentTimeMillis();
-            // ctl.getConfiguration().get("solve").set("solve_limit", "900");
+            // ctl.getConfiguration().get("solve").set("solve_limit", "100000");
+            Thread thread = new Thread(() -> {
+                try {
+                    Thread.sleep(20000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            thread.start();
+
             if (analysis == 1) {
                 ctl.load(Path.of("energycommunities/encodings/analysis1.lp"));
             } else if (analysis == 2) {
                 ctl.load(Path.of("energycommunities/encodings/analysis2.lp"));
-            } else {
+            } else if (analysis == 3) {
                 ctl.load(Path.of("energycommunities/encodings/analysis3.lp"));
+            } else if (analysis == 4) {
+                ctl.load(Path.of("energycommunities/encodings/analysis4.lp"));
             }
+
             ctl.add(facts);
             streamController.sendEvent("GROUNDING_STARTED",analysisId);
             System.out.println("Grounding...");
@@ -224,6 +246,7 @@ public class ASPService {
                         bestCost = cost.clone();
                         bestModelStr = model.toString();
                     }
+                    if(!thread.isAlive()) break;
                 }
             }
 
@@ -276,6 +299,106 @@ public class ASPService {
             } catch (InterruptedException ignored) {}
         });
     }
+
+
+    public ResultAnalysis4Dto createBestModel4Dto(List<MemberDetailDto> members, List<BatteryDto> batteries, String[] bestModel) {
+        ResultAnalysis4Dto resultAnalysis4Dto = new ResultAnalysis4Dto();
+
+        Map<Long, Long> assignment = new HashMap<>();
+
+        // memberId-batteryId -> BatteryStatusDto
+        Map<String, BatteryStatusDto> tmp = new HashMap<>();
+        Map<Integer, Integer> consPerHour = new HashMap<>();
+        Map<Integer, Integer> prodPerHour = new HashMap<>();
+
+        Pattern assignPattern = Pattern.compile("assign\\((\\d+),(\\d+)\\)");
+        Pattern profileBatteryPattern = Pattern.compile("batteryStatusPerHour\\((\\d+),(\\d+),(\\d+),(\\d+)\\)");
+        Pattern consumptionPerHour = Pattern.compile("consumers_consumption_per_hour\\((\\d+),(\\d+)\\)");
+        Pattern productionPerHour = Pattern.compile("producers_production_per_hour\\((\\d+),(\\d+)\\)");
+
+        for (String a : bestModel) {
+
+            // --- assign(M,B) ---
+            Matcher assignMatcher = assignPattern.matcher(a);
+            while (assignMatcher.find()) { // nel caso ci siano più assign nella stessa stringa
+                long memberId = Long.parseLong(assignMatcher.group(1));
+                long batteryId = Long.parseLong(assignMatcher.group(2));
+                assignment.put(memberId, batteryId);
+            }
+
+            Matcher consumptionPerHourMatcher = consumptionPerHour.matcher(a);
+            while (consumptionPerHourMatcher.find()) {
+                int time = Integer.parseInt(consumptionPerHourMatcher.group(1));
+                int value = Integer.parseInt(consumptionPerHourMatcher.group(2));
+                consPerHour.put(time, value);
+            }
+            Matcher productionPerHourMatcher = productionPerHour.matcher(a);
+            while (productionPerHourMatcher.find()) {
+                int time = Integer.parseInt(productionPerHourMatcher.group(1));
+                int value = Integer.parseInt(productionPerHourMatcher.group(2));
+                prodPerHour.put(time, value);
+            }
+
+            // --- batteryStatusPerHour(B,M,T,E) ---
+            Matcher profileBatteryMatcher = profileBatteryPattern.matcher(a);
+            while (profileBatteryMatcher.find()) {
+                long batteryId = Long.parseLong(profileBatteryMatcher.group(1));
+                long memberId = Long.parseLong(profileBatteryMatcher.group(2));
+                int time = Integer.parseInt(profileBatteryMatcher.group(3));   // 0..23
+                int energy = Integer.parseInt(profileBatteryMatcher.group(4));
+
+                String key = memberId + "-" + batteryId;
+
+                BatteryStatusDto dto = tmp.computeIfAbsent(key, k -> {
+                    BatteryStatusDto d = new BatteryStatusDto();
+                    d.setMemberId(memberId);
+                    d.setBatteryId(batteryId);
+                    // assicuriamoci che l'array sia creato (se non lo fai nel costruttore)
+                    if (d.getEnergyByHour() == null) {
+                        d.setEnergyByHour(new int[24]);
+                    }
+                    return d;
+                });
+
+                // salva l’energia per l’ora T
+                if (time >= 0 && time < 24) {
+                    dto.getEnergyByHour()[time] = energy;
+                }
+            }
+        }
+
+        // converto la mappa in lista
+        List<BatteryStatusDto> batteryStatuses = new ArrayList<>(tmp.values());
+
+        resultAnalysis4Dto.setAssignments(assignment);
+        resultAnalysis4Dto.setBatteryStatus(batteryStatuses);
+
+        List<Double> totalProduction = calculateTotal(consPerHour);
+        List<Double> totalConsumption = calculateTotal(prodPerHour);
+        resultAnalysis4Dto.setTotalProduction(totalProduction);
+        resultAnalysis4Dto.setTotalConsumption(totalConsumption);
+
+        resultAnalysis4Dto.setKpi1(calculateKpi(totalConsumption, totalProduction));
+        resultAnalysis4Dto.setKpi2(calculateKpi(totalProduction, totalConsumption));
+
+        SingleAnalysis startingCommunity = new SingleAnalysis();
+        totalProduction = calculateTotal(members, ProfileType.PRODUCER);
+        totalConsumption = calculateTotal(members, ProfileType.CONSUMER);
+        startingCommunity.setAssignments(members);
+        startingCommunity.setTotalProduction(totalProduction);
+        startingCommunity.setTotalConsumption(totalConsumption);
+        startingCommunity.setKpi1(calculateKpi(totalConsumption, totalProduction));
+        startingCommunity.setKpi2(calculateKpi(totalProduction, totalConsumption));
+
+        resultAnalysis4Dto.setStartingCommunity(startingCommunity);
+
+        resultAnalysis4Dto.setBatteries(batteries);
+
+
+        return resultAnalysis4Dto;
+    }
+
+
 
     public ResultAnalysis1Dto createBestModel1Dto(List<MemberDetailDto> members, String[] bestModel) {
         ResultAnalysis1Dto resultAnalysis1Dto = new ResultAnalysis1Dto();
@@ -406,6 +529,15 @@ public class ASPService {
                     }
                 }
             }
+        }
+        return totals;
+    }
+
+    private List<Double> calculateTotal(Map<Integer,Integer> energyPerHour) {
+        List<Double> totals = new ArrayList<>(Collections.nCopies(24, 0.0));
+
+        for(int i = 0; i < energyPerHour.size(); i++){
+            totals.set(i, Double.valueOf(energyPerHour.get(i)));
         }
         return totals;
     }

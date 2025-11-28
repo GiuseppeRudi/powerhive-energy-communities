@@ -2,28 +2,31 @@ package it.unical.demacs.asd.energycommunities.controller;
 
 import it.unical.demacs.asd.energycommunities.clingo.ASPFactMapper;
 import it.unical.demacs.asd.energycommunities.clingo.ASPService;
-import it.unical.demacs.asd.energycommunities.clingo.MockDataGenerator;
-import it.unical.demacs.asd.energycommunities.clingo.MockDataGenerator2;
-import it.unical.demacs.asd.energycommunities.data.dao.HistoryDao;
+import it.unical.demacs.asd.energycommunities.clingo.mock.MockDataGenerator1;
+import it.unical.demacs.asd.energycommunities.clingo.mock.MockDataGenerator4;
 import it.unical.demacs.asd.energycommunities.data.dao.MemberDao;
-import it.unical.demacs.asd.energycommunities.data.dao.OngoingAnalysisDao;
 import it.unical.demacs.asd.energycommunities.data.dao.UserDao;
 import it.unical.demacs.asd.energycommunities.data.entities.Member;
 import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
 import it.unical.demacs.asd.energycommunities.data.services.OngoingAnalysisService;
-import it.unical.demacs.asd.energycommunities.dto.analysis.*;
 import it.unical.demacs.asd.energycommunities.data.services.MemberService;
+import it.unical.demacs.asd.energycommunities.dto.analysis.request.Analysis2Dto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.request.Analysis3Dto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.request.Analysis4Dto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.request.AsyncAnalysisDto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.result.ResultAnalysis1Dto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.result.ResultAnalysis2Dto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.result.ResultAnalysis3Dto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.result.ResultAnalysis4Dto;
+import it.unical.demacs.asd.energycommunities.dto.battery.BatteryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
-import it.unical.demacs.asd.energycommunities.dto.member.MemberSummaryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -51,7 +54,7 @@ public class AnalysisController {
             resultAnalysis1Dto = aspService.chooseBestProfiles(selectedMembers);
         }
         else {
-            List<MemberDetailDto> members  = MockDataGenerator.createMockUser();
+            List<MemberDetailDto> members  = MockDataGenerator1.generateListOfMembers();
             resultAnalysis1Dto = aspService.chooseBestProfiles(members);
         }
         System.out.println("Best Profiles per members:");
@@ -127,53 +130,33 @@ public class AnalysisController {
         System.out.print("Wanted community: ");
         for(MemberDetailDto m: resultAnalysis3Dto.getWantedCommunity().getAssignments()) System.out.print(m.getId() + " ");
         System.out.println();
-        /*
-        System.out.println("Optimal community:");
-        for(MemberDetailDto m: resultAnalysis3Dto.getOptimalCommunity().getAssignments()) {
-            System.out.println(m.getFullName());
-            System.out.println("Member " + m.getId() + " " + m.getMemberType() + ": ");
-            for(ProfileDto p : m.getProfiles()) {
-                System.out.print("  Profile " + p.getId() + " " + p.getProfileType() + ": ");
-                for(int i=0; i<p.getGraph().size(); i++){
-                    System.out.print(p.getGraph().get(i) + " ");
-                }
-                System.out.println();
-            }
-            System.out.println("\n");
-        }
-
-        System.out.println("Default community:");
-        for(MemberDetailDto m: resultAnalysis3Dto.getDefaultCommunity().getAssignments()) {
-            System.out.println(m.getFullName());
-            System.out.println("Member " + m.getId() + " " + m.getMemberType() + ": ");
-            for(ProfileDto p : m.getProfiles()) {
-                System.out.print("  Profile " + p.getId() + " " + p.getProfileType() + ": ");
-                for(int i=0; i<p.getGraph().size(); i++){
-                    System.out.print(p.getGraph().get(i) + " ");
-                }
-                System.out.println();
-            }
-            System.out.println("\n");
-        }
-        System.out.println("Wanted community:");
-        for(MemberDetailDto m: resultAnalysis3Dto.getWantedCommunity().getAssignments()) {
-            System.out.println(m.getFullName());
-            System.out.println("Member " + m.getId() + " " + m.getMemberType() + ": ");
-            for(ProfileDto p : m.getProfiles()) {
-                System.out.print("  Profile " + p.getId() + " " + p.getProfileType() + ": ");
-                for(int i=0; i<p.getGraph().size(); i++){
-                    System.out.print(p.getGraph().get(i) + " ");
-                }
-                System.out.println();
-            }
-            System.out.println("\n");
-        }
-        */
-        // System.out.println("KPI_1: " + resultAnalysis1Dto.getKpi1());
-        // System.out.println("KPI_2: " + resultAnalysis1Dto.getKpi2());
 
         return ResponseEntity.ok(resultAnalysis3Dto);
     }
+
+
+    @PostMapping(value = "/start_4")
+    public ResponseEntity<ResultAnalysis4Dto> startFourthAnalysis(@RequestBody Analysis4Dto request){
+//        System.out.println("Request :" + request.toString() );
+//
+//        List<MemberDetailDto> members = request.getMembers();
+//        List<BatteryDto> batteries = request.getBatteries();
+//        int budget = request.getBudget();
+//
+//        System.out.println("Members:" + members.toString());
+//        System.out.println("Batteries: " + batteries.toString());
+//        System.out.println("Budget:" + budget);
+
+
+        List<MemberDetailDto> mockMembers = MockDataGenerator4.generateListOfMembers();
+        List<BatteryDto> mockBattery = MockDataGenerator4.generateListBatteries();
+        int mockBudget = MockDataGenerator4.generateBudget();
+
+        ResultAnalysis4Dto resultAnalysis4Dto = aspService.generateChooseBatteries(mockMembers,mockBattery,mockBudget);
+
+        return ResponseEntity.ok(resultAnalysis4Dto);
+    }
+
 
     @PostMapping(value = "/async_1")
     public ResponseEntity<Long> runFirstAnalysisAsync(@RequestBody AsyncAnalysisDto payload) {
@@ -198,59 +181,12 @@ public class AnalysisController {
         if (payload.getMemberIds() != null && !payload.getMemberIds().isEmpty()) {
             selectedMembers = memberService.findAllById(payload.getMemberIds());
         }
-        else selectedMembers  = MockDataGenerator.createMockUser();
+        else selectedMembers  = MockDataGenerator1.generateListOfMembers();
         String facts = ASPFactMapper.toFacts1(selectedMembers,1);
         aspService.startAsyncAnalysis(entity.getId(), 1,facts);
         System.out.println(entity.getId());
         return ResponseEntity.ok(entity.getId());
     }
-
-
-/*
-    @GetMapping(value = "/start_2")
-    public ResponseEntity<ResultAnalysis_2Dto> startSecondAnalysis(
-            @RequestParam List<Long> memberIds) {
-
-        try {
-            // Recupera i membri completi dal DB
-            List<MemberDetailDto> memberDetails = memberService.findAllById(memberIds);
-
-            if (memberDetails.isEmpty()) {
-                return ResponseEntity.badRequest().body(null);
-            }
-
-            List<MemberDetailDto> averagedMembers = new ArrayList<>();
-
-            for (MemberDetailDto member : memberDetails) {
-                // Ottieni tutti i profili associati al membro
-                List<ProfileDto> profiles = member.getProfiles().stream()
-                        .map(profile -> modelMapper.map(profile, ProfileDto.class))
-                        .collect(Collectors.toList());
-
-                // Calcola i profili medi per PRODUCER e CONSUMER
-                ProfileDto avgProducer = ProfileUtils.computeAverageProfile(profiles, ProfileType.PRODUCER);
-                ProfileDto avgConsumer = ProfileUtils.computeAverageProfile(profiles, ProfileType.CONSUMER);
-
-                // Crea nuovo MemberDetailDto con i profili medi
-                MemberDetailDto memberDto = new MemberDetailDto();
-                memberDto.setId(member.getId());
-                memberDto.setFullName(member.getFullName());
-                memberDto.setMemberType(member.getMemberType());
-                memberDto.setProfiles(
-                        Stream.of(avgProducer, avgConsumer)
-                                .filter(Objects::nonNull)
-                                .collect(Collectors.toList())
-                );
-
-                averagedMembers.add(memberDto);
-            }
-
-            // Crea il risultato finale
-            ResultAnalysis_2Dto result = new ResultAnalysis_2Dto();
-            result.setAssignments(averagedMembers);
-        return ResponseEntity.ok(result);
-    }
-*/
 
 
 }

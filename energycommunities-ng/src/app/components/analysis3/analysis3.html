@@ -4,33 +4,13 @@
 </head>
 
 <div class="content-div">
-  <div class="disclaimer">
-    <p><strong>📊 Energy Community Analysis 3 Dashboard</strong></p>
-    <p>
-      For each member, given a set of production and consumption profiles,
-      our app applies a decision-making algorithm to select the optimal production
-      and consumption profile for each member, in order to optimize the shared energy
-      within the energy community.
-    </p>
-    <p>
-      In this analysis, you can select an initial set of members (default community),
-      choose who to remove and who to add, and compare the resulting communities:
-    </p>
-    <ul>
-      <li><strong>Default:</strong> members initially selected</li>
-      <li><strong>Wanted:</strong> selected members after applying your add/remove choices</li>
-      <li><strong>Optimal:</strong> the best combination computed by the algorithm</li>
-    </ul>
-  </div>
 
-  <!-- Azioni solo se ci sono dati -->
   <app-analysis-actions
     [resultAnalysis]="resultAnalysis"
     [typeAnalysis]="typeAnalysis"
     [history]="history"
     (terminated)="resetAnalysisData()"
   ></app-analysis-actions>
-
 
   <div class="chart-section">
     <h2 class="section-title">
@@ -40,6 +20,60 @@
 
     <div *ngIf="!resultAnalysis" class="loading-container">
       <app-generation-loader></app-generation-loader>
+    </div>
+
+    <div *ngIf="globalProdConsChartData" class="global-chart-container" style="margin-bottom: 30px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+      <h3 class="section-title" style="font-size: 1.2rem; margin-bottom: 15px;">
+        <span class="icon">📈</span>
+        Global Production vs Consumption Comparison
+      </h3>
+
+      <div class="chart-wrapper" style="height: 400px;">
+        <app-energy-chart
+          [data]="globalProdConsChartData"
+          [options]="chartOptions"
+          [selectedChartType]="'line'">
+        </app-energy-chart>
+      </div>
+
+      <div class="kpi-legend-container" style="margin-top: 20px; text-align: center; font-size: 0.9rem; display: flex; flex-direction: column; gap: 10px; align-items: center;">
+        <div style="display: flex; gap: 15px;">
+          <div><span style="color: #757575;">●</span> <strong>Default</strong></div>
+          <div><span style="color: #1976D2;">●</span> <strong>Wanted</strong></div>
+          <div><span style="color: #388E3C;">●</span> <strong>Optimal</strong></div>
+        </div>
+        <div style="display: flex; gap: 15px; color: #555;">
+          <div><span style="text-decoration: line-through;">&nbsp;&nbsp;&nbsp;&nbsp;</span> <strong>Solid Line:</strong> Production</div>
+          <div><span style="border-bottom: 2px dashed #555; display: inline-block; width: 30px; margin-bottom: 4px;"></span> <strong>Dashed Line:</strong> Consumption</div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="globalKpiChartData" class="global-chart-container" style="margin-bottom: 30px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+      <h3 class="section-title" style="font-size: 1.2rem; margin-bottom: 15px;">
+        <span class="icon">🏆</span>
+        Global KPI Comparison (Shared & Self-Sufficiency)
+      </h3>
+
+      <div class="chart-wrapper" style="height: 400px;">
+        <app-energy-chart
+          [data]="globalKpiChartData"
+          [options]="kpiChartOptions"
+          [selectedChartType]="'line'">
+        </app-energy-chart>
+      </div>
+
+      <div class="kpi-legend-container" style="margin-top: 20px; text-align: center; font-size: 0.9rem; display: flex; flex-direction: column; gap: 10px; align-items: center;">
+        <div style="display: flex; gap: 15px;">
+          <div><span style="color: #757575;">●</span> <strong>Default</strong></div>
+          <div><span style="color: #1976D2;">●</span> <strong>Wanted</strong></div>
+          <div><span style="color: #388E3C;">●</span> <strong>Optimal</strong></div>
+        </div>
+        <div style="display: flex; gap: 15px; color: #555;">
+          <div><span style="text-decoration: line-through;">&nbsp;&nbsp;&nbsp;&nbsp;</span> <strong>Solid Line:</strong> Shared Energy</div>
+          <div><span style="border-bottom: 2px dashed #555; display: inline-block; width: 30px; margin-bottom: 4px;"></span> <strong>Dashed Line:</strong> Self-Sufficiency</div>
+        </div>
+      </div>
     </div>
 
     <div class="communities-list" *ngIf="resultAnalysis">

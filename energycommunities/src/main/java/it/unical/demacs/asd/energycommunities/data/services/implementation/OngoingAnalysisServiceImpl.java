@@ -2,12 +2,9 @@ package it.unical.demacs.asd.energycommunities.data.services.implementation;
 
 import it.unical.demacs.asd.energycommunities.data.dao.MemberDao;
 import it.unical.demacs.asd.energycommunities.data.dao.OngoingAnalysisDao;
-import it.unical.demacs.asd.energycommunities.data.entities.History;
 import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.services.OngoingAnalysisService;
-import it.unical.demacs.asd.energycommunities.dto.analysis.OngoingAnalysisDto;
-import it.unical.demacs.asd.energycommunities.dto.history.HistorySummaryDto;
-import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.result.OngoingAnalysisDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;

@@ -17,6 +17,7 @@ import {ClingoEventsService} from '../../services/clingo-events.service';
     NgIf,
     DatePipe
   ],
+  standalone: true,
   styleUrls: ['./ongoing-analysis.css', '../welcome/welcome.css']
 })
 export class OngoingAnalysisComponent implements OnInit,OnDestroy {

@@ -34,8 +34,8 @@ public class Battery {
 
     private String model;
 
-    private Float capacity;
+    private int capacity;
 
-    private Float price;
+    private int price;
 
 }

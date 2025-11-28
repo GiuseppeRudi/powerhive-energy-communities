@@ -7,6 +7,7 @@ import {ResultAnalysis_2} from '../model/analysis/ResultAnalysis_2';
 import { MemberSummary } from "../model/member/MemberSummary";
 import {MemberDetail} from '../model/member/MemberDetail';
 import {ResultAnalysis_3} from '../model/analysis/ResultAnalysis_3';
+import {ResultAnalysis_4} from '../model/analysis/ResultAnalysis_4';
 
 @Injectable({providedIn: 'root'})
 export class AnalysisService {
@@ -52,6 +53,20 @@ export class AnalysisService {
     };
     return this.http.post<ResultAnalysis_3>(`${this.baseUrl}/start_3`,body);
   }
+
+
+  // members: MemberDetail[], budget: number, batteries : number[]
+  getResultAnalysis_4( ) : Observable<ResultAnalysis_4>{
+    const body = {
+      // members: members,
+      // batteries: batteries,
+      // budget: budget
+    };
+    return this.http.post<ResultAnalysis_4>(`${this.baseUrl}/start_4`,body);
+  }
+
+
+
 
   runAsync1(userId: number, analysis: number, memberIds?: number[]) {
     const payload = {

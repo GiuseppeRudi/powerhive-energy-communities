@@ -1,14 +1,10 @@
 package it.unical.demacs.asd.energycommunities.controller;
 
 import it.unical.demacs.asd.energycommunities.clingo.ASPService;
-import it.unical.demacs.asd.energycommunities.data.dao.MemberDao;
-import it.unical.demacs.asd.energycommunities.data.dao.OngoingAnalysisDao;
-import it.unical.demacs.asd.energycommunities.data.dao.UserDao;
-import it.unical.demacs.asd.energycommunities.data.entities.Member;
 import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.services.OngoingAnalysisService;
-import it.unical.demacs.asd.energycommunities.dto.analysis.OngoingAnalysisDto;
-import it.unical.demacs.asd.energycommunities.dto.analysis.ResultAnalysis1Dto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.result.OngoingAnalysisDto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.result.ResultAnalysis1Dto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;

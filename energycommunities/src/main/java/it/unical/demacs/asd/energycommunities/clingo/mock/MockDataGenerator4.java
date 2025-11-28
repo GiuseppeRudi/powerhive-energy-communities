@@ -1,7 +1,10 @@
-package it.unical.demacs.asd.energycommunities.clingo;
+package it.unical.demacs.asd.energycommunities.clingo.mock;
 
+
+import it.unical.demacs.asd.energycommunities.clingo.ASPService;
 import it.unical.demacs.asd.energycommunities.data.utils.MemberType;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
+import it.unical.demacs.asd.energycommunities.dto.battery.BatteryDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
@@ -13,10 +16,10 @@ import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
-public class MockDataGenerator2 {
+public class MockDataGenerator4 {
 
     public static List<MemberDetailDto> generateListOfMembers() {
-      
+
 
         List<MemberDetailDto> members = new ArrayList<>();
         long memberId = 1;
@@ -33,7 +36,7 @@ public class MockDataGenerator2 {
         ProfileDto ProfileDto = new ProfileDto();
         ProfileDto.setId(1L);
         ProfileDto.setProfileType(ProfileType.PRODUCER);
-        
+
         ProfileDto.setGraph(generateRandomGraph(random, 0, 12));
         profiles1.add(ProfileDto);
         member1.setProfiles(profiles1);
@@ -263,14 +266,57 @@ public class MockDataGenerator2 {
         return graph;
     }
 
-    public static void main(String[] args) {
-        List<MemberDetailDto> members = MockDataGenerator2.generateListOfMembers();
 
+    public static List<BatteryDto> generateListBatteries() {
+        List<BatteryDto> batteries = new ArrayList<>();
+
+
+        BatteryDto battery1 = new BatteryDto();
+        battery1.setId(1L);
+        battery1.setCapacity(10);
+        battery1.setModel("Pylontech ");
+        battery1.setPrice(1200);
+
+        BatteryDto battery2 = new BatteryDto();
+        battery2.setId(2L);
+        battery2.setCapacity(15);
+        battery2.setModel("Deye RW-M6.1-B");
+        battery2.setPrice(2000);
+
+        BatteryDto battery3 = new BatteryDto();
+        battery3.setId(3L);
+        battery3.setCapacity(30);
+        battery3.setModel("Tesla CF1000");
+        battery3.setPrice(4500);
+
+
+        batteries.add(battery1);
+        batteries.add(battery2);
+        batteries.add(battery3);
+
+        for(BatteryDto batteryDto : batteries){
+            System.out.println("BatteryDto " + batteryDto.getId() +  " " + batteryDto.getCapacity() +  " "  + batteryDto.getCapacity() );
+            System.out.println();
+        }
+
+
+        return batteries;
+    }
+
+    public static int generateBudget(){
+        return 10000;
+    }
+
+    public static void main(String[] args) {
+        List<MemberDetailDto> members = MockDataGenerator4.generateListOfMembers();
+
+        List<BatteryDto> batteries = MockDataGenerator4.generateListBatteries();
 
         ASPService aspService = new ASPService();
-        List<Long> wantToAdd = new ArrayList<>();
-        List<Long> wantToRemove = new ArrayList<>();
-        aspService.generateOptimalCommunity(members, wantToAdd, wantToRemove);
+        int budget = generateBudget();
+
+
+        aspService.generateChooseBatteries(members,batteries,budget);
     }
 }
 

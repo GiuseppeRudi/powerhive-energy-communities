@@ -3,7 +3,7 @@ import { ChartData, ChartOptions } from 'chart.js';
 import { MemberDetail } from '../../model/member/MemberDetail';
 import { PlanService } from '../../services/plan.service';
 import { AuthService } from '../../services/auth/auth.service';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { User } from '../../model/User';
 import { CommonModule } from '@angular/common';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
@@ -11,6 +11,8 @@ import { GenerationLoader } from '../generation-loader/generation-loader';
 import { FormsModule } from '@angular/forms';
 import {AnalysisService} from '../../services/analysis.service';
 import {Analysis3Request} from '../../model/analysis/Analysis3Request';
+import {HistorySummary} from '../../model/history/HistorySummary'
+import {HistoryService} from '../../services/history.service';
 
 @Component({
   selector: 'app-choose-analysis3',
@@ -22,11 +24,18 @@ import {Analysis3Request} from '../../model/analysis/Analysis3Request';
     EnergyChartComponent,
     GenerationLoader,
     FormsModule,
-    RouterLink
+    RouterLink,
+    RouterModule
   ]
 })
 export class ChooseAnalysis3 implements OnInit {
-
+  showMissingWarning: boolean = false;
+  missingMembersList: string[] = [];
+  historyList: HistorySummary[] = [];
+  loading = true;
+  error: string | null = null;
+  userId: number = 0;
+  showSavedAnalysis: boolean = false;
   members: MemberDetail[] = [];
 
   // Mappa dei grafici
@@ -60,13 +69,22 @@ export class ChooseAnalysis3 implements OnInit {
     private planService: PlanService,
     private authService: AuthService,
     private analysisService: AnalysisService,
-  ) {}
+    private historyService: HistoryService,
+  ) {
+  }
 
   ngOnInit() {
-    const userJson = sessionStorage.getItem('currentUser');
-    if (!userJson) return;
+    window.scrollTo({top: 0, behavior: 'smooth'});
 
+    const userJson = sessionStorage.getItem('currentUser');
+    if (!userJson) {
+      console.warn('Nessun utente loggato trovato in sessione.');
+      return;
+    }
     const user: User = JSON.parse(userJson);
+    this.userId = user.id;
+
+    this.loadHistory();
 
     if (user.plan_id) {
       this.isLoading = true;
@@ -208,5 +226,91 @@ export class ChooseAnalysis3 implements OnInit {
     this.communityMembers = []
 
     this.router.navigate(['/analysis3']);
+  }
+
+  loadHistory(): void {
+    this.loading = true;
+    this.error = null;
+
+    this.historyService.getHistories(this.userId).subscribe({
+      next: (data) => {
+        console.log(data);
+        const filteredData = data.filter(h => h.analysisNumber === 2);
+        // Ordina dalla più recente alla più vecchia
+        this.historyList = filteredData.sort((a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        console.log(this.historyList);
+        this.loading = false;
+      },
+      error: (err) => {
+        this.error = 'Errore nel caricamento della cronologia';
+        this.loading = false;
+        console.error(err);
+      }
+    });
+  }
+
+
+  addCommunityDefault(historyId: number) {
+
+    this.showMissingWarning = false;
+    this.missingMembersList = [];
+
+    this.historyService.getHistoryMembers(historyId).subscribe({
+      next: (assignmentsList: any[]) => {
+        console.log('Lista membri ricevuta (Light Payload):', assignmentsList);
+
+        if (assignmentsList && Array.isArray(assignmentsList)) {
+
+          const currentPlanIds = this.members.map(m => m.id);
+          const validIds: number[] = [];
+          const missingNames: string[] = [];
+
+          assignmentsList.forEach((item: any) => {
+            let id: number;
+            let name: string;
+
+            if (typeof item === 'number') {
+              id = item;
+              name = `ID ${item}`;
+            } else {
+              id = Number(item.id || item.memberId);
+              name = item.fullName || `ID ${id}`;
+            }
+
+            if (currentPlanIds.includes(id)) {
+              validIds.push(id);
+            } else {
+              missingNames.push(name);
+            }
+          });
+          this.communityMembers = validIds;
+          this.wantToAdd = [];
+          this.wantToRemove = [];
+          window.scrollTo({top: 270, behavior: 'smooth'});
+          this.showSavedAnalysis = false;
+          console.log(`Applicati ${this.communityMembers.length} membri validi.`);
+
+          if (missingNames.length > 0) {
+            this.missingMembersList = missingNames;
+            this.showMissingWarning = true;
+          }
+
+        } else {
+          console.warn('Risposta vuota o formato non valido.');
+        }
+
+      },
+      error: (err) => {
+        console.error('Errore API GetMembers:', err);
+        alert('Impossibile caricare l\'analisi selezionata.');
+      }
+    });
+  }
+
+  closeWarning() {
+    this.showMissingWarning = false;
   }
 }

@@ -2,7 +2,7 @@ package it.unical.demacs.asd.energycommunities.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import it.unical.demacs.asd.energycommunities.dto.history.HistoryDetailDto;
-import it.unical.demacs.asd.energycommunities.dto.analysis.SaveAnalysisRequestDto;
+import it.unical.demacs.asd.energycommunities.dto.analysis.history.SaveAnalysisRequestDto;
 import it.unical.demacs.asd.energycommunities.dto.history.HistorySummaryDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import it.unical.demacs.asd.energycommunities.data.services.HistoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import java.util.List;
 
@@ -63,6 +64,18 @@ public class HistoryController {
         }
     }
 
-
+    @GetMapping("/getMembers/{id}")
+    public ResponseEntity<Object> getHistoryMembers(@PathVariable Long id) {
+        HistoryDetailDto historyDto = historyService.getHistoryById(id);
+        if (historyDto == null) {
+            return ResponseEntity.notFound().build();
+        }
+        JsonNode analysisData = historyDto.getAnalysisData();
+        if (analysisData == null) {
+            return ResponseEntity.ok(JsonNodeFactory.instance.arrayNode());
+        }
+        JsonNode membersNode = analysisData.path("assignments");
+        return ResponseEntity.ok(membersNode);
+    }
 }
 

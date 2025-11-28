@@ -274,19 +274,19 @@ public class MockDataGenerator4 {
         BatteryDto battery1 = new BatteryDto();
         battery1.setId(1L);
         battery1.setCapacity(10);
-        battery1.setModel("CocolaPiccola");
+        battery1.setModel("Pylontech ");
         battery1.setPrice(1200);
 
         BatteryDto battery2 = new BatteryDto();
         battery2.setId(2L);
         battery2.setCapacity(15);
-        battery2.setModel("CocolaMedia");
+        battery2.setModel("Deye RW-M6.1-B");
         battery2.setPrice(2000);
 
         BatteryDto battery3 = new BatteryDto();
         battery3.setId(3L);
         battery3.setCapacity(30);
-        battery3.setModel("CocolaGrossa");
+        battery3.setModel("Tesla CF1000");
         battery3.setPrice(4500);
 
 

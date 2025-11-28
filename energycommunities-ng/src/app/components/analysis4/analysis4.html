@@ -149,7 +149,7 @@
 <!--    (terminated)="resetAnalysisData()"-->
 <!--  ></app-analysis-actions>-->
 
-  <h2 class="section-title">Batteries Available</h2>
+  <h2 class="section-title" *ngIf = "resultAnalysis">Batteries Available</h2>
 
   <div class="batteries-grid">
     <div class="battery-card" *ngFor="let m of resultAnalysis?.batteries">

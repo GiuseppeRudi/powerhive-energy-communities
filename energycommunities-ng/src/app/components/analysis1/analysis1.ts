@@ -54,7 +54,7 @@ export class Analysis1 implements OnInit,OnDestroy {
     maintainAspectRatio: false,
     scales: {
       x: { title: { display: true, text: 'Hour (0-23)' } },
-      y: { title: { display: true, text: 'Percentage (%)' }, beginAtZero: true, max: 100 }
+      y: { title: { display: true, text: 'Percentage (%)' }, beginAtZero: true, suggestedMax: 100 }
     },
     plugins: {
       legend: { display: true, position: 'top' },

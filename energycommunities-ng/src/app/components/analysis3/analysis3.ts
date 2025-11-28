@@ -72,7 +72,7 @@ export class Analysis3 implements OnInit {
       y: {
         title: { display: true, text: 'Percentage (%)' },
         beginAtZero: true,
-        max: 100,
+        suggestedMax: 100,
         grid: { display: true, color: 'rgba(0, 0, 0, 0.1)' }
       }
     },

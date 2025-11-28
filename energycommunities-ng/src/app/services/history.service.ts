@@ -24,5 +24,7 @@ export class HistoryService {
   getHistoryById(id: number): Observable<HistoryDetail> {
     return this.http.get<HistoryDetail>(`${this.baseUrl}/get/${id}`);
   }
-
+  getHistoryMembers(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/getMembers/${id}`);
+  }
 }

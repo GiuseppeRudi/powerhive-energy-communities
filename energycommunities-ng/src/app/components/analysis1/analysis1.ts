@@ -81,7 +81,6 @@ export class Analysis1 implements OnInit,OnDestroy {
     this.resultAnalysis = history.state?.result ?? null;
 
     if(this.resultAnalysis != null) {
-      this.typeAnalisys = 0;
       this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
       this.buildAllCharts();
       return;
@@ -119,9 +118,6 @@ export class Analysis1 implements OnInit,OnDestroy {
             }
           }
         });
-        // Nuova analisi
-        this.typeAnalisys = 0;
-
         // Se ci sono memberIds nei query params, passali al backend
         if (memberIdsParam) {
           this.memberIds = memberIdsParam.split(',').map((id: string) => +id);

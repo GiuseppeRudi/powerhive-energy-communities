@@ -1,9 +1,10 @@
 <div class="content-div">
 
   <nav class='navbar' style="align-self: center;">
-      <ul class='navbar-links'>
+    <ul class='navbar-links'>
       <li><a style="cursor: pointer;" (click)="set_navbar_state(ManagementNavbarState.MEMBERS)">Manage members</a></li>
-      <li><a style="cursor: pointer;" (click)="set_navbar_state(ManagementNavbarState.BATTERIES)">Manage batteries</a></li>
+      <li><a style="cursor: pointer;" (click)="set_navbar_state(ManagementNavbarState.BATTERIES)">Manage batteries</a>
+      </li>
     </ul>
   </nav>
 
@@ -216,7 +217,8 @@
   </div>
 
   <!-- Battery delete confirmation modal -->
-  <div class="modal-overlay" *ngIf="isBatteryDeleteModalVisible">
+  @if (isBatteryDeleteModalVisible) {
+  <div class="modal-overlay">
     <div class="modal-content">
       <h3>Confirm deletion</h3>
 
@@ -232,7 +234,6 @@
       </div>
     </div>
   </div>
-
-
+  }
   }
 </div>

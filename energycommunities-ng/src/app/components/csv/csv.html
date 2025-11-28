@@ -11,8 +11,10 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
     </pre>
     <p>
       Each row represents a consumption or production profile for a user.
-      Each user can have multiple profiles. The <strong>category</strong> field can be either <em>CONSUMER</em> or <em>PRODUCER</em>.
-      The columns <strong>t0–t23</strong> represent the energy consumption or production (in kW) for each hour of the day.
+      Each user can have multiple profiles. The <strong>category</strong> field can be either <em>CONSUMER</em> or
+      <em>PRODUCER</em>.
+      The columns <strong>t0–t23</strong> represent the energy consumption or production (in kW) for each hour of the
+      day.
       Each user must have a unique identifier in the <strong>email</strong> field.
 
       PLEASE DOWNLOAD THE TEMPLATE AND COMPILE IT FOLLOWING THESE INSTRUCTIONS
@@ -23,27 +25,82 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
   <div class="csv-container">
     <h2>CSV Section</h2>
 
-    <input type="file" accept=".csv" (change)="onFileSelected($event)" id="fileInput"/>
+    <input type="file" accept=".csv" (change)="onFileSelected($event)" id="fileInput" />
     <br><br>
     <button (click)="downloadTemplate()" class="btn">Download CSV template</button>
 
     <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
     <p *ngIf="successMessage" class="success">{{ successMessage }}</p>
 
-    <div *ngIf="csvData.length > 0" class="preview">
-      <br>
-      <h3 align="center">CSV Preview</h3>
-      <br>
-      <table>
-        <tr>
-          <th *ngFor="let col of csvData[0]">{{ col }}</th>
-        </tr>
-        <tr *ngFor="let row of csvData.slice(1)">
-          <td *ngFor="let cell of row">{{ cell }}</td>
-        </tr>
-      </table>
+    @if (this.new_members.length > 0) {
+    <div class="table-container">
+      <h2>Members preview</h2>
+      <table class="members-table">
+        <thead>
+          <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Status</th>
+            @if (this.action_column_status()) {<th>Action</th>}
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of this.new_members; track $index) {
+          <tr>
+            <td>{{item.fullName}}</td>
 
-      <button (click)="saveCsv()" class="btn"> Save Plan! </button>
+            <td>
+              @if (item.any_conflicts === 'EMAIL_ALREADY_USED') {
+              <div class="form-group">
+                <input type="text" #input_email (change)="change_email(item, input_email.value)" value="{{item.email}}">
+              </div>
+              }
+              @else {<p>{{item.email}}</p>}
+            </td>
+
+            <td>
+              @if (item.any_conflicts === 'NO_CONFLICTS') {<p class="status-ok">OK</p>}
+              @else if (item.any_conflicts === 'EMAIL_ALREADY_USED') {<p class="status-error">EMAIL USED</p>}
+              @else if (item.any_conflicts === 'MEMBER_ALREADY_PRESENT') {<p class="status-error">MEMBER ALREADY PRESENT
+              </p>}
+            </td>
+
+            @if (this.action_column_status()) {
+            <td>
+              @if (item.any_conflicts === 'MEMBER_ALREADY_PRESENT') {
+              <button class='btn' (click)="this.open_modal(item)">Solve conflicts</button>
+              }
+            </td>
+            }
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+  </div>
+
+  @if (this.member_modal_visible) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <p>{{this.member_modal_item?.fullName}} (emai: {{this.member_modal_item?.email}}) ha già roba caricata.</p>
+
+      <div class="modal-body">
+        @for (profile of this.member_modal_item?.profiles; track $index) {
+        <app-energy-chart [data]="{ labels: [], datasets: [{ data: profile.graph }] }" [options]="chartOptions" [selectedChartType]="'line'"></app-energy-chart>
+        }
+      </div>
+
+
+      <div class="modal-actions">
+        <button class="modal-btn btn-secondary">
+          Cancel
+        </button>
+        <button class="modal-btn btn-danger">
+          Confirm
+        </button>
+      </div>
     </div>
   </div>
+  }
 </div>

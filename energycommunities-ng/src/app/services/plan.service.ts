@@ -54,4 +54,8 @@ export class PlanService {
     const params = new HttpParams().set('ownerId', ownerId.toString());
     return this.http.delete<void>(`${this.baseUrl}/member/${memberId}`, { params });
   }
+
+  get_full_plan(plan_id: number): Observable<PlanDetail> {
+    return this.http.get<PlanDetail>(`${this.baseUrl}/full/${plan_id}`)
+  }
 }

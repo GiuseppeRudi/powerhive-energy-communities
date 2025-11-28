@@ -90,6 +90,7 @@ public class PlanController {
             MemberDetailDto memberDto = new MemberDetailDto();
             memberDto.setId(member.getId());
             memberDto.setFullName(member.getFullName());
+            memberDto.setEmail(member.getEmail());
             memberDto.setMemberType(member.getMemberType());
             memberDto.setProfiles(
                     Stream.of(avgProducer, avgConsumer)
@@ -128,6 +129,11 @@ public class PlanController {
 
         planService.deleteMemberFromPlan(memberId, ownerId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/full/{plan_id}")
+    public ResponseEntity<PlanDetailDto> get_full_plan(@PathVariable Long plan_id){
+        return ResponseEntity.ok(planService.getDetailPlanById(plan_id));
     }
 }
 

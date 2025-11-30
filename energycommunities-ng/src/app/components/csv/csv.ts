@@ -10,6 +10,8 @@ import { NewMember } from '../../model/member/NewMember';
 import { NewProfile } from '../../model/member/NewProfile';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
 import { ChartOptions } from 'chart.js';
+import { MemberDetail } from '../../model/member/MemberDetail';
+import { Profile } from '../../model/member/Profile';
 
 @Component({
   selector: 'app-csv',
@@ -34,7 +36,8 @@ export class Csv implements OnInit {
   new_members: NewMember[] = [];
 
   member_modal_visible: boolean = false;
-  member_modal_item: NewMember | null = null;
+  new_member_modal_item: NewMember | null | undefined = null;
+  member_modal_item: MemberDetail | null | undefined = null;
 
   chartLabels: string[] = Array.from({ length: 24 }, (_, i) => `${i}`);
 
@@ -182,7 +185,54 @@ export class Csv implements OnInit {
 
   open_modal(member: NewMember) {
     this.member_modal_visible = true;
-    this.member_modal_item = member;
+    this.new_member_modal_item = member;
+    this.member_modal_item = this.owner_plan?.members.find(m => m.email === member.email && m.fullName === member.fullName)
+  }
+
+  save_new_profiles(member: MemberDetail | null | undefined, new_member: NewMember | null | undefined) {
+    console.log(member)
+    console.log(new_member)
+
+    member!.profiles = []
+    member!.profiles = new_member?.profiles as Profile[]
+
+    console.log(member!.profiles)
+
+    this.planService.update_member(member!).subscribe(response => {
+      console.log(response)
+      alert(new_member?.fullName + ' saved!')
+    })
+
+    this.new_members = this.new_members.filter(m => m.email != new_member?.email && m.fullName != new_member!.fullName)
+
+    this.planService.get_full_plan(this.currentUser!.plan_id).subscribe(response => {
+      this.owner_plan = response;
+    })
+
+    this.member_modal_visible = false;
+    this.new_member_modal_item = null;
+    this.member_modal_item = null;
+  }
+
+  keep_previous_profiles(new_member: MemberDetail | null | undefined) {
+    this.new_members = this.new_members.filter(m => m.email != new_member?.email && m.fullName != new_member!.fullName)
+
+    alert('You kept the previous profiles for ' + new_member?.fullName)
+
+    this.member_modal_visible = false;
+    this.new_member_modal_item = null;
+    this.member_modal_item = null;
+  }
+
+  save_new_members() {
+    for (let member of this.new_members)
+      this.planService.addMemberToPlan(member as MemberDetail, this.currentUser?.plan_id!)
+
+    this.new_members = []
+    /*
+      - nuovo metodo per aggiungere i nuovi membri
+      - reindirizzare alla dashboard
+    */
   }
 
 }

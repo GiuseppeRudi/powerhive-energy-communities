@@ -76,6 +76,9 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
           }
         </tbody>
       </table>
+      @if (!this.action_column_status()) {
+        <button (click)="save_new_members()" class="btn">Save new profiles</button>
+      }
     </div>
     }
   </div>
@@ -83,21 +86,54 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
   @if (this.member_modal_visible) {
   <div class="modal-overlay">
     <div class="modal-content">
-      <p>{{this.member_modal_item?.fullName}} (emai: {{this.member_modal_item?.email}}) ha già roba caricata.</p>
+      <p>
+        The member {{this.member_modal_item?.fullName}} (email: {{this.member_modal_item?.email}}) already has
+        <strong>other profiles uploaded</strong>.
+        <br>
+        Would you like to <strong>keep the previously saved data</strong> (which prevents saving the new profiles), or <strong>prefer the
+        new profiles</strong> (which will delete the existing ones)?
+      </p>
 
       <div class="modal-body">
-        @for (profile of this.member_modal_item?.profiles; track $index) {
-        <app-energy-chart [data]="{ labels: [], datasets: [{ data: profile.graph }] }" [options]="chartOptions" [selectedChartType]="'line'"></app-energy-chart>
-        }
+        <div class="table-container">
+          <table class="members-table">
+            <thead>
+              <th>Previous profiles</th>
+              <th>New profiles</th>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  @for (profile of this.member_modal_item?.profiles; track $index) {
+              <tr>
+                <app-energy-chart
+                  [data]="{ labels: chartLabels, datasets: [{ label: 'Profile', data: profile.graph }] }"
+                  [options]="chartOptions" [selectedChartType]="'line'"></app-energy-chart>
+              </tr>
+              }
+              </td>
+              <td>
+                @for (profile of this.new_member_modal_item?.profiles; track $index) {
+                <tr>
+                  <app-energy-chart
+                    [data]="{ labels: chartLabels, datasets: [{ label: 'Profile', data: profile.graph }] }"
+                    [options]="chartOptions" [selectedChartType]="'line'"></app-energy-chart>
+                </tr>
+                }
+              </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
 
       <div class="modal-actions">
-        <button class="modal-btn btn-secondary">
-          Cancel
+        <button (click)="keep_previous_profiles(this.member_modal_item)" class="modal-btn btn-secondary">
+          Keep previous profiles
         </button>
-        <button class="modal-btn btn-danger">
-          Confirm
+        <button (click)="save_new_profiles(this.member_modal_item, this.new_member_modal_item)" class="modal-btn btn-danger">
+          Save new profiles
         </button>
       </div>
     </div>

@@ -128,6 +128,7 @@ public class ModelMapperConfig {
                     dto.setProfiles(source.getProfiles().stream()
                             .map(profile -> modelMapper.map(profile, ProfileDto.class))
                             .toList());
+                    dto.setPlanId(source.getPlan().getId());
 
                     return dto;
                 });

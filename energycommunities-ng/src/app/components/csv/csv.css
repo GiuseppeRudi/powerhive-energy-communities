@@ -42,12 +42,14 @@
 	 so header and columns keep alignment while remaining usable */
 .table-container {
 	width: 100%;
-	overflow-x: auto;
+	/* allow the table to fit the container and wrap content instead of forcing horizontal scroll */
+	overflow-x: visible;
 }
 
-/* Prevent columns from shrinking too much on narrow screens */
+/* Allow the table to shrink to the container width; remove fixed min-width to avoid horizontal scrolling */
 .members-table {
-	min-width: 560px; /* adjust if you need more space for email/columns */
+	min-width: 0;
+	table-layout: fixed; /* ensure cells wrap and respect container */
 }
 
 .members-table thead {
@@ -57,19 +59,15 @@
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
-	.members-table {
-		table-layout: fixed; /* still fixed, allow horizontal scroll instead of collapsing */
-	}
-
 	.members-table th,
 	.members-table td {
 		padding: 10px 8px;
 		font-size: 14px;
 	}
 
-	/* Reduce min width on very small screens to avoid excessive horizontal scroll */
-	.members-table {
-		min-width: 480px;
+	/* ensure inputs and text wrap inside cells on very small screens */
+	.members-table input[type="text"] {
+		font-size: 14px;
 	}
 }
 
@@ -90,15 +88,33 @@
 	animation: fadeInModal 0.3s ease forwards;
 }
 
+
 .modal-content {
 	background: white;
-	padding: 2rem 2.5rem;
+	padding: 1.25rem 1.5rem;
 	border-radius: 12px;
 	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-	width: 90%;
-	max-width: 500px;
+	width: calc(100% - 40px);
+	max-width: 900px; /* allow room for charts */
+	max-height: 90vh; /* don't overflow the viewport */
+	overflow: hidden;
 	transform: scale(0.95);
 	animation: scaleInModal 0.3s ease forwards;
+	display: flex;
+	flex-direction: column;
+}
+
+.modal-body {
+	/* allow modal body to scroll internally if content (charts) are tall */
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	max-height: calc(90vh - 160px);
+	padding: 0.5rem 0;
+}
+
+.modal-body .chart-container {
+	height: 260px; /* slightly smaller to fit modal comfortably */
+	margin-bottom: 1rem;
 }
 
 .modal-content h3 {

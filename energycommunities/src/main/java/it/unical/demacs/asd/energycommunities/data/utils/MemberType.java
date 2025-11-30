@@ -2,6 +2,6 @@ package it.unical.demacs.asd.energycommunities.data.utils;
 
 
 public enum MemberType {
-    PRODUCER, CONSUMER, PROSUMER
+    PRODUCER, CONSUMER, PROSUMER, TBD
 }
 

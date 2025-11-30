@@ -12,6 +12,7 @@ import { EnergyChartComponent } from '../energy-chart/energy-chart';
 import { ChartOptions } from 'chart.js';
 import { MemberDetail } from '../../model/member/MemberDetail';
 import { Profile } from '../../model/member/Profile';
+import { OngoingAnalysis } from '../../model/analysis/OngoingAnalysis';
 
 @Component({
   selector: 'app-csv',
@@ -38,6 +39,13 @@ export class Csv implements OnInit {
   member_modal_visible: boolean = false;
   new_member_modal_item: NewMember | null | undefined = null;
   member_modal_item: MemberDetail | null | undefined = null;
+
+  ongoing_analysis_modal_visible: boolean = false;
+  ongoing_analysis_modal_item: NewMember | null | undefined = null;
+  ongoing_analysis_modal_list: OngoingAnalysis[] | null = []
+
+  confirmation_modal_visible: boolean = false;
+  dashboard_redirect: boolean = false;
 
   chartLabels: string[] = Array.from({ length: 24 }, (_, i) => `${i}`);
 
@@ -133,6 +141,8 @@ export class Csv implements OnInit {
         member.any_conflicts = 'EMAIL_ALREADY_USED'
       else if (this.new_members.find(m => m.id != member.id && m.email === member.email && m.fullName != member.fullName))
         member.any_conflicts = 'EMAIL_ALREADY_USED'
+      else if (this.owner_plan!.members.find(m => m.email === member.email && m.fullName === member.fullName && m.ongoingAnalysis!.length > 0))
+        member.any_conflicts = 'ONGOING_ANALYSIS'
       else
         member.any_conflicts = 'NO_CONFLICTS'
     }
@@ -158,7 +168,6 @@ export class Csv implements OnInit {
       return;
     }
 
-
     this.planService.uploadCsv(this.selectedFile, this.ownerId).subscribe({
       next: (res) => {
         this.successMessage = res;
@@ -180,7 +189,7 @@ export class Csv implements OnInit {
   }
 
   action_column_status(): boolean {
-    return this.new_members.find(m => m.any_conflicts === 'MEMBER_ALREADY_PRESENT' || m.any_conflicts === 'EMAIL_ALREADY_USED') ? true : false
+    return this.new_members.find(m => m.any_conflicts != 'NO_CONFLICTS') ? true : false
   }
 
   open_modal(member: NewMember) {
@@ -189,50 +198,72 @@ export class Csv implements OnInit {
     this.member_modal_item = this.owner_plan?.members.find(m => m.email === member.email && m.fullName === member.fullName)
   }
 
-  save_new_profiles(member: MemberDetail | null | undefined, new_member: NewMember | null | undefined) {
-    console.log(member)
-    console.log(new_member)
-
-    member!.profiles = []
-    member!.profiles = new_member?.profiles as Profile[]
-
-    console.log(member!.profiles)
-
-    this.planService.update_member(member!).subscribe(response => {
-      console.log(response)
-      alert(new_member?.fullName + ' saved!')
-    })
-
-    this.new_members = this.new_members.filter(m => m.email != new_member?.email && m.fullName != new_member!.fullName)
-
-    this.planService.get_full_plan(this.currentUser!.plan_id).subscribe(response => {
-      this.owner_plan = response;
-    })
-
+  close_modal() {
     this.member_modal_visible = false;
     this.new_member_modal_item = null;
     this.member_modal_item = null;
   }
 
-  keep_previous_profiles(new_member: MemberDetail | null | undefined) {
-    this.new_members = this.new_members.filter(m => m.email != new_member?.email && m.fullName != new_member!.fullName)
+  keep_new_profiles(new_member: NewMember | null | undefined) {
+    let member_to_delete = this.owner_plan?.members.find(m => m.email === new_member?.email && m.fullName === new_member.fullName)
+    // console.log("member_id: " + member_to_delete?.id! + " owner_id: " + this.currentUser?.id!)
+    this.planService.deleteMemberFromPlan(member_to_delete?.id!, this.currentUser?.id!).subscribe(() => {
+      alert(`Member: ${member_to_delete!.fullName} deleted from your plan. It will be updated soon!`);
+      this.planService.get_full_plan(this.currentUser!.plan_id).subscribe(response => { this.owner_plan = response })
 
-    alert('You kept the previous profiles for ' + new_member?.fullName)
+      new_member!.any_conflicts = 'NO_CONFLICTS'
 
-    this.member_modal_visible = false;
-    this.new_member_modal_item = null;
-    this.member_modal_item = null;
+      this.close_modal();
+    })
+  }
+
+  keep_previous_profiles(member_to_delete: NewMember | null | undefined) {
+    this.new_members = this.new_members.filter(m => !(m.fullName === member_to_delete?.fullName && m.email === member_to_delete.email))
+
+    alert(`Member: ${member_to_delete!.fullName} deleted!`)
+
+    this.close_modal();
+  }
+
+  open_ongoing_analysis_modal(member: NewMember) {
+    this.ongoing_analysis_modal_visible = true
+    this.ongoing_analysis_modal_item = member
+
+    this.ongoing_analysis_modal_list = this.owner_plan?.members.find(m => m.email == member.email && m.fullName === member.email)?.ongoingAnalysis!
+  }
+
+  close_ongoing_analysis_modal() {
+    this.ongoing_analysis_modal_visible = false
+    this.ongoing_analysis_modal_item = null
+    this.ongoing_analysis_modal_list = []
+  }
+
+  ongoing_analysis_delete_member(member_to_delete: NewMember | null | undefined) {
+    this.new_members = this.new_members.filter(m => !(m.fullName === member_to_delete?.fullName && m.email === member_to_delete.email))
+
+    alert(`Member: ${member_to_delete!.fullName} deleted!`)
+
+    this.close_ongoing_analysis_modal();
   }
 
   save_new_members() {
-    for (let member of this.new_members)
-      this.planService.addMemberToPlan(member as MemberDetail, this.currentUser?.plan_id!)
+    for (let member of this.new_members) {
+      let member_detail: MemberDetail = {
+        id: 0,
+        fullName: member.fullName,
+        email: member.email,
+        memberType: 'TBD',
+        profiles: member.profiles as Profile[],
+        ongoingAnalysis: [],
+        plan_id: this.owner_plan?.id!
+      }
 
-    this.new_members = []
-    /*
-      - nuovo metodo per aggiungere i nuovi membri
-      - reindirizzare alla dashboard
-    */
+      this.planService.add_new_member(member_detail, this.ownerId).subscribe(response => {console.log(response)})
+    }
+
+    alert("All members uploaded!")
+    this.router.navigate(['dashboard'])
+
   }
 
 }

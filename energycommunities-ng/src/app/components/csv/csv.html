@@ -41,7 +41,7 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
             <th>Full Name</th>
             <th>Email</th>
             <th>Status</th>
-            @if (this.action_column_status()) {<th>Action</th>}
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -63,21 +63,28 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
               @else if (item.any_conflicts === 'EMAIL_ALREADY_USED') {<p class="status-error">EMAIL USED</p>}
               @else if (item.any_conflicts === 'MEMBER_ALREADY_PRESENT') {<p class="status-error">MEMBER ALREADY PRESENT
               </p>}
+              @else if (item.any_conflicts === 'ONGOING_ANALYSIS') {<p class="status-error">ONGOING ANALYSIS</p>}
             </td>
 
-            @if (this.action_column_status()) {
+
             <td>
               @if (item.any_conflicts === 'MEMBER_ALREADY_PRESENT') {
               <button class='btn' (click)="this.open_modal(item)">Solve conflicts</button>
               }
+              @else if (item.any_conflicts === 'NO_CONFLICTS') {
+              <i>NO ACTIONS</i>
+              }
+              @else if (item.any_conflicts === 'ONGOING_ANALYSIS') {
+              <button class="btn" (click)="this.open_ongoing_analysis_modal(item)">More Info</button>
+              }
             </td>
-            }
+
           </tr>
           }
         </tbody>
       </table>
       @if (!this.action_column_status()) {
-        <button (click)="save_new_members()" class="btn">Save new profiles</button>
+      <button class="btn" (click)="this.confirmation_modal_visible = true">Save new members</button>
       }
     </div>
     }
@@ -90,8 +97,9 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
         The member {{this.member_modal_item?.fullName}} (email: {{this.member_modal_item?.email}}) already has
         <strong>other profiles uploaded</strong>.
         <br>
-        Would you like to <strong>keep the previously saved data</strong> (which prevents saving the new profiles), or <strong>prefer the
-        new profiles</strong> (which will delete the existing ones)?
+        Would you like to <strong>keep the previously saved data</strong> (which prevents saving the new profiles), or
+        <strong>prefer the
+          new profiles</strong> (which will delete the existing ones)?
       </p>
 
       <div class="modal-body">
@@ -127,14 +135,79 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
         </div>
       </div>
 
-
       <div class="modal-actions">
-        <button (click)="keep_previous_profiles(this.member_modal_item)" class="modal-btn btn-secondary">
+        <button class="modal-btn btn-secondary" (click)="keep_previous_profiles(this.new_member_modal_item)">
           Keep previous profiles
         </button>
-        <button (click)="save_new_profiles(this.member_modal_item, this.new_member_modal_item)" class="modal-btn btn-danger">
+        <button class="modal-btn btn-danger" (click)="keep_new_profiles(this.new_member_modal_item)">
           Save new profiles
         </button>
+      </div>
+    </div>
+  </div>
+  }
+
+  @if (this.confirmation_modal_visible) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <p>The following members will be added on your plan:</p>
+
+      <div class="modal-body">
+        <div class="table-container">
+          <table class="members-table">
+            <thead>
+              <th>Name</th>
+              <th>Email</th>
+            </thead>
+            <tbody>
+              @for (item of this.new_members; track $index) {
+              <tr>
+                <td>{{item.fullName}}</td>
+                <td>{{item.email}}</td>
+              </tr>
+              }
+            </tbody>
+
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn" (click)="save_new_members()">Save new members</button>
+      </div>
+    </div>
+  </div>
+  }
+
+  @if (this.ongoing_analysis_modal_visible) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <p>
+        There are some <strong>ongoing analyses</strong> related to the member
+        <strong>{{this.ongoing_analysis_modal_item?.fullName}}</strong>.
+        This currently <strong>prevents the update</strong> of the member.
+        Please <strong>skip</strong> this member to proceed with the operation.
+      </p>
+      <div class="modal-body">
+        <ul>
+          @for (analysis of this.ongoing_analysis_modal_list; track analysis.id) {
+          <li>
+            <p>
+              <strong>Analysis ID:</strong> {{ analysis.id }} <br>
+              <strong>User ID:</strong> {{ analysis.userId }} <br>
+              <strong>Status:</strong>
+              <strong [class]="'status-' + analysis.status">{{ analysis.status | uppercase }}</strong> <br>
+              <strong>Members Analyzed:</strong> {{ analysis.numMembers }} <br>
+              <strong>Created On:</strong> {{ analysis.createdAt | date:'short' }}
+            </p>
+          </li>
+          }
+        </ul>
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn btn-danger"
+          (click)="this.ongoing_analysis_delete_member(this.ongoing_analysis_modal_item)">Skip this member</button>
       </div>
     </div>
   </div>

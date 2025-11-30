@@ -53,6 +53,11 @@ public class PlanController {
         return ResponseEntity.ok(newMember);
     }
 
+    @PostMapping(value = "/new-member/{ownerId}")
+    public ResponseEntity<MemberDetailDto> add_new_member(@RequestBody MemberDetailDto memberDetailDto, @PathVariable Long ownerId){
+        return ResponseEntity.ok(planService.add_new_member(memberDetailDto, ownerId));
+    }
+
     @GetMapping(value = "/summary/{id}")
     public ResponseEntity<PlanSummaryDto> getSummaryPlanById(@PathVariable Long id){
         PlanSummaryDto plan = planService.getSummaryPlanById(id);
@@ -135,5 +140,6 @@ public class PlanController {
     public ResponseEntity<PlanDetailDto> get_full_plan(@PathVariable Long plan_id){
         return ResponseEntity.ok(planService.getDetailPlanById(plan_id));
     }
+
 }
 

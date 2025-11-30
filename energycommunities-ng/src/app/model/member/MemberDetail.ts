@@ -1,4 +1,5 @@
 import {MemberType} from '../../utils/enum/MemberType';
+import { OngoingAnalysis } from '../analysis/OngoingAnalysis';
 import {Profile} from './Profile'
 
 export interface MemberDetail {
@@ -7,6 +8,7 @@ export interface MemberDetail {
   email: string;
   memberType: MemberType;
   profiles : Profile[];
+  ongoingAnalysis: OngoingAnalysis[] | null | undefined,
   plan_id: number;
 }
 

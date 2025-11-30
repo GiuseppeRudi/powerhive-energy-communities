@@ -1,6 +1,5 @@
 import { MemberType } from "../../utils/enum/MemberType";
 import { NewProfile } from "./NewProfile";
-import { Profile } from "./Profile";
 
 export interface NewMember {
     id: number | null,
@@ -8,9 +7,9 @@ export interface NewMember {
     email: string,
     memberType: MemberType | null,
     profiles: NewProfile[],
-    plan_id: number
+    plan_id: number,
 
     any_conflicts: Conflict | null
 }
 
-export type Conflict = 'EMAIL_ALREADY_USED' | 'MEMBER_ALREADY_PRESENT' | 'NO_CONFLICTS'
+export type Conflict = 'EMAIL_ALREADY_USED' | 'MEMBER_ALREADY_PRESENT' | 'ONGOING_ANALYSIS' | 'NO_CONFLICTS'

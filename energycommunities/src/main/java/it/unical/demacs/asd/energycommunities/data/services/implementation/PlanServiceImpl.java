@@ -13,6 +13,7 @@ import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ManualMemberDto;
 import it.unical.demacs.asd.energycommunities.dto.plan.PlanSummaryDto;
+import it.unical.demacs.asd.energycommunities.exception.ElementNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -229,5 +230,22 @@ public class PlanServiceImpl implements PlanService {
                         "Member with id " + memberId + " not found in plan " + plan.getId()));
 
         memberDao.delete(member);
+    }
+    @Override
+    public MemberDetailDto add_new_member(MemberDetailDto memberDetailDto, Long ownerId) {
+        if(ownerId == null)
+            throw new IllegalArgumentException("ownerId cannot be null");
+        
+        User owner = userDao.findById(ownerId).orElseThrow(() -> new ElementNotFoundException("no owner/user with id: " + ownerId));
+
+        Member new_member = new Member();
+        new_member.setFullName(memberDetailDto.getFullName());
+        new_member.setEmail(memberDetailDto.getEmail());
+        new_member.setProfiles(new ArrayList<>());
+        new_member.setMemberType(new_member.getMemberType());
+        new_member.setPlan(owner.getPlan());
+        new_member.setOngoingAnalysis(new ArrayList<>());
+
+        return modelMapper.map(memberDao.save(new_member), MemberDetailDto.class);
     }
 }

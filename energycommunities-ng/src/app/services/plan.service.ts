@@ -58,4 +58,8 @@ export class PlanService {
   get_full_plan(plan_id: number): Observable<PlanDetail> {
     return this.http.get<PlanDetail>(`${this.baseUrl}/full/${plan_id}`)
   }
+
+  add_new_member(member: MemberDetail, ownerId: number): Observable<MemberDetail>{
+    return this.http.post<MemberDetail>(`${this.baseUrl}/new-member/${ownerId}`, member)
+  }
 }

@@ -241,7 +241,19 @@ public class PlanServiceImpl implements PlanService {
         Member new_member = new Member();
         new_member.setFullName(memberDetailDto.getFullName());
         new_member.setEmail(memberDetailDto.getEmail());
-        new_member.setProfiles(new ArrayList<>());
+        new_member.setProfiles(memberDetailDto.getProfiles().stream().map(profile -> {
+            Profile new_profile = new Profile();
+
+            new_profile.setMember(new_member);
+            new_profile.setType(profile.getProfileType());
+
+            ProfileGraph new_profile_graph = new ProfileGraph();
+            new_profile_graph.setGraph(profile.getGraph());
+
+            new_profile.setProfileGraph(new_profile_graph);
+
+            return new_profile;
+        }).toList());
         new_member.setMemberType(new_member.getMemberType());
         new_member.setPlan(owner.getPlan());
         new_member.setOngoingAnalysis(new ArrayList<>());

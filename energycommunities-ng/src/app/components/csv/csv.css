@@ -1,0 +1,199 @@
+/* CSV members preview table — normalize cell content so columns align */
+.members-table {
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed; /* keep column widths consistent across all rows */
+}
+
+.members-table th,
+.members-table td {
+	padding: 8px 10px;
+	text-align: left;
+	vertical-align: middle;
+	border-bottom: 1px solid #e6e6e6;
+	white-space: normal;
+	word-break: break-word;
+}
+
+.members-table td p {
+	margin: 0; /* remove default paragraph margins that cause uneven row heights */
+}
+
+.members-table .form-group {
+	margin: 0; /* remove extra margin around inputs */
+}
+
+.members-table input[type="text"] {
+	width: 100%;
+	box-sizing: border-box; /* include padding in width so columns don't overflow */
+	padding: 6px 8px;
+	font-size: 14px;
+}
+
+.members-table th {
+	font-weight: 600;
+}
+
+/* optional status helper classes (HTML currently uses inline styles) */
+.members-table .status-ok { color: green; font-weight: bold; }
+.members-table .status-error { color: red; font-weight: bold; }
+
+/* Make the table container horizontally scrollable on small screens
+	 so header and columns keep alignment while remaining usable */
+.table-container {
+	width: 100%;
+	/* allow the table to fit the container and wrap content instead of forcing horizontal scroll */
+	overflow-x: visible;
+}
+
+/* Allow the table to shrink to the container width; remove fixed min-width to avoid horizontal scrolling */
+.members-table {
+	min-width: 0;
+	table-layout: fixed; /* ensure cells wrap and respect container */
+}
+
+.members-table thead {
+  background: linear-gradient(135deg, #0c751b, #0a5f16);
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+	.members-table th,
+	.members-table td {
+		padding: 10px 8px;
+		font-size: 14px;
+	}
+
+	/* ensure inputs and text wrap inside cells on very small screens */
+	.members-table input[type="text"] {
+		font-size: 14px;
+	}
+}
+
+
+/* Modal styles moved here */
+.modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.65);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	opacity: 0;
+	animation: fadeInModal 0.3s ease forwards;
+}
+
+
+.modal-content {
+	background: white;
+	padding: 1.25rem 1.5rem;
+	border-radius: 12px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+	width: calc(100% - 40px);
+	max-width: 900px; /* allow room for charts */
+	max-height: 90vh; /* don't overflow the viewport */
+	overflow: hidden;
+	transform: scale(0.95);
+	animation: scaleInModal 0.3s ease forwards;
+	display: flex;
+	flex-direction: column;
+}
+
+.modal-body {
+	/* allow modal body to scroll internally if content (charts) are tall */
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+	max-height: calc(90vh - 160px);
+	padding: 0.5rem 0;
+}
+
+.modal-body .chart-container {
+	height: 260px; /* slightly smaller to fit modal comfortably */
+	margin-bottom: 1rem;
+}
+
+.modal-content h3 {
+	margin-top: 0;
+	color: #dc3545;
+	text-align: center;
+	font-family: "Poppins", "Segoe UI", sans-serif;
+	font-weight: 600;
+	font-size: 1.5rem;
+}
+
+.modal-content p {
+	font-size: 1.1rem;
+	color: #333;
+	margin-bottom: 2rem;
+	text-align: center;
+	line-height: 1.6;
+}
+
+.modal-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 1rem;
+}
+
+.modal-btn {
+	padding: 0.7rem 1.4rem;
+	font-size: 1rem;
+	font-weight: 600;
+	font-family: "Poppins", "Segoe UI", sans-serif;
+	border-radius: 8px;
+	border: none;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.modal-btn:hover {
+	transform: translateY(-2px);
+}
+
+.modal-btn.btn-secondary {
+	background-color: #6c757d;
+	color: white;
+}
+.modal-btn.btn-secondary:hover {
+	background-color: #5a6268;
+}
+
+.modal-btn.btn-danger {
+	background-color: #dc3545;
+	color: white;
+}
+.modal-btn.btn-danger:hover {
+	background-color: #c82333;
+}
+
+@keyframes fadeInModal {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes scaleInModal {
+	from { transform: scale(0.95); }
+	to { transform: scale(1); }
+}
+
+.chart-container {
+  width: 100%;
+  height: 300px;
+  margin: 0 auto;
+}
+
+.disclaimer {
+  background: linear-gradient(135deg, greenyellow 0%, darkgreen 100%);
+  color: white;
+  padding: 20px 30px;
+  border-radius: 12px;
+  margin: 30px 0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  font-size: 17px;
+}
+

@@ -110,6 +110,7 @@ export const member1: MemberDetail = {
   memberType: 'PROSUMER',
   email: 'aa@gmail.com',
   profiles: [profile1, profile2],
+  ongoingAnalysis: [],
   plan_id: 1
 };
 
@@ -119,6 +120,7 @@ export const member2: MemberDetail = {
   memberType: 'CONSUMER',
   email: 'ab@gmail.com',
   profiles: [profile2],
+  ongoingAnalysis: [],
   plan_id: 1
 };
 
@@ -128,6 +130,7 @@ export const member3: MemberDetail = {
   memberType: 'PRODUCER',
   email: 'ac@gmail.com',
   profiles: [profile3],
+  ongoingAnalysis: [],
   plan_id: 1
 };
 
@@ -137,6 +140,7 @@ export const member4: MemberDetail = {
   memberType: 'PROSUMER',
   email: 'ad@gmail.com',
   profiles: [profile3, profile4],
+  ongoingAnalysis: [],
   plan_id: 1
 };
 
@@ -146,6 +150,7 @@ export const member5: MemberDetail = {
   memberType: 'CONSUMER',
   email: 'ae@gmail.com',
   profiles: [profile5],
+  ongoingAnalysis: [],
   plan_id: 1
 };
 
@@ -155,6 +160,7 @@ export const member6: MemberDetail = {
   memberType: 'PRODUCER',
   email: 'af@gmail.com',
   profiles: [profile6],
+  ongoingAnalysis: [],
   plan_id: 1
 };
 
@@ -164,6 +170,7 @@ export const member7: MemberDetail = {
   memberType: 'PROSUMER',
   email: 'ag@gmail.com',
   profiles: [profile6, profile7],
+  ongoingAnalysis: [],
   plan_id: 1
 };
 
@@ -173,6 +180,7 @@ export const member8: MemberDetail = {
   memberType: 'PROSUMER',
   email: 'ah@gmail.com',
   profiles: [profile8, profile9],
+  ongoingAnalysis: [],
   plan_id: 1
 };
 
@@ -182,6 +190,7 @@ export const member9: MemberDetail = {
   memberType: 'CONSUMER',
   email: 'ai@gmail.com',
   profiles: [profile7],
+  ongoingAnalysis: [],
   plan_id: 1
 };
 
@@ -191,6 +200,7 @@ export const member10: MemberDetail = {
   memberType: 'PRODUCER',
   email: 'al@gmail.com',
   profiles: [profile10],
+  ongoingAnalysis: [],
   plan_id: 1
 };
 
@@ -200,6 +210,7 @@ export const member11: MemberDetail = {
   memberType: 'PROSUMER',
   email: 'am@gmail.com',
   profiles: [profile10, profile5],
+  ongoingAnalysis: [],
   plan_id: 1
 };
 
@@ -209,6 +220,7 @@ export const member12: MemberDetail = {
   memberType: 'CONSUMER',
   email: 'an@gmail.com',
   profiles: [profile9],
+  ongoingAnalysis: [],
   plan_id: 1
 };
 

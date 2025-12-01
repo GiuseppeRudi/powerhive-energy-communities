@@ -1,1 +1,1 @@
-export type MemberType = 'PRODUCER' | 'CONSUMER' | 'PROSUMER';
+export type MemberType = 'PRODUCER' | 'CONSUMER' | 'PROSUMER' | 'TBD';

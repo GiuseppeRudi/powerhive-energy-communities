@@ -1,5 +1,6 @@
 package it.unical.demacs.asd.energycommunities.dto.member;
 
+import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.utils.MemberType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,7 @@ public class MemberDetailDto {
     private String email;
     private MemberType memberType;
     private List<ProfileDto> profiles = new ArrayList<>();
+    private List<OngoingAnalysis> ongoingAnalysis = new ArrayList<>();
 
     @JsonProperty("plan_id")
     private Long planId;

@@ -1,7 +1,7 @@
 <div class="content-div">
   <h1>CSV</h1>
 
-  <div class="csv-instructions">
+  <div class="disclaimer">
     <h2>How to Fill the CSV</h2>
     <p>
       The CSV file must follow this structure:
@@ -33,6 +33,18 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
     <p *ngIf="successMessage" class="success">{{ successMessage }}</p>
 
     @if (this.new_members.length > 0) {
+    @if (this.action_column_status()) {
+    <div class="csv-instructions"
+      style="padding: 15px; border: 1px solid #ffcc00; background-color: #fff8e1; color: #663c00; margin: 20px; border-radius: 4px;">
+      <h3 style="margin-top: 0; color: #ff9800;">⚠️ Conflicts detected!</h3>
+      <p>
+        Some members listed below cannot be saved at this moment due to <strong>conflicts</strong> with your current plan or existing
+        data.
+        Please review the <strong>Status</strong> and <strong>Action</strong> columns for each member to resolve these issues before proceeding
+        with the final save operation.
+      </p>
+    </div>
+    }
     <div class="table-container">
       <h2>Members preview</h2>
       <table class="members-table">
@@ -77,6 +89,11 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
               @else if (item.any_conflicts === 'ONGOING_ANALYSIS') {
               <button class="btn" (click)="this.open_ongoing_analysis_modal(item)">More Info</button>
               }
+              @else if (item.any_conflicts === 'EMAIL_ALREADY_USED') {
+                <div class="csv-instructions">
+                  New mail address required!
+                </div>
+              }
             </td>
 
           </tr>
@@ -115,7 +132,7 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
                   @for (profile of this.member_modal_item?.profiles; track $index) {
               <tr>
                 <app-energy-chart
-                  [data]="{ labels: chartLabels, datasets: [{ label: 'Profile', data: profile.graph }] }"
+                  [data]="{ labels: chartLabels, datasets: [{ label: (profile.profileType === 'CONSUMER') ? 'Consumption Profile' : 'Production Profile', data: profile.graph, borderColor: (profile.profileType === 'CONSUMER') ? 'red' : 'blue' }] }"
                   [options]="chartOptions" [selectedChartType]="'line'"></app-energy-chart>
               </tr>
               }
@@ -124,7 +141,7 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
                 @for (profile of this.new_member_modal_item?.profiles; track $index) {
                 <tr>
                   <app-energy-chart
-                    [data]="{ labels: chartLabels, datasets: [{ label: 'Profile', data: profile.graph }] }"
+                    [data]="{ labels: chartLabels, datasets: [{ label: (profile.profileType === 'CONSUMER') ? 'Consumption Profile' : 'Production Profile', data: profile.graph, borderColor: (profile.profileType === 'CONSUMER') ? 'red' : 'blue' }] }"
                     [options]="chartOptions" [selectedChartType]="'line'"></app-energy-chart>
                 </tr>
                 }

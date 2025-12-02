@@ -95,14 +95,16 @@ export class Csv implements OnInit {
 
       complete: (result) => {
         let current_id = 0
-        this.new_members = result.data.map((row: any) => {
-          let new_m = this.new_members.find(m => row.email === m.email && row.fullName === m.fullName) as NewMember
+        result.data.forEach((row: any) => {
+          let new_m = this.new_members.find(m => row['email'].toString() === m.email && row['full_name'].toString() === m.fullName)
 
-          if (new_m === undefined) {
+          console.log(new_m)
+
+          if (new_m === undefined || new_m === null) {
             new_m = {
               id: current_id,
-              fullName: row.full_name,
-              email: row.email,
+              fullName: row['full_name']?.toString(),
+              email: row['email']?.toString(),
               memberType: null,
               profiles: [],
               plan_id: this.owner_plan!.id,
@@ -114,11 +116,12 @@ export class Csv implements OnInit {
             current_id++;
           }
 
+
           let new_profile: NewProfile = {
             id: null,
-            profileType: row.category.toString(),
+            profileType: row.category.toString().toUpperCase(),
             graph: [...Array(24)].map((_, i) => Number(row[`t${i}`] || 0))
-          }
+        }
 
           new_m.profiles.push(new_profile)
 

@@ -1,19 +1,5 @@
 .chart-container {
   width: 100%;
-  /* let parent width determine sizing; provide a sensible minimum height */
-  min-height: 160px;
-  height: auto;
+  height: 300px;
   margin: 0 auto;
-}
-
-:host {
-  display: block;
-  width: 100%;
-}
-
-/* Ensure the canvas fills the container width and scales responsively */
-.chart-container canvas {
-  display: block;
-  width: 100% !important;
-  height: 100% !important;
 }

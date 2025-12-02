@@ -289,7 +289,7 @@ export class ChooseAnalysis3 implements OnInit {
           this.communityMembers = validIds;
           this.wantToAdd = [];
           this.wantToRemove = [];
-          window.scrollTo({top: 270, behavior: 'smooth'});
+          window.scrollTo({top: 590, behavior: 'smooth'});
           this.showSavedAnalysis = false;
           console.log(`Applicati ${this.communityMembers.length} membri validi.`);
 

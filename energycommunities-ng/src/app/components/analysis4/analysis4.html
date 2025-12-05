@@ -17,26 +17,80 @@
 
 
   <div *ngIf="!summary && resultAnalysis" class="analysis-control">
-    <label for="energyCost" class="analysis-label">
-      Energy Cost:
-    </label>
+    <h3 style="margin-top:0; color: #444;">Investment Parameters</h3>
 
-    <div class="analysis-input-group">
-      <input
-        id="energyCost"
-        type="text"
-        class="analysis-input"
-        [(ngModel)]="energyCost"
-        placeholder="Insert energy cost for kWh"
-      />
+    <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
 
+      <div class="input-wrapper">
+        <label for="energyCost" class="analysis-label">Energy Cost (€/kWh):</label>
+        <input
+          id="energyCost"
+          type="number"
+          class="analysis-input"
+          [class.input-error]="inputErrors.cost"
+          [(ngModel)]="energyCost"
+          placeholder="e.g. 0.30"
+          step="0.01"
+        />
+        <div *ngIf="inputErrors.cost" class="error-msg">
+          Value must be between 0 and 1
+        </div>
+      </div>
+
+      <div class="input-wrapper">
+        <label for="lifespan" class="analysis-label">Battery Lifespan (Years):</label>
+        <input
+          id="lifespan"
+          type="number"
+          class="analysis-input"
+          [class.input-error]="inputErrors.lifespan"
+          [(ngModel)]="batteryLifespan"
+          placeholder="e.g. 15"
+        />
+        <div *ngIf="inputErrors.lifespan" class="error-msg">
+          Value must be positive
+        </div>
+      </div>
+
+      <div class="input-wrapper">
+        <label for="maxPayback" class="analysis-label">Max Payback (Years):</label>
+        <input
+          id="maxPayback"
+          type="number"
+          class="analysis-input"
+          [class.input-error]="inputErrors.payback"
+          [(ngModel)]="maxPaybackDesired"
+          placeholder="e.g. 10"
+        />
+        <div *ngIf="inputErrors.payback" class="error-msg">
+          Value must be positive
+        </div>
+      </div>
+
+      <div class="input-wrapper">
+        <label for="degradation" class="analysis-label">Degradation/Year (%):</label>
+        <input
+          id="degradation"
+          type="number"
+          class="analysis-input"
+          [class.input-error]="inputErrors.degradation"
+          [(ngModel)]="degradationRate"
+          placeholder="e.g. 2.0"
+        />
+        <div *ngIf="inputErrors.degradation" class="error-msg">
+          Value cannot be negative
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align: right;">
       <button class="btn analysis-btn" (click)="updateSummary()">
-        Analize
+        <i class="fa-solid fa-calculator"></i> Analyze Investment
       </button>
     </div>
 
-    <p class="analysis-hint">
-      Insert cost of energy in €/kWh to calculate costs and payback
+    <p class="analysis-hint" style="margin-top: 10px;">
+      Insert parameters to simulate real-world conditions (cost, battery aging, and financial targets).
     </p>
   </div>
 
@@ -46,7 +100,7 @@
       <div class="analysis-header">
         <h3> Costs Analysis</h3>
         <p class="analysis-subtitle">
-          Comparison between the costs with/without batteries and visualisation of time to return of investment.
+          Detailed financial breakdown including battery degradation and lifespan limits.
         </p>
       </div>
 
@@ -60,22 +114,23 @@
           </div>
 
           <div class="metric-box metric-box--neutral">
-            <div class="metric-label">Annual cost with batteries</div>
+            <div class="metric-label">Annual cost with batteries (Year 1)</div>
             <div class="metric-value">
               {{ s.annualCostWithBattery | number:'1.0-2' }} € / year
             </div>
           </div>
 
           <div class="metric-box metric-box--positive" *ngIf="s.annualSavings > 0; else noSavings">
-            <div class="metric-label">Annual savings thanks to batteries</div>
+            <div class="metric-label">Initial Annual Savings</div>
             <div class="metric-value">
               {{ s.annualSavings | number:'1.0-2' }} € / year
+              <span style="font-size: 0.7em; display:block; color:#666;">(decreases by {{degradationRate}}%/year)</span>
             </div>
           </div>
 
           <ng-template #noSavings>
             <div class="metric-box metric-box--negative">
-              <div class="metric-label">Annual savings thanks to batteries</div>
+              <div class="metric-label">Annual savings</div>
               <div class="metric-value">
                 0 € / year
               </div>
@@ -91,21 +146,24 @@
 
           <div class="metric-box metric-box--neutral">
             <ng-container *ngIf="s.paybackYears !== null; else noPayback">
-              <div class="metric-label">Payback time</div>
-              <div class="metric-value">
-                {{ s.paybackYears | number:'1.1-1' }} years
+              <div class="metric-label">Estimated Payback time</div>
+              <div class="metric-value" [ngClass]="{'metric-value--bad': s.paybackYears > batteryLifespan}">
+                {{ s.paybackYears | number:'1.0-0' }} years
+              </div>
+              <div class="metric-sublabel" *ngIf="s.paybackYears > batteryLifespan">
+                (Exceeds battery lifespan of {{batteryLifespan}} years!)
               </div>
             </ng-container>
             <ng-template #noPayback>
               <div class="metric-label">Payback time</div>
               <div class="metric-value metric-value--bad">
-                never (annual savings ≤ 0)
+                Never (Investment not recovered)
               </div>
             </ng-template>
           </div>
 
           <div class="metric-box metric-box--conclusion">
-            <div class="metric-label">Is it convenient to invest in batteries?</div>
+            <div class="metric-label">Is it convenient?</div>
             <div class="metric-value">
             <span
               class="convenience-pill"
@@ -113,15 +171,17 @@
             >
               {{ s.isConvenient ? 'Yes' : 'No' }}
             </span>
+              <div class="metric-sublabel" style="font-size: 0.8rem; margin-top: 5px;" *ngIf="!s.isConvenient && s.paybackYears">
+                Target: < {{maxPaybackDesired}} yrs <br>
+                Actual: {{ s.paybackYears | number:'1.0-0' }} yrs
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- COLONNA: GRAFICO -->
         <div class="analysis-chart">
-          <h4 class="chart-title">Return of Investment</h4>
+          <h4 class="chart-title">Return of Investment (ROI)</h4>
           <div class="chart-wrapper">
-            <!-- ng2-charts + Chart.js -->
             <canvas
               baseChart
               [data]="paybackChartData"
@@ -130,24 +190,15 @@
             </canvas>
           </div>
           <p class="chart-caption">
-            The graph shows the <strong>cumulative savings month by month</strong> compared to the
-            <strong>initial investment</strong> in the battery. The point where the curves intersect
-            is the<strong> estimated payback period</strong>.
+            The graph shows cumulative savings accounting for <strong>{{degradationRate}}% annual degradation</strong>.
+            The curve flattens after year <strong>{{batteryLifespan}}</strong> (end of life).
+            Convenience requires payback before end of life and within your {{maxPaybackDesired}}-year target.
           </p>
         </div>
       </div>
     </div>
   </div>
 
-
-
-<!--  &lt;!&ndash; Azioni solo se ci sono dati &ndash;&gt;-->
-<!--  <app-analysis-actions-->
-<!--    [resultAnalysis]="resultAnalysis"-->
-<!--    [typeAnalysis]="typeAnalisys"-->
-<!--    [history]="history"-->
-<!--    (terminated)="resetAnalysisData()"-->
-<!--  ></app-analysis-actions>-->
 
   <h2 class="section-title" *ngIf = "resultAnalysis">Batteries Available</h2>
 
@@ -162,7 +213,6 @@
     </div>
   </div>
 
-  <!-- Member Profiles -->
   <div class="chart-section">
     <h2 class="section-title">Optimal Battery Assignment</h2>
     <div class="members-list">
@@ -244,7 +294,6 @@
     </div>
   </div>
 
-  <!-- Consumption Profiles -->
   <div class="chart-section">
     <h2 class="section-title">Consumption Profiles</h2>
     <div *ngIf="!optConsProfChart" class="loading-container">
@@ -272,7 +321,6 @@
     </div>
   </div>
 
-  <!-- Production Profiles -->
   <div class="chart-section">
     <h2 class="section-title">Production Profiles</h2>
     <div *ngIf="!optProdProfChart" class="loading-container">
@@ -300,7 +348,6 @@
     </div>
   </div>
 
-  <!-- Total Production vs Consumption -->
   <div class="chart-section">
     <h2 class="section-title">Total Production vs Total Consumption</h2>
 
@@ -338,7 +385,6 @@
   </div>
 
 
-  <!-- KPI Indexes -->
   <div class="chart-section">
     <h2 class="section-title">Key Performance Indicators (KPIs)</h2>
 
@@ -402,4 +448,3 @@
     </div>
   </div>
 </div>
-

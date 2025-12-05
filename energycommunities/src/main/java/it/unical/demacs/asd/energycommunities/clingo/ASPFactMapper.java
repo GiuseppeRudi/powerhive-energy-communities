@@ -9,8 +9,8 @@ import java.util.List;
 
 public class ASPFactMapper {
 
-    public static String toFacts1(List<MemberDetailDto> members, int analysis) {
-        return toFacts2(members, analysis, null); // valore di default, ad esempio 0
+    public static String toFacts1(List<MemberDetailDto> members) {
+        return toFacts2(members, 1, null); // valore di default, ad esempio 0
     }
 
     public static String toFacts3(List<MemberDetailDto> members, List<Long> wantToAdd, List<Long> wantToRemove) {

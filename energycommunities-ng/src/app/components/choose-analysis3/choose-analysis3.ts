@@ -313,4 +313,26 @@ export class ChooseAnalysis3 implements OnInit {
   closeWarning() {
     this.showMissingWarning = false;
   }
+
+  runAnalysisAsync() {
+    const memberIds = this.communityMembers.concat(this.wantToAdd);
+    const userJson = sessionStorage.getItem('currentUser');
+    if (!userJson) return;
+
+    const user: User = JSON.parse(userJson);
+
+    const payload = {
+      memberIds: memberIds,
+      userId: user.id,
+      analysis: 3,
+      wantToAdd: this.wantToAdd,
+      wantToRemove: this.wantToRemove,
+    }
+
+    console.log(payload);
+
+    this.analysisService.runAsync(payload).subscribe(id => {
+      this.router.navigate(['/ongoing-analysis']);
+    });
+  }
 }

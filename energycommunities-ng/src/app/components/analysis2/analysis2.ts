@@ -90,6 +90,16 @@ export class Analysis2 implements OnInit{
   ngOnInit() {
     this.isLoading = true;
 
+    this.resultAnalysis = history.state?.result ?? null;
+
+    if(this.resultAnalysis != null) {
+      this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+      this.summary = this.calculateEnergyStats(this.resultAnalysis.totalProduction, this.resultAnalysis.totalConsumption);
+      this.buildAllCharts();
+      this.isLoading = false;
+      return;
+    }
+
     this.route.queryParams.subscribe(params => {
       const historyId = +params['historyId'];
 
@@ -326,6 +336,5 @@ export class Analysis2 implements OnInit{
     if (hasProducer) return 'Producer';
     return 'Consumer';
   }
-
 }
 

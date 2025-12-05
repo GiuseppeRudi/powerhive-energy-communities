@@ -1,5 +1,8 @@
 package it.unical.demacs.asd.energycommunities.clingo;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.unical.demacs.asd.energycommunities.controller.ClingoStreamController;
 import it.unical.demacs.asd.energycommunities.data.dao.OngoingAnalysisDao;
 import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
@@ -38,19 +41,45 @@ public class ASPService {
     private OngoingAnalysisDao ongoingAnalysisDao;
 
     @Async
-    public void startAsyncAnalysis(Long id, int analysisType, String facts) {
+    public void startAsyncAnalysis(
+            Long id,
+            int analysisType,
+            String facts,
+            List<MemberDetailDto> members,
+            List<BatteryDto> batteries,
+            List<Long> wantToAdd,
+            List<Long> wantToRemove
+    ) {
         OngoingAnalysis analysis = ongoingAnalysisDao.findById(id).orElseThrow();
         try {
             analysis.setStatus("RUNNING");
             ongoingAnalysisDao.save(analysis);
 
-            String[] bestModel = calculateBestModel(facts, analysisType, analysis.getId());
+            String[] bestModel = calculateBestModel(facts, analysisType, analysis.getId(), true);
 
             if (bestModel == null) {
                 analysis.setStatus("ERROR");
             } else {
                 analysis.setStatus("FINISHED");
-                analysis.setResultModel(String.join(" ", bestModel));
+                ObjectMapper mapper = new ObjectMapper();
+                ResultAnalysis3Dto resultAnalysis3Dto = new ResultAnalysis3Dto();
+                if (analysisType==3) {
+                    SingleAnalysis optimalCommunity = createBestModel3Dto(members,bestModel);
+                    SingleAnalysis defaultComunity = createCommunity(members,wantToAdd);
+                    SingleAnalysis wantedCommunity = createCommunity(members,wantToRemove);
+
+                    resultAnalysis3Dto.setOptimalCommunity(optimalCommunity);
+                    resultAnalysis3Dto.setWantedCommunity(wantedCommunity);
+                    resultAnalysis3Dto.setDefaultCommunity(defaultComunity);
+                }
+                JsonNode node = mapper.valueToTree(
+                        analysisType==1 ? createBestModel1Dto(members, bestModel) :
+                        analysisType==2 ? createBestModel2Dto(members, bestModel) :
+                        analysisType==3 ? resultAnalysis3Dto :
+                        createBestModel4Dto(members,batteries,bestModel)
+                );
+
+                analysis.setResultModel(node);
             }
 
         } catch (Exception e) {
@@ -63,9 +92,8 @@ public class ASPService {
     }
 
     public ResultAnalysis1Dto chooseBestProfiles(List<MemberDetailDto> members) {
-        int analysis = 1;
-        String facts = ASPFactMapper.toFacts1(members,analysis);
-        String[] bestModel = calculateBestModel(facts,analysis,-1);
+        String facts = ASPFactMapper.toFacts1(members);
+        String[] bestModel = calculateBestModel(facts,1,-1,false);
 
         if (bestModel != null) {
             return createBestModel1Dto(members, bestModel);
@@ -77,7 +105,7 @@ public class ASPService {
     public ResultAnalysis4Dto generateChooseBatteries(List<MemberDetailDto> members, List<BatteryDto> batteries, int budget) {
         int analysis = 4;
         String facts = ASPFactMapper.toFacts4(members,batteries,budget);
-        String[] bestModel = calculateBestModel(facts,analysis,-1);
+        String[] bestModel = calculateBestModel(facts,analysis,-1,false);
 
         if (bestModel != null) {
             return createBestModel4Dto(members, batteries, bestModel);
@@ -90,7 +118,7 @@ public class ASPService {
         int analysis = 2;
         String facts = ASPFactMapper.toFacts2(members,analysis,dim);
 
-        String[] bestModel = calculateBestModel(facts,analysis,-1);
+        String[] bestModel = calculateBestModel(facts,analysis,-1,false);
 
         if (bestModel != null) {
             return createBestModel2Dto(members, bestModel);
@@ -104,7 +132,7 @@ public class ASPService {
         int analysis = 3;
         String facts = ASPFactMapper.toFacts3(members,wantToAdd,wantToRemove);
 
-        String[] bestModel = calculateBestModel(facts,analysis,-1);
+        String[] bestModel = calculateBestModel(facts,analysis,-1,false);
         ResultAnalysis3Dto resultAnalysis3Dto = new ResultAnalysis3Dto();
 
         SingleAnalysis optimalCommunity = createBestModel3Dto(members,bestModel);
@@ -186,7 +214,7 @@ public class ASPService {
         return community;
     }
 
-    private String[] calculateBestModel(String facts, int analysis, long analysisId) {
+    private String[] calculateBestModel(String facts, int analysis, long analysisId, boolean isAsync) {
         String bestModelStr = null;
         long[] bestCost = null;
         String[] bestModel = null;
@@ -203,7 +231,7 @@ public class ASPService {
                     throw new RuntimeException(e);
                 }
             });
-            thread.start();
+            if(!isAsync) thread.start();
 
             if (analysis == 1) {
                 ctl.load(Path.of("energycommunities/encodings/analysis1.lp"));
@@ -246,7 +274,7 @@ public class ASPService {
                         bestCost = cost.clone();
                         bestModelStr = model.toString();
                     }
-                    if(!thread.isAlive()) break;
+                    if(!thread.isAlive() && !isAsync) break;
                 }
             }
 

@@ -212,4 +212,25 @@ export class ChooseAnalysis2 {
         }
       });
   }
+
+  runAnalysisAsync() {
+    const memberIds: number[] = this.energyCommunities;
+    const userJson = sessionStorage.getItem('currentUser');
+    if (!userJson) return;
+
+    const user: User = JSON.parse(userJson);
+
+    const payload = {
+      memberIds: memberIds,
+      userId: user.id,
+      analysis: 2,
+      dim: this.communitySize
+    }
+
+    console.log(payload);
+
+    this.analysisService.runAsync(payload).subscribe(id => {
+      this.router.navigate(['/ongoing-analysis']);
+    });
+  }
 }

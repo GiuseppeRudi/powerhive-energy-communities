@@ -3,12 +3,16 @@ package it.unical.demacs.asd.energycommunities.controller;
 import it.unical.demacs.asd.energycommunities.clingo.ASPFactMapper;
 import it.unical.demacs.asd.energycommunities.clingo.ASPService;
 import it.unical.demacs.asd.energycommunities.clingo.mock.MockDataGenerator1;
+import it.unical.demacs.asd.energycommunities.clingo.mock.MockDataGenerator2;
 import it.unical.demacs.asd.energycommunities.clingo.mock.MockDataGenerator4;
+import it.unical.demacs.asd.energycommunities.data.dao.BatteryDao;
 import it.unical.demacs.asd.energycommunities.data.dao.MemberDao;
 import it.unical.demacs.asd.energycommunities.data.dao.UserDao;
+import it.unical.demacs.asd.energycommunities.data.entities.Battery;
 import it.unical.demacs.asd.energycommunities.data.entities.Member;
 import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
+import it.unical.demacs.asd.energycommunities.data.services.BatteryService;
 import it.unical.demacs.asd.energycommunities.data.services.OngoingAnalysisService;
 import it.unical.demacs.asd.energycommunities.data.services.MemberService;
 import it.unical.demacs.asd.energycommunities.dto.analysis.request.Analysis2Dto;
@@ -27,6 +31,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -41,6 +46,8 @@ public class AnalysisController {
     private final OngoingAnalysisService ongoingAnalysisService;
     private final UserDao userDao;
     private final MemberDao memberDao;
+    private final BatteryDao batteryDao;
+    private final BatteryService batteryService;
 
     @GetMapping(value = "/start_1")
     public ResponseEntity<ResultAnalysis1Dto> startFirstAnalysis(@RequestParam(required = false) List<Long> memberIds) {
@@ -158,22 +165,31 @@ public class AnalysisController {
     }
 
 
-    @PostMapping(value = "/async_1")
-    public ResponseEntity<Long> runFirstAnalysisAsync(@RequestBody AsyncAnalysisDto payload) {
+    @PostMapping(value = "/async")
+    public ResponseEntity<Long> runAnalysisAsync(@RequestBody AsyncAnalysisDto payload) {
 
         List<MemberDetailDto> selectedMembers;
+        List<BatteryDto> selectedBatteries;
 
         OngoingAnalysis entity = new OngoingAnalysis();
+        int type = payload.getAnalysis();
         System.out.println(payload);
         User user = userDao.findById(payload.getUserId())
                 .orElseThrow(() -> new RuntimeException("User non trovato"));
-        System.out.println("User id: " + user.getId());
+        //System.out.println("User id: " + user.getId());
         entity.setUser(user);
-        entity.setAnalysisType(payload.getAnalysis());
-        System.out.println("Analysis type: " + payload.getAnalysis());
+        entity.setAnalysisType(type);
+        //System.out.println("Analysis type: " + type);
         List<Member> members = memberDao.findAllById(payload.getMemberIds());
-        System.out.println("Members:" + members);
+        //System.out.println("Members:" + members);
         entity.setMembers(members);
+        if(type==4){
+            entity.setBatteries(batteryDao.findAllById(payload.getBatteries()));
+        }
+        if(type==3){
+            entity.setWantToAdd(payload.getWantToAdd());
+            entity.setWantToRemove(payload.getWantToRemove());
+        }
         entity.setStatus("PENDING");
 
         entity = ongoingAnalysisService.save(entity);
@@ -182,9 +198,28 @@ public class AnalysisController {
             selectedMembers = memberService.findAllById(payload.getMemberIds());
         }
         else selectedMembers  = MockDataGenerator1.generateListOfMembers();
-        String facts = ASPFactMapper.toFacts1(selectedMembers,1);
-        aspService.startAsyncAnalysis(entity.getId(), 1,facts);
-        System.out.println(entity.getId());
+        if (payload.getBatteries() != null && !payload.getBatteries().isEmpty()) {
+            selectedBatteries = batteryService.findAllById(payload.getBatteries());
+        }
+        else selectedBatteries = MockDataGenerator4.generateListBatteries();
+
+        String facts;
+        if(type==1){
+            facts = ASPFactMapper.toFacts1(selectedMembers);
+        } else if(type==2){
+            facts = ASPFactMapper.toFacts2(selectedMembers,2,payload.getDim());
+        } else if(type==3){
+            facts = ASPFactMapper.toFacts3(selectedMembers,payload.getWantToAdd(), payload.getWantToRemove());
+        } else {
+            facts = ASPFactMapper.toFacts4(
+                selectedMembers,
+                selectedBatteries,
+                payload.getBudget()!= null ? payload.getBudget() : MockDataGenerator4.generateBudget()
+            );
+        }
+
+        aspService.startAsyncAnalysis(entity.getId(),type,facts, selectedMembers, selectedBatteries, payload.getWantToAdd(), payload.getWantToRemove());
+        // System.out.println(entity.getId());
         return ResponseEntity.ok(entity.getId());
     }
 

@@ -1,11 +1,14 @@
 package it.unical.demacs.asd.energycommunities.data.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +43,21 @@ public class OngoingAnalysis {
     )
     private List<Member> members = new ArrayList<>();
 
-    @Column(columnDefinition = "TEXT")
-    private String resultModel;
+    @ManyToMany
+    @JoinTable(
+            name = "ongoing_analysis_batteries",
+            joinColumns = @JoinColumn(name = "analysis_id"),
+            inverseJoinColumns = @JoinColumn(name = "battery_id")
+    )
+    private List<Battery> batteries = new ArrayList<>();
+
+    private List<Long> wantToAdd = new ArrayList<>();
+
+    private List<Long> wantToRemove = new ArrayList<>();
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private JsonNode resultModel;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 }

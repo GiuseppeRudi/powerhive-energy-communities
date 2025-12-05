@@ -686,7 +686,32 @@ export class Analysis4 implements OnInit,OnDestroy {
     if (!userJson) return;
 
     const user: User = JSON.parse(userJson);
-    this.analysisService.runAsync1(user.id, 1, memberIds).subscribe(id => {
+/*
+    this.resultAnalysis = {
+      assignments: new Map<number, number>(),
+      startingCommunity: {
+        assignments: [],
+        kpi1: [],
+        kpi2: [],
+        totalConsumption: [],
+        totalProduction: []
+      },
+      batteryStatus: [],
+      batteries: [],
+      kpi1: [],
+      kpi2: [],
+      totalConsumption: [],
+      totalProduction: []
+    }
+*/
+
+    const payload = {
+      memberIds: memberIds,
+      userId: user.id,
+      analysis: 4,
+    }
+
+    this.analysisService.runAsync(payload).subscribe(id => {
       this.router.navigate(['/ongoing-analysis']);
     });
   }

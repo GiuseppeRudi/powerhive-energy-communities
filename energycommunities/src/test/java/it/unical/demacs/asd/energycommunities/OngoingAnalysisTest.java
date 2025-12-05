@@ -1,5 +1,7 @@
 package it.unical.demacs.asd.energycommunities;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unical.demacs.asd.energycommunities.data.dao.OngoingAnalysisDao;
 import it.unical.demacs.asd.energycommunities.data.entities.Member;
 import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
@@ -34,6 +36,8 @@ public class OngoingAnalysisTest {
     @Mock
     private ModelMapper modelMapper;
 
+    private final ObjectMapper mapper = new ObjectMapper();
+
     @InjectMocks
     private OngoingAnalysisServiceImpl ongoingAnalysisService;
 
@@ -44,7 +48,7 @@ public class OngoingAnalysisTest {
     private final Long testAnalysisId = 100L;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws JsonProcessingException {
         mockUser = new User();
         mockUser.setId(testUserId);
         mockUser.setUsername("user");
@@ -60,7 +64,7 @@ public class OngoingAnalysisTest {
         mockOngoingAnalysis.setAnalysisType(1);
         mockOngoingAnalysis.setStatus("RUNNING");
         mockOngoingAnalysis.setCreatedAt(LocalDateTime.now());
-        mockOngoingAnalysis.setResultModel("niente niente");
+        mockOngoingAnalysis.setResultModel(mapper.readTree("\"niente niente\""));
 
         List<Member> members = new ArrayList<>();
         members.add(mockMember);
@@ -128,7 +132,7 @@ public class OngoingAnalysisTest {
         assertEquals(testAnalysisId, result.getId());
         assertEquals(mockUser, result.getUser());
         assertEquals("RUNNING", result.getStatus());
-        assertEquals("niente niente", result.getResultModel());
+        assertEquals("niente niente", result.getResultModel().asText());
         verify(ongoingAnalysisDao).findById(testAnalysisId);
     }
 
@@ -150,7 +154,7 @@ public class OngoingAnalysisTest {
     }
 
     @Test
-    void testFindByUserIdMultipleAnalyses() {
+    void testFindByUserIdMultipleAnalyses() throws JsonProcessingException {
         OngoingAnalysis secondAnalysis = new OngoingAnalysis();
         secondAnalysis.setId(200L);
         secondAnalysis.setUser(mockUser);
@@ -158,7 +162,7 @@ public class OngoingAnalysisTest {
         secondAnalysis.setStatus("FINISHED");
         secondAnalysis.setCreatedAt(LocalDateTime.now().minusHours(1));
         secondAnalysis.setMembers(new ArrayList<>());
-        secondAnalysis.setResultModel("completed model");
+        secondAnalysis.setResultModel(mapper.readTree("\"completed model\""));
 
         OngoingAnalysisDto secondDto = new OngoingAnalysisDto();
         secondDto.setId(200L);

@@ -18,6 +18,7 @@ import {BatteryInvestmentSummary} from '../../model/BatteryInvestmentSummary';
 import {BatteryDto} from '../../model/battery/BatteryDto';
 import {BaseChartDirective} from 'ng2-charts';
 import {Analysis4Request} from '../../model/analysis/Analysis4Request';
+import {ResultAnalysis_3} from '../../model/analysis/ResultAnalysis_3';
 
 @Component({
   selector: 'app-analisys4',
@@ -28,8 +29,11 @@ import {Analysis4Request} from '../../model/analysis/Analysis4Request';
 })
 export class Analysis4 implements OnInit, OnDestroy {
 
+
   history : HistorySummary | undefined = undefined ;
   typeAnalisys : number = 4
+  historyId: number | null  = null;
+
   resultAnalysis: ResultAnalysis_4 | null = null;
   memberExpandedState: Map<number, boolean> = new Map();
 
@@ -155,7 +159,6 @@ export class Analysis4 implements OnInit, OnDestroy {
     this.resultAnalysis = history.state?.result ?? null;
 
     if(this.resultAnalysis != null) {
-      this.typeAnalisys = 0;
       this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
       this.resultAnalysis.assignments = new Map(
         Object.entries(history.state?.result.assignments).map(
@@ -167,12 +170,19 @@ export class Analysis4 implements OnInit, OnDestroy {
     }
 
     this.route.queryParams.subscribe(params => {
-      const historyId = +params['historyId'];
+       this.historyId = +params['historyId'];
 
-      if (historyId) {
-        this.historyService.getHistoryById(historyId).subscribe({
+      if (this.historyId) {
+        this.historyService.getHistoryById(this.historyId).subscribe({
           next: history => {
             this.history = history;
+            this.resultAnalysis = history.analysisData as ResultAnalysis_4;
+            this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+            this.resultAnalysis.assignments = new Map(
+              Object.entries(this.resultAnalysis.assignments).map(
+                ([key, value]) => [Number(key), value as number]
+              )
+            );
             this.buildAllCharts();
           },
           error: err => console.error('Errore caricamento history:', err)
@@ -213,29 +223,6 @@ export class Analysis4 implements OnInit, OnDestroy {
         }
       }
     });
-    // Nuova analisi
-    //this.typeAnalisys = 0;
-
-    //Se ci sono memberIds nei query params, passali al backend
-    // if (memberIdsParam) {
-    //   this.memberIds = memberIdsParam.split(',').map((id: string) => +id);
-    //   console.log('Running analysis with member IDs:', this.memberIds);
-
-    //Chiama il servizio con i memberIds
-    // this.analysisService.getResultAnalysis_4().subscribe({
-    //   next: (data) => {
-    //     this.resultAnalysis = data;
-    //     console.log(data);
-    //     this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
-    //     this.resultAnalysis.assignments = new Map(
-    //       Object.entries(data.assignments).map(
-    //         ([key, value]) => [Number(key), value as number]
-    //       )
-    //     );
-    //     this.buildAllCharts();
-    //   },
-    //   error: (err) => console.error(err)
-    // });
   }
 
   private initializeResult(result: ResultAnalysis_4) {

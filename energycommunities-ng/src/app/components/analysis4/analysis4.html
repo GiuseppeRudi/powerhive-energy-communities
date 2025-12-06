@@ -15,6 +15,13 @@
     </p>
   </div>
 
+  <app-analysis-actions
+    [resultAnalysis]="resultAnalysis"
+    [typeAnalysis]="typeAnalisys"
+    [history]="history"
+    (terminated)="resetAnalysisData()"
+  ></app-analysis-actions>
+
 
   <div *ngIf="!summary && resultAnalysis" class="analysis-control">
     <h3 style="margin-top:0; color: #444;">Investment Parameters</h3>

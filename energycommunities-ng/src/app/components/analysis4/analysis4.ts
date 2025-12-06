@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ChartConfiguration, ChartData, ChartOptions} from 'chart.js';
 import { CommonModule } from '@angular/common';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
@@ -25,13 +25,27 @@ import {BaseChartDirective} from 'ng2-charts';
   imports: [CommonModule, EnergyChartComponent, GenerationLoader, FormsModule, AnalysisActionsComponent, BaseChartDirective],
   styleUrls: ['./analysis4.css', '../analysis1/analysis1.css', '../welcome/welcome.css']
 })
-export class Analysis4 implements OnInit,OnDestroy {
+export class Analysis4 implements OnInit, OnDestroy {
 
   history : HistorySummary | undefined = undefined ;
   typeAnalisys : number = 4
   resultAnalysis: ResultAnalysis_4 | null = null;
   memberExpandedState: Map<number, boolean> = new Map();
+
+  // --- PARAMETRI DI INPUT ---
   energyCost : number | null = null ;
+  batteryLifespan: number = 15;
+  maxPaybackDesired: number = 10;
+  degradationRate: number = 2.0;
+
+  // --- VALIDAZIONE ERRORI ---
+  inputErrors = {
+    cost: false,
+    lifespan: false,
+    payback: false,
+    degradation: false
+  };
+
   chartDataMap: Map<number, ChartData<any>> = new Map();
   batteryMap: Map<number, ChartData<any>> = new Map();
   allBatteriesChart?: ChartData<any>;
@@ -56,7 +70,7 @@ export class Analysis4 implements OnInit,OnDestroy {
   };
 
 
-  // DATI GRAFICO
+  // DATI GRAFICO PAYBACK
   paybackChartData: ChartConfiguration<'line'>['data'] = { labels: [], datasets: [] };
   paybackChartOptions: ChartConfiguration<'line'>['options'] = {};
 
@@ -94,7 +108,43 @@ export class Analysis4 implements OnInit,OnDestroy {
   summary: BatteryInvestmentSummary | null = null;
 
   updateSummary(): void {
-    this.summary = this.calculateBatteryInvestmentSummary();
+    if (this.validateInputs()) {
+      this.summary = this.calculateBatteryInvestmentSummary();
+    }
+  }
+
+  // --- VALIDAZIONE ---
+  validateInputs(): boolean {
+    let isValid = true;
+
+    // Reset errori
+    this.inputErrors = { cost: false, lifespan: false, payback: false, degradation: false };
+
+    // Costo: range 0 - 1
+    if (this.energyCost === null || this.energyCost < 0 || this.energyCost > 1) {
+      this.inputErrors.cost = true;
+      isValid = false;
+    }
+
+    // Lifespan: >= 0 (idealmente >0, ma richiesto lower bound 0)
+    if (this.batteryLifespan === null || this.batteryLifespan < 0) {
+      this.inputErrors.lifespan = true;
+      isValid = false;
+    }
+
+    // Payback: >= 0
+    if (this.maxPaybackDesired === null || this.maxPaybackDesired < 0) {
+      this.inputErrors.payback = true;
+      isValid = false;
+    }
+
+    // Degradation: >= 0
+    if (this.degradationRate === null || this.degradationRate < 0) {
+      this.inputErrors.degradation = true;
+      isValid = false;
+    }
+
+    return isValid;
   }
 
 
@@ -115,23 +165,17 @@ export class Analysis4 implements OnInit,OnDestroy {
 
     this.route.queryParams.subscribe(params => {
       const historyId = +params['historyId'];
-      const memberIdsParam = params['memberIds'];
 
       if (historyId) {
-        // Caricamento da history (come prima)
         this.historyService.getHistoryById(historyId).subscribe({
           next: history => {
             this.history = history;
-            // this.resultAnalysis = history.analysisData as ResultAnalysis_4;
-            // this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
             this.buildAllCharts();
           },
           error: err => console.error('Errore caricamento history:', err)
         });
       } else {
         this.clingoEvents.connect((eventName,analysisId) => {
-          console.log(eventName);
-          console.log(analysisId);
           if (analysisId == -1) {
             if (eventName === 'GROUNDING_STARTED') {
               this.statusMessage = 'Grounding...';
@@ -146,28 +190,19 @@ export class Analysis4 implements OnInit,OnDestroy {
           }
         });
 
-        const rawMembers = params['members'];
-        const rawBatteries = params['batteries'];
-        const rawBudget = params['budget'];
-
-        if (!rawMembers || !rawBatteries || !rawBudget) {
-          console.error("Dati mancanti nei query params");
-          return;
-        }
-
-        const members = JSON.parse(rawMembers);
-        const batteries = JSON.parse(rawBatteries);
-        const budget = Number(rawBudget);
-
-        this.analysisService
-          .getResultAnalysis_4(members, batteries, budget)
-          .subscribe({
-            next: result => {
-              this.resultAnalysis = result;
-              this.initializeResult(result);
-            },
-            error: err => console.error("Errore durante l'analisi:", err)
-          });
+        this.analysisService.getResultAnalysis_4().subscribe({
+          next: (data) => {
+            this.resultAnalysis = data;
+            this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+            this.resultAnalysis.assignments = new Map(
+              Object.entries(data.assignments).map(
+                ([key, value]) => [Number(key), value as number]
+              )
+            );
+            this.buildAllCharts();
+          },
+          error: (err) => console.error(err)
+        });
       }
     });
     // Nuova analisi
@@ -224,123 +259,107 @@ export class Analysis4 implements OnInit,OnDestroy {
   }
 
   calculateBatteryInvestmentSummary(): BatteryInvestmentSummary | null {
-    console.log(this.energyCost);
-    console.log(this.resultAnalysis);
-
-    // Controllo dati minimi
     if (this.energyCost == null || this.energyCost <= 0 || !this.resultAnalysis) {
       return null;
     }
 
-    // 1) Costi giornalieri
+    // 1) Costi giornalieri base
     const dailyCostWithout = this.calculateCostCommunityWithoutEnergyPerDay();
     const dailyCostWith    = this.calculateCostCommunityWithBatteryPerDay();
 
-    // Se per qualche motivo le funzioni ritornano -1 in caso di errore
-    if (dailyCostWithout < 0 || dailyCostWith < 0) {
-      return null;
-    }
+    if (dailyCostWithout < 0 || dailyCostWith < 0) return null;
 
+    // Investimento iniziale
     const batteries: BatteryDto[] = this.resultAnalysis.batteries || [];
-
     let batteryInvestment = 0;
     for (const battery of batteries) {
       batteryInvestment += battery.price || 0;
     }
 
-    // 2) Costi annui
+    // Risparmio base (Anno 1)
     const annualCostWithout = dailyCostWithout * 365;
-    const annualCostWith    = dailyCostWith * 365;
-
-    // 3) Risparmio annuo
-    const annualSavings = annualCostWithout - annualCostWith;
+    const initialAnnualCostWith = dailyCostWith * 365;
+    const initialAnnualSavings = annualCostWithout - initialAnnualCostWith;
 
     let paybackYears: number | null = null;
     let isConvenient = false;
 
-    // Se il risparmio è <= 0, la batteria non conviene
-    if (annualSavings > 0 && batteryInvestment > 0) {
-      paybackYears = batteryInvestment / annualSavings;
-      isConvenient = paybackYears > 0; // di base sì, se rientri prima o poi
-    } else {
+    // --- CALCOLO CURVA CUMULATIVA CON DEGRADAZIONE ---
+    const labels: string[] = [];
+    const cumulativeSavings: number[] = [];
+    const investmentLine: number[] = [];
+
+    let currentSavings = initialAnnualSavings;
+    let accumulated = 0;
+    let foundPayback = false;
+
+    // Proiettiamo fino a Lifespan + 5 anni per vedere cosa succede dopo
+    const projectionYears = this.batteryLifespan + 5;
+
+    for (let year = 1; year <= projectionYears; year++) {
+      // Se la batteria è ancora viva, aggiungiamo risparmio
+      if (year <= this.batteryLifespan) {
+        accumulated += currentSavings;
+        // Applichiamo degradazione per l'anno prossimo
+        currentSavings = currentSavings * (1 - (this.degradationRate / 100));
+      }
+      // Se year > batteryLifespan, accumulated rimane costante (batteria morta)
+
+      labels.push(`${year}`);
+      cumulativeSavings.push(+accumulated.toFixed(2));
+      investmentLine.push(batteryInvestment);
+
+      // Check punto di payback
+      if (!foundPayback && accumulated >= batteryInvestment) {
+        // Payback avvenuto in questo anno.
+        // Per precisione decimale: quanto mancava all'inizio dell'anno / risparmio di quest'anno
+        const prevAccumulated = accumulated - (year <= this.batteryLifespan ? (currentSavings / (1 - (this.degradationRate/100))) : 0);
+        const remainder = batteryInvestment - prevAccumulated;
+        // (remainder / actualSavingsThisYear) + (year - 1)
+        // Approssimazione semplice all'anno corrente per sicurezza UI
+        paybackYears = year;
+        foundPayback = true;
+      }
+    }
+
+    // Se non abbiamo mai raggiunto l'investimento, payback rimane null
+    if (!foundPayback) {
       paybackYears = null;
+    }
+
+    // --- LOGICA CONVENIENZA AVANZATA ---
+    if (paybackYears !== null) {
+      const withinLifespan = paybackYears <= this.batteryLifespan;
+      const withinUserDesire = paybackYears <= this.maxPaybackDesired;
+
+      // È conveniente se rientra prima di morire E prima del tempo desiderato
+      isConvenient = withinLifespan && withinUserDesire;
+    } else {
       isConvenient = false;
     }
 
-    // ---- OGGETTO SUMMARY ----
+    // Costruiamo l'oggetto summary
+    // Nota: annualSavings nel summary mostra quello del PRIMO anno come riferimento
     const summary: BatteryInvestmentSummary = {
       annualCostWithoutBattery: annualCostWithout,
-      annualCostWithBattery: annualCostWith,
-      annualSavings,
+      annualCostWithBattery: initialAnnualCostWith,
+      annualSavings: initialAnnualSavings,
       batteryInvestment,
       paybackYears,
       isConvenient,
     };
 
-    // ---- CREAZIONE GRAFICO DINAMICO ----
-    const labels: string[] = [];
-    const cumulativeSavings: number[] = [];
-    const investmentLine: number[] = [];
-
-    const hasValidPayback =
-      paybackYears !== null &&
-      paybackYears > 0 &&
-      annualSavings > 0 &&
-      batteryInvestment > 0;
-
-    if (hasValidPayback && paybackYears) {
-      if (paybackYears <= 2) {
-        // --- SCALA MENSILE ---
-        const monthlySavings = annualSavings / 12;
-        const paybackMonths = paybackYears * 12;
-
-        // Mostro un po' di margine oltre il payback (es. +2 mesi)
-        const monthsToShow = Math.max(12, Math.ceil(paybackMonths) + 2);
-
-        let acc = 0;
-        for (let m = 1; m <= monthsToShow; m++) {
-          acc += monthlySavings;
-          labels.push(`${m}`);
-          cumulativeSavings.push(+acc.toFixed(2));
-          investmentLine.push(batteryInvestment);
-        }
-      } else {
-        // --- SCALA ANNUALE ---
-        // Mostro anni fino al payback + un po' di margine (es. +2 anni)
-        const yearsToShow = Math.ceil(paybackYears) + 2;
-
-        let acc = 0;
-        for (let y = 1; y <= yearsToShow; y++) {
-          acc += annualSavings;
-          labels.push(`${y}`);
-          cumulativeSavings.push(+acc.toFixed(2));
-          investmentLine.push(batteryInvestment);
-        }
-      }
-    } else {
-      // Nessun payback (risparmio <= 0): mostro 12 mesi "standard"
-      const monthlySavings = annualSavings / 12; // può essere 0 o negativo
-      let acc = 0;
-
-      for (let m = 1; m <= 12; m++) {
-        acc += monthlySavings;
-        labels.push(`${m}`);
-        cumulativeSavings.push(+acc.toFixed(2));
-        investmentLine.push(batteryInvestment);
-      }
-    }
-
+    // --- COSTRUZIONE GRAFICO ---
     this.paybackChartData = {
       labels,
       datasets: [
         {
-          label: 'Cumulative savings',
+          label: 'Cumulative Savings (w/ degradation)',
           data: cumulativeSavings,
           fill: false,
           tension: 0.3,
           borderWidth: 3,
-          pointRadius: 3,
-          pointHoverRadius: 5,
+          pointRadius: 2,
           borderColor: 'rgba(12,117,27,1)',
           backgroundColor: 'rgba(12,117,27,0.3)'
         },
@@ -362,91 +381,78 @@ export class Analysis4 implements OnInit,OnDestroy {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: {
-          position: 'bottom'
-        },
+        legend: { position: 'bottom' },
         tooltip: {
           callbacks: {
             label: (ctx: any) => {
               const val = ctx.parsed.y;
-              return `${ctx.dataset.label}: ${val.toLocaleString('it-IT', {
-                maximumFractionDigits: 0
-              })} €`;
+              return `${ctx.dataset.label}: ${val.toLocaleString('it-IT', { maximumFractionDigits: 0 })} €`;
             }
           }
+        },
+        annotation: {
+          // Qui potresti aggiungere annotazioni extra se installi chartjs-plugin-annotation
         }
       },
       scales: {
         y: {
-          title: {
-            display: true,
-            text: '€'
-          },
-          ticks: {
-            callback: (value: any) => `${value} €`
-          }
+          title: { display: true, text: '€' },
+          ticks: { callback: (value: any) => `${value} €` }
         },
         x: {
-          title: {
-            display: true,
-            text: hasValidPayback && paybackYears! > 2 ? 'Years' : 'Months'
+          title: { display: true, text: 'Years' },
+          grid: {
+            color: (context: { tick: { label: string; }; }) => {
+              // Evidenzia l'anno di fine vita batteria
+              if (context.tick.label == this.batteryLifespan.toString()) return 'rgba(255, 0, 0, 0.5)';
+              return 'rgba(0, 0, 0, 0.1)';
+            },
+            lineWidth: (context: { tick: { label: string; }; }) => {
+              if (context.tick.label == this.batteryLifespan.toString()) return 2;
+              return 1;
+            }
           }
         }
       }
-    };
+    } as any;
 
-    // RITORNO il summary (l’oggetto viene creato e il grafico già pronto)
     return summary;
   }
 
 
   calculateCostCommunityWithoutEnergyPerDay(): number {
-    // Se non hai ancora i dati, ritorna -1 o lancia un errore, come preferisci
-    if (!this.resultAnalysis || !this.energyCost) {
-      return -1;
-    }
+    if (!this.resultAnalysis || !this.energyCost) return -1;
 
     const consumptions = this.resultAnalysis.startingCommunity.totalConsumption;
     const productions  = this.resultAnalysis.startingCommunity.totalProduction;
 
-    let importedEnergyPerDay = 0; // energia comprata dalla rete [kWh]
-
+    let importedEnergyPerDay = 0;
     for (let i = 0; i < 24; i++) {
-      const consT = consumptions[i] ?? 0;  // se undefined, lo tratto come 0
+      const consT = consumptions[i] ?? 0;
       const prodT = productions[i] ?? 0;
-
       if (consT > prodT) {
         importedEnergyPerDay += (consT - prodT);
       }
     }
-
-    // costo = energia importata * costo unitario
     return importedEnergyPerDay * this.energyCost;
   }
 
   calculateCostCommunityWithBatteryPerDay(): number {
-    if (!this.resultAnalysis || !this.energyCost) {
-      return -1;
-    }
+    if (!this.resultAnalysis || !this.energyCost) return -1;
 
     const consumptions = this.resultAnalysis.totalConsumption;
     const productions  = this.resultAnalysis.totalProduction;
 
     let importedEnergyPerDay = 0;
-
     for (let i = 0; i < 24; i++) {
       const consT = consumptions[i] ?? 0;
       const prodT = productions[i] ?? 0;
-
       if (consT > prodT) {
         importedEnergyPerDay += (consT - prodT);
       }
     }
-
     return importedEnergyPerDay * this.energyCost;
   }
-
-
 
   hasBattery(memberId: number): boolean {
     return this.resultAnalysis?.assignments?.has(memberId) ?? false;
@@ -477,7 +483,7 @@ export class Analysis4 implements OnInit,OnDestroy {
       let graph: number[] = [];
 
       if(producers.length != 0) graph = [...producers[0].graph];
-      //console.log("Prima " + graph);
+
       const batteryStatus = batteryStatuses?.find(b => b.memberId == member.id);
       if (batteryStatus) {
         batteryStatus.energyByHour.forEach((value, index) => {
@@ -496,12 +502,8 @@ export class Analysis4 implements OnInit,OnDestroy {
           backgroundColor: 'transparent',
           tension: 0.25
         };
-
         this.batteryMap.set(member.id, { labels, datasets: [batteryDataset]});
-        console.log(this.batteryMap);
       }
-
-      //console.log("Dopo " + graph);
 
       const datasetsProducers = producers.map((p,index) => ({
         label: 'Producer Profile ' + p.id + " w/o battery",
@@ -534,17 +536,12 @@ export class Analysis4 implements OnInit,OnDestroy {
 
   buildAllBatteriesChart() {
     if (!this.resultAnalysis || !this.resultAnalysis.batteryStatus) return;
-
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
     const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'black', 'brown'];
 
-
-
     const datasets = this.resultAnalysis.batteryStatus.map((b, index) => {
       const member = this.resultAnalysis!.startingCommunity.assignments.find(m => m.id === b.memberId);
-
       const memberName = member ? member.fullName : "Member " + b.memberId;
-
       return {
         label: memberName + "'s Battery",
         data: b.energyByHour,
@@ -552,7 +549,6 @@ export class Analysis4 implements OnInit,OnDestroy {
         backgroundColor: 'transparent',
       };
     });
-
     this.allBatteriesChart = { labels, datasets };
   }
 
@@ -577,7 +573,6 @@ export class Analysis4 implements OnInit,OnDestroy {
           tension: 0.25
         });
       }
-
       if (producer) {
         datasetsProducers.push({
           label: member.fullName,
@@ -588,7 +583,6 @@ export class Analysis4 implements OnInit,OnDestroy {
         });
       }
     });
-
     this.optConsProfChart = { labels, datasets: datasetsConsumers };
     this.optProdProfChart = { labels, datasets: datasetsProducers };
   }
@@ -686,13 +680,10 @@ export class Analysis4 implements OnInit,OnDestroy {
   getMemberTypeLabel(member: MemberDetail): string {
     const hasProducer = member.profiles.some(p => p.profileType === 'PRODUCER');
     const hasConsumer = member.profiles.some(p => p.profileType === 'CONSUMER');
-
     if (hasProducer && hasConsumer) return 'Prosumer';
     if (hasProducer) return 'Producer';
     return 'Consumer';
   }
-
-
 
   resetAnalysisData() {
     if (this.resultAnalysis) {
@@ -721,11 +712,9 @@ export class Analysis4 implements OnInit,OnDestroy {
     const memberIds = this.memberIds;
     const userJson = sessionStorage.getItem('currentUser');
     if (!userJson) return;
-
     const user: User = JSON.parse(userJson);
     this.analysisService.runAsync1(user.id, 1, memberIds).subscribe(id => {
       this.router.navigate(['/ongoing-analysis']);
     });
   }
 }
-

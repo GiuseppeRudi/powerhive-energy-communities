@@ -17,6 +17,7 @@ import {ResultAnalysis_4} from '../../model/analysis/ResultAnalysis_4';
 import {BatteryInvestmentSummary} from '../../model/BatteryInvestmentSummary';
 import {BatteryDto} from '../../model/battery/BatteryDto';
 import {BaseChartDirective} from 'ng2-charts';
+import {Analysis4Request} from '../../model/analysis/Analysis4Request';
 
 @Component({
   selector: 'app-analisys4',
@@ -93,6 +94,8 @@ export class Analysis4 implements OnInit, OnDestroy {
 
   statusMessage = "Starting...";
   statusWarning: boolean = false;
+  analysis4Request: Analysis4Request | undefined = undefined ;
+
 
   memberIds: number[] | undefined = undefined;
 
@@ -190,19 +193,24 @@ export class Analysis4 implements OnInit, OnDestroy {
           }
         });
 
-        this.analysisService.getResultAnalysis_4().subscribe({
-          next: (data) => {
-            this.resultAnalysis = data;
-            this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
-            this.resultAnalysis.assignments = new Map(
-              Object.entries(data.assignments).map(
-                ([key, value]) => [Number(key), value as number]
-              )
-            );
-            this.buildAllCharts();
-          },
-          error: (err) => console.error(err)
-        });
+        this.analysis4Request = this.analysisService.getAnalysisResult()
+
+        if(this.analysis4Request){
+          this.analysisService.getResultAnalysis_4(this.analysis4Request.members,this.analysis4Request.batteries,this.analysis4Request.budget).subscribe({
+            next: (data) => {
+              this.resultAnalysis = data;
+              this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+              this.resultAnalysis.assignments = new Map(
+                Object.entries(data.assignments).map(
+                  ([key, value]) => [Number(key), value as number]
+                )
+              );
+              this.buildAllCharts();
+            },
+            error: (err) => console.error(err)
+          });
+
+        }
       }
     });
     // Nuova analisi

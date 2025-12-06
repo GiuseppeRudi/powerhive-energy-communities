@@ -56,12 +56,9 @@ export class AnalysisService {
   }
 
 
-  // members: MemberDetail[], budget: number, batteries : number[]
-  getResultAnalysis_4(members: MemberDetail[], batteries : number[], budget: number,  ) : Observable<ResultAnalysis_4>{
-    console.log("Parametri ricevuti:");
-    console.log("Members:", members);
-    console.log("Batteries:", batteries);
-    console.log("Budget:", budget);
+  // members: MemberDetail[], budget: number, batteries : BatteryDtO[]
+  getResultAnalysis_4(members: MemberDetail[], batteries : BatteryDto[], budget: number,  ) : Observable<ResultAnalysis_4>{
+
     const body = {
       members: members,
       batteries: batteries,

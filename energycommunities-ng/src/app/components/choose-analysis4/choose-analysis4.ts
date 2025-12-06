@@ -8,12 +8,13 @@ import {ChartData, ChartOptions} from 'chart.js';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {PlanService} from '../../services/plan.service';
 import {AuthService} from '../../services/auth/auth.service';
-import {AnalysisService} from '../../services/analysis.service';
 import {User} from '../../model/User';
 import {BatteryService} from '../../services/battery.service';
 import {BatteryDto} from '../../model/battery/BatteryDto';
 import {HistorySummary} from '../../model/history/HistorySummary';
 import {HistoryService} from '../../services/history.service';
+import {Analysis4Request} from '../../model/analysis/Analysis4Request';
+import {AnalysisService} from '../../services/analysis.service';
 
 
 @Component({
@@ -65,6 +66,7 @@ export class ChooseAnalysis4 {
     private batteryService: BatteryService,
     private router: Router,
     private planService: PlanService,
+    private analysisService: AnalysisService,
     private historyService: HistoryService,
   ) {}
 
@@ -287,18 +289,15 @@ export class ChooseAnalysis4 {
       return;
     }
 
-    const selectedMembers = this.members.filter(m => this.energyCommunities.includes(m.id));
-    const selectedBatteries = this.plan_batteries.filter(b => b.id !== null && this.batteriesList.includes(b.id));
-    const budget = this.budget;
-
-    const queryParams = {
-      members: JSON.stringify(selectedMembers),
-      batteries: JSON.stringify(selectedBatteries),
-      budget: budget
+    const analysis4Request: Analysis4Request = {
+      members : this.members.filter(m => this.energyCommunities.includes(m.id)),
+      batteries: this.plan_batteries.filter(b => b.id !== null && this.batteriesList.includes(b.id)),
+      budget : this.budget
     };
 
-    this.router.navigate(['/analysis4'], { queryParams });
-  }
+    this.analysisService.setAnalysisResult(analysis4Request)
 
+    this.router.navigate(['/analysis4']);
+  }
 
 }

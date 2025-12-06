@@ -504,7 +504,7 @@ export class Analysis4 implements OnInit,OnDestroy {
       //console.log("Dopo " + graph);
 
       const datasetsProducers = producers.map((p,index) => ({
-        label: 'Producer Profile ' + p.id + (batteryStatus != undefined ? " w/ battery" : ""),
+        label: 'Producer Profile ' + p.id + " w/o battery",
         data: p.graph,
         borderColor: colors[index % colors.length],
         backgroundColor: 'transparent',
@@ -513,7 +513,7 @@ export class Analysis4 implements OnInit,OnDestroy {
 
       if(producers.length != 0 && batteryStatus != undefined) {
         datasetsProducers.push({
-          label: 'Producer Profile ' + producers[0].id + " w/o battery",
+          label: 'Producer Profile ' + producers[0].id + " w/ battery",
           data: graph,
           borderColor: colors[1],
           backgroundColor: 'transparent',

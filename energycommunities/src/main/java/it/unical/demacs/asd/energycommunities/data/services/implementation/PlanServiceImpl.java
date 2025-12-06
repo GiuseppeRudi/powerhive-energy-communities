@@ -231,12 +231,24 @@ public class PlanServiceImpl implements PlanService {
 
         memberDao.delete(member);
     }
+
     @Override
-    public MemberDetailDto add_new_member(MemberDetailDto memberDetailDto, Long ownerId) {
+    public synchronized MemberDetailDto add_new_member(MemberDetailDto memberDetailDto, Long ownerId) {
         if(ownerId == null)
             throw new IllegalArgumentException("ownerId cannot be null");
         
         User owner = userDao.findById(ownerId).orElseThrow(() -> new ElementNotFoundException("no owner/user with id: " + ownerId));
+
+        Plan owner_plan = planDao.findByUser(owner).orElseGet(() -> {
+            Plan new_plan = new Plan();
+            new_plan.setMembers(new ArrayList<>());
+            new_plan.setBatteries(new ArrayList<>());
+            
+            new_plan.setUser(owner);
+            owner.setPlan(new_plan);
+
+            return userDao.save(owner).getPlan();
+        });
 
         Member new_member = new Member();
         new_member.setFullName(memberDetailDto.getFullName());
@@ -257,6 +269,8 @@ public class PlanServiceImpl implements PlanService {
         new_member.setMemberType(new_member.getMemberType());
         new_member.setPlan(owner.getPlan());
         new_member.setOngoingAnalysis(new ArrayList<>());
+        owner.setPlan(owner_plan);
+
 
         return modelMapper.map(memberDao.save(new_member), MemberDetailDto.class);
     }

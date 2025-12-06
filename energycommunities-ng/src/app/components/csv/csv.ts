@@ -68,7 +68,16 @@ export class Csv implements OnInit {
 
     if (this.currentUser != null) {
       this.ownerId = this.currentUser.id;
-      this.planService.get_full_plan(this.currentUser.plan_id).subscribe(response => { this.owner_plan = response })
+      this.planService.get_full_plan(this.currentUser.plan_id).subscribe({
+        next: response => { this.owner_plan = response },
+        error: error => {
+          this.owner_plan = {
+            id: 0,
+            members: []
+          }
+          console.warn(error)
+        }
+      })
     }
 
   }
@@ -121,7 +130,7 @@ export class Csv implements OnInit {
             id: null,
             profileType: row.category.toString().toUpperCase(),
             graph: [...Array(24)].map((_, i) => Number(row[`t${i}`] || 0))
-        }
+          }
 
           new_m.profiles.push(new_profile)
 
@@ -175,7 +184,7 @@ export class Csv implements OnInit {
       next: (res) => {
         this.successMessage = res;
         console.log(this.successMessage);
-        this.authService.setUserField('plan_id', Number(this.successMessage))
+        this.authService.setUserField('plan_id', Number(this.successMessage));
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {
@@ -261,12 +270,15 @@ export class Csv implements OnInit {
         plan_id: this.owner_plan?.id!
       }
 
-      this.planService.add_new_member(member_detail, this.ownerId).subscribe(response => {console.log(response)})
+      this.planService.add_new_member(member_detail, this.ownerId).subscribe(response => {
+        console.log(response)
+        this.authService.set_plan(response.plan_id)
+
+      })
     }
 
     alert("All members uploaded!")
-    this.router.navigate(['dashboard'])
-
+    this.router.navigate(['/dashboard'], { onSameUrlNavigation: 'reload' }).then(() => window.location.reload());
   }
 
 }

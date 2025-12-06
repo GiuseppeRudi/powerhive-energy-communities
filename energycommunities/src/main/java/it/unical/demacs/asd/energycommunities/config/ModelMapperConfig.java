@@ -141,9 +141,12 @@ public class ModelMapperConfig {
                     dto.setUsername(source.getUsername());
                     dto.setEmail(source.getEmail());
 
-                    if (source.getPlan() != null) {
+                    if (source.getPlan() != null)
                         dto.setPlan_id(source.getPlan().getId());
-                    }
+
+                    System.out.println(source);
+                    System.out.println(dto);
+                    
                     return dto;
                 });
 

@@ -35,37 +35,31 @@ public class PlanController {
     private final ModelMapper modelMapper;
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file, @RequestParam Long ownerId) throws UnsupportedEncodingException, IOException, NameNotFoundException{
-        if(file.isEmpty()) 
+    public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file, @RequestParam Long ownerId)
+            throws UnsupportedEncodingException, IOException, NameNotFoundException {
+        if (file.isEmpty())
             return ResponseEntity.badRequest().body("File is empty");
 
         PlanSummaryDto planSummaryDto = planService.upload(file, ownerId);
-        
+
         return ResponseEntity.ok(planSummaryDto.getId().toString());
     }
 
     @PostMapping(value = "/addMember")
     public ResponseEntity<MemberDetailDto> addMember(
             @RequestBody ManualMemberDto memberDto,
-            @RequestParam Long ownerId) throws NameNotFoundException
-    {
+            @RequestParam Long ownerId) throws NameNotFoundException {
         MemberDetailDto newMember = planService.addMember(memberDto, ownerId);
         return ResponseEntity.ok(newMember);
     }
 
-    @PostMapping(value = "/new-member/{ownerId}")
-    public ResponseEntity<MemberDetailDto> add_new_member(@RequestBody MemberDetailDto memberDetailDto, @PathVariable Long ownerId){
-        return ResponseEntity.ok(planService.add_new_member(memberDetailDto, ownerId));
-    }
-
     @GetMapping(value = "/summary/{id}")
-    public ResponseEntity<PlanSummaryDto> getSummaryPlanById(@PathVariable Long id){
+    public ResponseEntity<PlanSummaryDto> getSummaryPlanById(@PathVariable Long id) {
         PlanSummaryDto plan = planService.getSummaryPlanById(id);
-
 
         System.out.println(plan.toString());
 
-        if(plan == null)
+        if (plan == null)
             return ResponseEntity.notFound().build();
 
         return ResponseEntity.ok(plan);
@@ -73,7 +67,7 @@ public class PlanController {
     }
 
     @GetMapping(value = "/detail/{id}")
-    public ResponseEntity<PlanDetailDto> getDetailPlanById(@PathVariable Long id){
+    public ResponseEntity<PlanDetailDto> getDetailPlanById(@PathVariable Long id) {
         PlanDetailDto plan = planService.getDetailPlanById(id);
 
         List<MemberDetailDto> averagedMembers = new ArrayList<>();
@@ -100,15 +94,14 @@ public class PlanController {
             memberDto.setProfiles(
                     Stream.of(avgProducer, avgConsumer)
                             .filter(Objects::nonNull)
-                            .collect(Collectors.toList())
-            );
+                            .collect(Collectors.toList()));
 
             averagedMembers.add(memberDto);
         }
 
         plan.setMembers(averagedMembers);
 
-        if(plan == null)
+        if (plan == null)
             return ResponseEntity.notFound().build();
 
         return ResponseEntity.ok(plan);
@@ -116,12 +109,12 @@ public class PlanController {
     }
 
     @GetMapping(value = "/{plan_id}/{member_id}")
-    public ResponseEntity<MemberDetailDto> getMember(@PathVariable Long plan_id, @PathVariable Long member_id){
-        MemberDetailDto memberDetailDto = planService.getMember(plan_id,member_id);
+    public ResponseEntity<MemberDetailDto> getMember(@PathVariable Long plan_id, @PathVariable Long member_id) {
+        MemberDetailDto memberDetailDto = planService.getMember(plan_id, member_id);
 
         System.out.println(memberDetailDto.toString());
 
-        if(memberDetailDto == null)
+        if (memberDetailDto == null)
             return ResponseEntity.notFound().build();
 
         return ResponseEntity.ok(memberDetailDto);
@@ -137,9 +130,14 @@ public class PlanController {
     }
 
     @GetMapping("/full/{plan_id}")
-    public ResponseEntity<PlanDetailDto> get_full_plan(@PathVariable Long plan_id){
+    public ResponseEntity<PlanDetailDto> get_full_plan(@PathVariable Long plan_id) {
         return ResponseEntity.ok(planService.getDetailPlanById(plan_id));
     }
 
-}
+    @PostMapping(value = "/new-member/{ownerId}")
+    public ResponseEntity<MemberDetailDto> add_new_member(@RequestBody MemberDetailDto memberDetailDto,
+            @PathVariable Long ownerId) {
+        return ResponseEntity.ok(planService.add_new_member(memberDetailDto, ownerId));
+    }
 
+}

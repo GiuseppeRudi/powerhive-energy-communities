@@ -205,7 +205,45 @@ export class Analysis4 implements OnInit, OnDestroy {
         });
       }
     });
+    // Nuova analisi
+    //this.typeAnalisys = 0;
+
+    //Se ci sono memberIds nei query params, passali al backend
+    // if (memberIdsParam) {
+    //   this.memberIds = memberIdsParam.split(',').map((id: string) => +id);
+    //   console.log('Running analysis with member IDs:', this.memberIds);
+
+    //Chiama il servizio con i memberIds
+    // this.analysisService.getResultAnalysis_4().subscribe({
+    //   next: (data) => {
+    //     this.resultAnalysis = data;
+    //     console.log(data);
+    //     this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+    //     this.resultAnalysis.assignments = new Map(
+    //       Object.entries(data.assignments).map(
+    //         ([key, value]) => [Number(key), value as number]
+    //       )
+    //     );
+    //     this.buildAllCharts();
+    //   },
+    //   error: (err) => console.error(err)
+    // });
   }
+
+  private initializeResult(result: ResultAnalysis_4) {
+    result.startingCommunity.assignments.forEach(
+      m => this.memberExpandedState.set(m.id, false)
+    );
+
+    result.assignments = new Map(
+      Object.entries(result.assignments).map(
+        ([k, v]) => [Number(k), v as number]
+      )
+    );
+
+    this.buildAllCharts();
+  }
+
 
   ngOnDestroy() {
     if (this.clingoEvents) this.clingoEvents.disconnect();

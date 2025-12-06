@@ -1,0 +1,198 @@
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <title></title>
+</head>
+
+
+<div class="content-div">
+  <div class="header-section">
+    <h1>Select members for Community Subset Analysis</h1>
+  </div>
+
+  <div class="disclaimer">
+    <p><strong>Analysis 4</strong></p>
+    <p>
+      Given a set of potential members, batteries and a budget
+      our app applies an optimization algorithm to select the optimal subset
+      of members and batteries that best fit together within an energy community,
+      minimizing energy imbalance and maximizing overall efficiency.
+    </p>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-container">
+    <app-generation-loader></app-generation-loader>
+  </div>
+
+  <div *ngIf="!isLoading && members.length > 0" class="member-selection-container">
+
+    <div class="budget-section">
+      <label for="budgetInput" class="budget-label">
+        <i class="fa-solid fa-euro-sign"></i> Community Budget:
+      </label>
+
+      <input
+        type="number"
+        id="budgetInput"
+        [(ngModel)]="budget"
+        placeholder="Enter budget (e.g. 50000)"
+        class="budget-input form-control"
+        min="0"
+      />
+    </div>
+
+
+    <div class="selection-actions">
+      <button class="btn btn-select-all" (click)="selectAll()">
+        <i class="fa-solid fa-check-double"></i> Select All
+      </button>
+      <button class="btn btn-deselect-all" (click)="deselectAll()">
+        <i class="fa-solid fa-xmark"></i> Deselect All
+      </button>
+      <div class="selected-count">
+        <span class="count-badge">{{ energyCommunities.length }} / {{ members.length }}</span>
+        <span class="count-label"> members selected</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="members-table">
+        <thead>
+        <tr>
+          <th class="checkbox-column">
+            <input
+              type="checkbox"
+              [checked]="isAllSelected()"
+              [indeterminate]="isIndeterminate()"
+              (change)="toggleAll($event)"
+              class="header-checkbox"
+            />
+          </th>
+          <th>Member Name</th>
+          <th>Category</th>
+          <th class="actions-column">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let member of members"
+            [class.selected-row]="energyCommunities.includes(member.id)">
+          <td class="checkbox-column" (click)="$event.stopPropagation()">
+            <input
+              type="checkbox"
+              [checked]="energyCommunities.includes(member.id)"
+              (change)="toggleSelection(member.id)"
+              class="member-checkbox"
+            />
+          </td>
+          <td class="member-name-cell">
+            <i class="fa-solid fa-user"></i>
+            {{ member.fullName }}
+          </td>
+          <td>
+            <span class="category-badge" [class]="member.memberType.toLowerCase()">
+                {{ member.memberType }}
+              </span>
+          </td>
+          <td class="actions-column">
+            <button
+              class="btn-view-chart"
+              (click)="toggleMember(member.id)"
+              [title]="isMemberExpanded(member.id) ? 'Hide chart' : 'View chart'"
+            >
+              <i class="fa-solid" [class.fa-chart-line]="!isMemberExpanded(member.id)"
+                 [class.fa-eye-slash]="isMemberExpanded(member.id)"></i>
+              {{ isMemberExpanded(member.id) ? 'Hide' : 'View' }}
+            </button>
+          </td>
+        </tr>
+        <tr *ngFor="let member of members"
+            [class.chart-row]="true"
+            [class.expanded]="isMemberExpanded(member.id)">
+          <td colspan="4" class="chart-cell">
+            <div class="chart-content" *ngIf="isMemberExpanded(member.id)">
+              <div *ngIf="chartDataMap.get(member.id); else noData">
+                <h4>Production / Consumption Graph - {{ member.fullName }}</h4>
+                <app-energy-chart
+                  [data]="chartDataMap.get(member.id)!"
+                  [options]="chartOptionsLine"
+                  [selectedChartType]="'line'"
+                ></app-energy-chart>
+              </div>
+              <ng-template #noData>
+                <div class="no-data">
+                  <p>No energy profiles available for this member.</p>
+                </div>
+              </ng-template>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <div *ngIf="plan_batteries.length > 0" style="margin-top: 40px;">
+      <h3 style="margin-bottom: 10px;">Batteries</h3>
+      <div class="selection-actions">
+        <button class="btn btn-select-all" (click)="selectAllBatteries()">
+          <i class="fa-solid fa-battery-full"></i> Select All
+        </button>
+        <button class="btn btn-deselect-all" (click)="deselectAllBatteries()">
+          <i class="fa-solid fa-battery-empty"></i> Deselect All
+        </button>
+        <div class="selected-count">
+          <span class="count-badge">{{ batteriesList.length }} / {{ plan_batteries.length }}</span>
+          <span class="count-label"> batteries selected</span>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="members-table">
+          <thead>
+          <tr>
+            <th class="checkbox-column">
+            </th>
+            <th>Model</th>
+            <th>Capacity</th>
+            <th>Price</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let battery of plan_batteries"
+              [class.selected-row]="isBatterySelected(battery.id)">
+            <td class="checkbox-column" (click)="$event.stopPropagation()">
+              <input
+                type="checkbox"
+                [checked]="isBatterySelected(battery.id)"
+                (change)="toggleSelectionBatteries(battery.id)"
+                class="member-checkbox"
+              />
+            </td>
+            <td>{{ battery.model }}</td>
+            <td>{{ battery.capacity }} kWh</td>
+            <td>{{ battery.price | currency:'EUR' }}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-cancel" routerLink="/dashboard">
+        <i class="fa-solid fa-arrow-left"></i> Cancel
+      </button>
+      <button
+        class="btn btn-run-analysis"
+        (click)="startAnalysis4()"
+        [disabled]="energyCommunities.length === 0 || !budget || budget <= 0">
+        <i class="fa-solid fa-play"></i> Start Analysis
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && members.length === 0" class="no-members">
+    <i class="fa-solid fa-users-slash"></i>
+    <p>No members available. Please import a CSV file first.</p>
+    <a routerLink="/csv" class="btn btn-csv">Go to CSV Page</a>
+  </div>
+</div>
+

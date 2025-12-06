@@ -8,6 +8,7 @@ import { MemberSummary } from "../model/member/MemberSummary";
 import {MemberDetail} from '../model/member/MemberDetail';
 import {ResultAnalysis_3} from '../model/analysis/ResultAnalysis_3';
 import {ResultAnalysis_4} from '../model/analysis/ResultAnalysis_4';
+import {BatteryDto} from '../model/battery/BatteryDto';
 
 @Injectable({providedIn: 'root'})
 export class AnalysisService {
@@ -56,11 +57,15 @@ export class AnalysisService {
 
 
   // members: MemberDetail[], budget: number, batteries : number[]
-  getResultAnalysis_4( ) : Observable<ResultAnalysis_4>{
+  getResultAnalysis_4(members: MemberDetail[], batteries : number[], budget: number,  ) : Observable<ResultAnalysis_4>{
+    console.log("Parametri ricevuti:");
+    console.log("Members:", members);
+    console.log("Batteries:", batteries);
+    console.log("Budget:", budget);
     const body = {
-      // members: members,
-      // batteries: batteries,
-      // budget: budget
+      members: members,
+      batteries: batteries,
+      budget: budget
     };
     return this.http.post<ResultAnalysis_4>(`${this.baseUrl}/start_4`,body);
   }

@@ -236,7 +236,6 @@ export class ChooseAnalysis3 implements OnInit {
       next: (data) => {
         console.log(data);
         const filteredData = data.filter(h => h.analysisNumber === 2);
-        // Ordina dalla più recente alla più vecchia
         this.historyList = filteredData.sort((a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );

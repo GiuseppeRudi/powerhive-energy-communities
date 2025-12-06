@@ -23,7 +23,7 @@ describe('PlanManagement', () => {
       imports: [
         PlanManagement,
         HttpClientTestingModule,
-        RouterTestingModule   // 👈 FIX DEFINITIVO
+        RouterTestingModule
       ],
       providers: [
         { provide: PlanService, useValue: planServiceSpy },

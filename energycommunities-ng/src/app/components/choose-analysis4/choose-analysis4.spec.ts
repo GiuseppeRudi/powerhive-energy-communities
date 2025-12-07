@@ -49,9 +49,6 @@ describe('ChooseAnalysis4 Component', () => {
     component = TestBed.inject(ChooseAnalysis4);
   });
 
-  // --------------------------------------
-  // TEST LOGICA SELEZIONE MEMBRI
-  // --------------------------------------
 
   it('should toggle member selection', () => {
     component.energyCommunities = [];
@@ -82,9 +79,6 @@ describe('ChooseAnalysis4 Component', () => {
     expect(component.isIndeterminate()).toBeTrue();
   });
 
-  // --------------------------------------
-  // TEST START ANALYSIS
-  // --------------------------------------
 
   it('should start analysis and navigate', () => {
     component.members = [{ id: 1 }, { id: 2 }] as any;

@@ -12,6 +12,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { PlanSummary } from '../../model/plan/PlanSummary';
 import { BatteryService } from '../../services/battery.service';
 import { BatteryDto } from '../../model/battery/BatteryDto';
+// IMPORT NECESSARIO
+import { OngoingAnalysisService } from '../../services/ongoing-analysis.service';
 
 @Component({
   selector: 'app-plan-management',
@@ -54,11 +56,14 @@ export class PlanManagement implements OnInit {
     private planService: PlanService,
     private router: Router,
     private authService: AuthService,
-    private batteryService: BatteryService
+    private batteryService: BatteryService,
+    // INIEZIONE SERVICE ANALISI
+    private ongoingAnalysisService: OngoingAnalysisService
   ) { }
+
   isDeleteModalVisible = false;
   memberToDelete: { id: number, fullName: string } | null = null;
-  
+
   isBatteryDeleteModalVisible = false;
   batteryToDelete: BatteryDto | null = null;
 
@@ -354,6 +359,7 @@ export class PlanManagement implements OnInit {
     this.memberToDelete = null;
   }
 
+  // --- LOGICA MODIFICATA ---
   confirmDelete(): void {
     if (!this.memberToDelete) {
       this.errorMessage = 'Error: no member selected for deletion.';
@@ -367,13 +373,40 @@ export class PlanManagement implements OnInit {
 
     console.log(`Deletion request for member with ID: ${memberId}`);
 
-
     if (!this.ownerId || this.ownerId === 0) {
       this.errorMessage = 'Error: user not authenticated. Deletion failed.';
       this.closeDeleteModal();
       return;
     }
 
+    // 1. Controllo Analisi in corso
+    this.ongoingAnalysisService.getAll(this.ownerId).subscribe({
+      next: (analyses) => {
+        // Trova se il membro è coinvolto in un'analisi non finita e non in errore
+        const activeAnalysisConflict = analyses.find(a =>
+          (a.status !== 'FINISHED' && a.status !== 'ERROR') &&
+          (a.memberIds && a.memberIds.includes(memberId)) // Verifica su memberIds
+        );
+
+        if (activeAnalysisConflict) {
+          this.errorMessage = `Cannot delete member: Currently involved in ongoing analysis #${activeAnalysisConflict.id}. Wait for it to finish.`;
+          this.closeDeleteModal();
+          return;
+        }
+
+        // 2. Nessun conflitto, procedi
+        this.performMemberDeletion(memberId);
+      },
+      error: (err) => {
+        console.error('Error checking ongoing analyses:', err);
+        // Fallback: se il controllo fallisce, decidi se bloccare o provare comunque.
+        // Qui proviamo comunque a cancellare (lasciando gestire l'errore al backend se c'è vincolo FK)
+        this.performMemberDeletion(memberId);
+      }
+    });
+  }
+
+  private performMemberDeletion(memberId: number): void {
     this.planService.deleteMemberFromPlan(memberId, this.ownerId).subscribe({
       next: () => {
         this.successMessage = 'Member successfully deleted!';
@@ -393,11 +426,13 @@ export class PlanManagement implements OnInit {
         let detail = err.error?.message || 'Please try again later.';
         if (err.status === 404) {
           detail = 'Member or plan not found.';
-        } else if (err.status === 401 || err.status === 403) {
+        } else if (err.status === 401) {
           detail = 'You do not have permission to perform this action.';
+        } else if(err.status===403){
+          detail = 'Member is currently inside an ongoing analysis. Open it first and then delete the member.'
         }
 
-        this.errorMessage = `Error during deletion.${detail}`;
+        this.errorMessage = `Error during deletion. ${detail}`;
         this.closeDeleteModal();
       }
     });

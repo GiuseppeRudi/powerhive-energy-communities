@@ -110,7 +110,6 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
   @if (this.member_modal_visible) {
   <div class="modal-overlay">
     <div class="modal-content">
-      <br><br><br>
       <p>
         The member {{this.member_modal_item?.fullName}} (email: {{this.member_modal_item?.email}}) already has
         <strong>other profiles uploaded</strong>.
@@ -131,22 +130,22 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
               <tr>
                 <td>
                   @for (profile of this.member_modal_item?.profiles; track $index) {
-              <tr>
-                <app-energy-chart
-                  [data]="{ labels: chartLabels, datasets: [{ label: (profile.profileType === 'CONSUMER') ? 'Consumption Profile' : 'Production Profile', data: profile.graph, borderColor: (profile.profileType === 'CONSUMER') ? 'red' : 'blue' }] }"
-                  [options]="chartOptions" [selectedChartType]="'line'"></app-energy-chart>
-              </tr>
-              }
-              </td>
-              <td>
-                @for (profile of this.new_member_modal_item?.profiles; track $index) {
-                <tr>
-                  <app-energy-chart
-                    [data]="{ labels: chartLabels, datasets: [{ label: (profile.profileType === 'CONSUMER') ? 'Consumption Profile' : 'Production Profile', data: profile.graph, borderColor: (profile.profileType === 'CONSUMER') ? 'red' : 'blue' }] }"
-                    [options]="chartOptions" [selectedChartType]="'line'"></app-energy-chart>
-                </tr>
-                }
-              </td>
+                  <div class="chart-row">
+                    <app-energy-chart
+                      [data]="{ labels: chartLabels, datasets: [{ label: (profile.profileType === 'CONSUMER') ? 'Consumption Profile' : 'Production Profile', data: profile.graph, borderColor: (profile.profileType === 'CONSUMER') ? 'red' : 'blue' }] }"
+                      [options]="chartOptions" [selectedChartType]="'line'"></app-energy-chart>
+                  </div>
+                  }
+                </td>
+                <td>
+                  @for (profile of this.new_member_modal_item?.profiles; track $index) {
+                  <div class="chart-row">
+                    <app-energy-chart
+                      [data]="{ labels: chartLabels, datasets: [{ label: (profile.profileType === 'CONSUMER') ? 'Consumption Profile' : 'Production Profile', data: profile.graph, borderColor: (profile.profileType === 'CONSUMER') ? 'red' : 'blue' }] }"
+                      [options]="chartOptions" [selectedChartType]="'line'"></app-energy-chart>
+                  </div>
+                  }
+                </td>
               </tr>
             </tbody>
           </table>

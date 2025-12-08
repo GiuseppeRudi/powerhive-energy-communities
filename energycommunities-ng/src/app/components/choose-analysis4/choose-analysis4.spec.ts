@@ -7,9 +7,12 @@ import { HistoryService } from '../../services/history.service';
 import { Router, ActivatedRoute, NavigationEnd, UrlTree } from '@angular/router';
 import { of } from 'rxjs';
 
-describe('ChooseAnalysis4', () => {
   let component: ChooseAnalysis4;
-  let fixture: ComponentFixture<ChooseAnalysis4>;
+  let routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+
+  const batteryServiceMock = {
+    get_batteries_by_plan: () => of([])
+  };
 
   // Spy per i servizi
   let batteryServiceSpy: jasmine.SpyObj<BatteryService>;
@@ -62,12 +65,52 @@ describe('ChooseAnalysis4', () => {
     })
       .compileComponents();
 
-    fixture = TestBed.createComponent(ChooseAnalysis4);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+    component = TestBed.inject(ChooseAnalysis4);
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+
+  it('should toggle member selection', () => {
+    component.energyCommunities = [];
+    component.toggleSelection(5);
+    expect(component.energyCommunities).toContain(5);
+
+    component.toggleSelection(5);
+    expect(component.energyCommunities).not.toContain(5);
   });
+
+  it('should select and deselect all members', () => {
+    component.members = [{ id: 1 }, { id: 2 }] as any;
+
+    component.selectAll();
+    expect(component.energyCommunities.length).toBe(2);
+
+    component.deselectAll();
+    expect(component.energyCommunities.length).toBe(0);
+  });
+
+  it('should detect full and partial selections', () => {
+    component.members = [{ id: 1 }, { id: 2 }] as any;
+
+    component.energyCommunities = [1, 2];
+    expect(component.isAllSelected()).toBeTrue();
+
+    component.energyCommunities = [1];
+    expect(component.isIndeterminate()).toBeTrue();
+  });
+
+
+  it('should start analysis and navigate', () => {
+    component.members = [{ id: 1 }, { id: 2 }] as any;
+    component.plan_batteries = [{ id: 10 }] as any;
+
+    component.energyCommunities = [1];
+    component.batteriesList = [10];
+    component.budget = 500;
+
+    component.startAnalysis4();
+
+    expect(analysisServiceMock.setAnalysisResult).toHaveBeenCalled();
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/analysis4']);
+  });
+
 });

@@ -108,7 +108,8 @@ export class Analysis4 implements OnInit, OnDestroy {
     private clingoEvents: ClingoEventsService
   ) {}
 
-  summary: BatteryInvestmentSummary | null = null;
+  // Estendiamo l'interfaccia Summary locale per includere i campi extra per la view
+  summary: (BatteryInvestmentSummary & { budgetInput?: number, investmentDifference?: number }) | null = null;
 
   updateSummary(): void {
     if (this.validateInputs()) {
@@ -213,29 +214,6 @@ export class Analysis4 implements OnInit, OnDestroy {
         }
       }
     });
-    // Nuova analisi
-    //this.typeAnalisys = 0;
-
-    //Se ci sono memberIds nei query params, passali al backend
-    // if (memberIdsParam) {
-    //   this.memberIds = memberIdsParam.split(',').map((id: string) => +id);
-    //   console.log('Running analysis with member IDs:', this.memberIds);
-
-    //Chiama il servizio con i memberIds
-    // this.analysisService.getResultAnalysis_4().subscribe({
-    //   next: (data) => {
-    //     this.resultAnalysis = data;
-    //     console.log(data);
-    //     this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
-    //     this.resultAnalysis.assignments = new Map(
-    //       Object.entries(data.assignments).map(
-    //         ([key, value]) => [Number(key), value as number]
-    //       )
-    //     );
-    //     this.buildAllCharts();
-    //   },
-    //   error: (err) => console.error(err)
-    // });
   }
 
   private initializeResult(result: ResultAnalysis_4) {
@@ -266,95 +244,108 @@ export class Analysis4 implements OnInit, OnDestroy {
     return this.memberExpandedState.get(memberId) || false;
   }
 
-  calculateBatteryInvestmentSummary(): BatteryInvestmentSummary | null {
+  calculateBatteryInvestmentSummary(): (BatteryInvestmentSummary & { budgetInput?: number, investmentDifference?: number }) | null {
     if (this.energyCost == null || this.energyCost <= 0 || !this.resultAnalysis) {
       return null;
     }
 
-    // 1) Costi giornalieri base
+    // 1. Calcolo COSTO REALE batterie assegnate
+    let realBatteryCost = 0;
+    const batteries: BatteryDto[] = this.resultAnalysis.batteries || [];
+    for (const battery of batteries) {
+      realBatteryCost += battery.price || 0;
+    }
+
+    // Budget inserito dall'utente (solo per confronto)
+    const budgetInput = this.analysis4Request?.budget || 0;
+
+    // Fallback: se il result non ha batterie popolate ma c'è un budget (caso history vecchia?), usiamo il budget.
+    // Ma nel flusso normale, realBatteryCost dovrebbe essere corretto.
+    if (realBatteryCost === 0 && budgetInput > 0) {
+      realBatteryCost = budgetInput;
+    }
+
+    // 2. Costi operativi e risparmio
     const dailyCostWithout = this.calculateCostCommunityWithoutEnergyPerDay();
     const dailyCostWith    = this.calculateCostCommunityWithBatteryPerDay();
 
     if (dailyCostWithout < 0 || dailyCostWith < 0) return null;
 
-    // Investimento iniziale
-    const batteries: BatteryDto[] = this.resultAnalysis.batteries || [];
-    let batteryInvestment = 0;
-    for (const battery of batteries) {
-      batteryInvestment += battery.price || 0;
-    }
-
-    // Risparmio base (Anno 1)
     const annualCostWithout = dailyCostWithout * 365;
     const initialAnnualCostWith = dailyCostWith * 365;
-    const initialAnnualSavings = annualCostWithout - initialAnnualCostWith;
+    const initialAnnualSavings = annualCostWithout - initialAnnualCostWith; // Risparmio Anno 1
 
     let paybackYears: number | null = null;
     let isConvenient = false;
 
-    // --- CALCOLO CURVA CUMULATIVA CON DEGRADAZIONE ---
+    // --- CALCOLO CURVA CUMULATIVA ---
     const labels: string[] = [];
     const cumulativeSavings: number[] = [];
     const investmentLine: number[] = [];
 
-    let currentSavings = initialAnnualSavings;
+    let currentAnnualSavings = initialAnnualSavings;
     let accumulated = 0;
     let foundPayback = false;
 
-    // Proiettiamo fino a Lifespan + 5 anni per vedere cosa succede dopo
     const projectionYears = this.batteryLifespan + 5;
 
     for (let year = 1; year <= projectionYears; year++) {
       // Se la batteria è ancora viva, aggiungiamo risparmio
       if (year <= this.batteryLifespan) {
-        accumulated += currentSavings;
+        accumulated += currentAnnualSavings;
         // Applichiamo degradazione per l'anno prossimo
-        currentSavings = currentSavings * (1 - (this.degradationRate / 100));
+        currentAnnualSavings = currentAnnualSavings * (1 - (this.degradationRate / 100));
       }
       // Se year > batteryLifespan, accumulated rimane costante (batteria morta)
 
       labels.push(`${year}`);
       cumulativeSavings.push(+accumulated.toFixed(2));
-      investmentLine.push(batteryInvestment);
+      investmentLine.push(realBatteryCost); // Linea rossa sul grafico è il costo REALE
 
       // Check punto di payback
-      if (!foundPayback && accumulated >= batteryInvestment) {
-        // Payback avvenuto in questo anno.
-        // Per precisione decimale: quanto mancava all'inizio dell'anno / risparmio di quest'anno
-        const prevAccumulated = accumulated - (year <= this.batteryLifespan ? (currentSavings / (1 - (this.degradationRate/100))) : 0);
-        const remainder = batteryInvestment - prevAccumulated;
-        // (remainder / actualSavingsThisYear) + (year - 1)
-        // Approssimazione semplice all'anno corrente per sicurezza UI
-        paybackYears = year;
+      if (!foundPayback && accumulated >= realBatteryCost) {
+        // Calcolo preciso decimale
+        // Risparmio generato in QUESTO anno specifico:
+        const savingsThisYear = (year <= this.batteryLifespan)
+          ? (currentAnnualSavings / (1 - (this.degradationRate/100))) // Ripristiniamo valore prima della degradazione di fine ciclo
+          : 0;
+
+        // Quanto mancava all'inizio dell'anno?
+        const amountNeededAtStartOfYear = realBatteryCost - (accumulated - savingsThisYear);
+
+        // Frazione di anno
+        let fraction = 0;
+        if (savingsThisYear > 0) {
+          fraction = amountNeededAtStartOfYear / savingsThisYear;
+        }
+
+        paybackYears = (year - 1) + fraction;
         foundPayback = true;
       }
     }
 
-    // Se non abbiamo mai raggiunto l'investimento, payback rimane null
     if (!foundPayback) {
       paybackYears = null;
     }
 
-    // --- LOGICA CONVENIENZA AVANZATA ---
+    // --- LOGICA CONVENIENZA ---
     if (paybackYears !== null) {
       const withinLifespan = paybackYears <= this.batteryLifespan;
       const withinUserDesire = paybackYears <= this.maxPaybackDesired;
-
-      // È conveniente se rientra prima di morire E prima del tempo desiderato
       isConvenient = withinLifespan && withinUserDesire;
     } else {
       isConvenient = false;
     }
 
-    // Costruiamo l'oggetto summary
-    // Nota: annualSavings nel summary mostra quello del PRIMO anno come riferimento
-    const summary: BatteryInvestmentSummary = {
+    const summary: (BatteryInvestmentSummary & { budgetInput?: number, investmentDifference?: number }) = {
       annualCostWithoutBattery: annualCostWithout,
       annualCostWithBattery: initialAnnualCostWith,
       annualSavings: initialAnnualSavings,
-      batteryInvestment,
+      batteryInvestment: realBatteryCost, // Usiamo il costo reale per coerenza finanziaria
       paybackYears,
       isConvenient,
+      budgetInput: budgetInput,
+      investmentDifference: (budgetInput > 0) ? (budgetInput - realBatteryCost) : undefined
     };
 
     // --- COSTRUZIONE GRAFICO ---
@@ -372,7 +363,7 @@ export class Analysis4 implements OnInit, OnDestroy {
           backgroundColor: 'rgba(12,117,27,0.3)'
         },
         {
-          label: 'Battery Investment',
+          label: 'Real Investment Cost', // Etichetta chiara
           data: investmentLine,
           fill: false,
           tension: 0,
@@ -398,9 +389,6 @@ export class Analysis4 implements OnInit, OnDestroy {
             }
           }
         },
-        annotation: {
-          // Qui potresti aggiungere annotazioni extra se installi chartjs-plugin-annotation
-        }
       },
       scales: {
         y: {
@@ -411,7 +399,6 @@ export class Analysis4 implements OnInit, OnDestroy {
           title: { display: true, text: 'Years' },
           grid: {
             color: (context: { tick: { label: string; }; }) => {
-              // Evidenzia l'anno di fine vita batteria
               if (context.tick.label == this.batteryLifespan.toString()) return 'rgba(255, 0, 0, 0.5)';
               return 'rgba(0, 0, 0, 0.1)';
             },

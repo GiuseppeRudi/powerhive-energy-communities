@@ -83,21 +83,23 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 1000;
+	z-index: 9999;
 	opacity: 0;
 	animation: fadeInModal 0.3s ease forwards;
+	overflow-y: auto;
+	padding: 2rem 0;
 }
 
 
 .modal-content {
 	background: white;
-	padding: 1.25rem 1.5rem;
+	padding: 1rem 1.25rem;
 	border-radius: 12px;
 	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 	width: calc(100% - 40px);
 	max-width: 900px; /* allow room for charts */
-	max-height: 90vh; /* don't overflow the viewport */
-	overflow: hidden;
+	max-height: 85vh; /* don't overflow the viewport */
+	overflow-y: auto;
 	transform: scale(0.95);
 	animation: scaleInModal 0.3s ease forwards;
 	display: flex;
@@ -108,13 +110,13 @@
 	/* allow modal body to scroll internally if content (charts) are tall */
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
-	max-height: calc(90vh - 160px);
-	padding: 0.5rem 0;
+	max-height: calc(85vh - 120px);
+	padding: 0.25rem 0;
 }
 
 .modal-body .chart-container {
-	height: 260px; /* slightly smaller to fit modal comfortably */
-	margin-bottom: 1rem;
+	height: 240px; /* slightly smaller to fit modal comfortably */
+	margin-bottom: 0.5rem;
 }
 
 .modal-content h3 {
@@ -127,11 +129,11 @@
 }
 
 .modal-content p {
-	font-size: 1.1rem;
+	font-size: 1rem;
 	color: #333;
-	margin-bottom: 2rem;
+	margin-bottom: 1rem;
 	text-align: center;
-	line-height: 1.6;
+	line-height: 1.5;
 }
 
 .modal-actions {
@@ -195,5 +197,22 @@
   margin: 30px 0;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   font-size: 17px;
+}
+
+/* Make app-energy-chart take full width of table cell */
+.members-table td {
+	vertical-align: top; /* ensure charts stack from top of the cell */
+}
+
+.members-table td app-energy-chart {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.members-table .chart-row {
+	min-height: 240px; /* allow enough room for the chart */
+	margin: 0.8rem 0; /* increase vertical spacing between chart blocks */
+	padding: 6px 0;
 }
 

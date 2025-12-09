@@ -5,4 +5,5 @@ export interface OngoingAnalysis {
   status: 'PENDING' | 'RUNNING' | 'FINISHED' | 'ERROR';
   numMembers: number;
   createdAt: string;
+  memberIds?: number[];
 }

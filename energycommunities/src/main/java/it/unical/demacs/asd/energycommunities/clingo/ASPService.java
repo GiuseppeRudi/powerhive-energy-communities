@@ -1,5 +1,6 @@
 package it.unical.demacs.asd.energycommunities.clingo;
 
+import aj.org.objectweb.asm.commons.Remapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -7,12 +8,14 @@ import it.unical.demacs.asd.energycommunities.controller.ClingoStreamController;
 import it.unical.demacs.asd.energycommunities.data.dao.OngoingAnalysisDao;
 import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
+import it.unical.demacs.asd.energycommunities.data.utils.ProfileUtils;
 import it.unical.demacs.asd.energycommunities.dto.analysis.result.*;
 import it.unical.demacs.asd.energycommunities.dto.battery.BatteryDto;
 import it.unical.demacs.asd.energycommunities.dto.battery.BatteryStatusDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.potassco.clingo.control.Control;
 import org.potassco.clingo.solving.Model;
 import org.potassco.clingo.solving.SolveHandle;
@@ -29,6 +32,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +44,8 @@ public class ASPService {
 
     @Autowired
     private OngoingAnalysisDao ongoingAnalysisDao;
+
+    ModelMapper modelMapper = new ModelMapper();
 
     @Async
     public void startAsyncAnalysis(
@@ -59,6 +66,7 @@ public class ASPService {
 
             if (bestModel == null) {
                 analysis.setStatus("ERROR");
+                streamController.sendEvent("ERROR",id);
             } else {
                 analysis.setStatus("FINISHED");
                 ObjectMapper mapper = new ObjectMapper();
@@ -80,15 +88,16 @@ public class ASPService {
                 );
 
                 analysis.setResultModel(node);
+                streamController.sendEvent("FINISHED",id);
             }
 
         } catch (Exception e) {
             analysis.setStatus("ERROR");
+            streamController.sendEvent("ERROR",id);
             e.printStackTrace();
         }
 
         ongoingAnalysisDao.save(analysis);
-        streamController.sendEvent("FINISHED",id);
     }
 
     public ResultAnalysis1Dto chooseBestProfiles(List<MemberDetailDto> members) {
@@ -227,11 +236,12 @@ public class ASPService {
             Thread thread = new Thread(() -> {
                 try {
                     Thread.sleep(20000);
+                    ctl.interrupt();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
             });
-            if(!isAsync) thread.start();
+            thread.start();
 
             if (analysis == 1) {
                 ctl.load(Path.of("energycommunities/encodings/analysis1.lp"));
@@ -260,7 +270,7 @@ public class ASPService {
             try (SolveHandle handle = ctl.solve(SolveMode.YIELD)) {
                 while (handle.hasNext()) {
                     Model model = handle.next();
-                    System.out.println(model);
+                    //System.out.println(model);
                     long[] cost = model.getCost();
 
                     for (int i = 0; i < cost.length; i++) {
@@ -274,7 +284,6 @@ public class ASPService {
                         bestCost = cost.clone();
                         bestModelStr = model.toString();
                     }
-                    if(!thread.isAlive() && !isAsync) break;
                 }
             }
 
@@ -401,8 +410,8 @@ public class ASPService {
         resultAnalysis4Dto.setAssignments(assignment);
         resultAnalysis4Dto.setBatteryStatus(batteryStatuses);
 
-        List<Double> totalProduction = calculateTotal(consPerHour);
-        List<Double> totalConsumption = calculateTotal(prodPerHour);
+        List<Double> totalProduction = calculateTotal(prodPerHour);
+        List<Double> totalConsumption = calculateTotal(consPerHour);
         resultAnalysis4Dto.setTotalProduction(totalProduction);
         resultAnalysis4Dto.setTotalConsumption(totalConsumption);
 
@@ -588,5 +597,24 @@ public class ASPService {
             if (a[i] > b[i]) return false;
         }
         return a.length < b.length;
+    }
+
+    public List<MemberDetailDto> computeAndAssignAvgProfiles(List<MemberDetailDto> selectedMembers) {
+        selectedMembers.forEach(member -> {
+            List<ProfileDto> profiles = member.getProfiles().stream()
+                    .map(profile -> modelMapper.map(profile, ProfileDto.class))
+                    .collect(Collectors.toList());
+            ProfileDto avgProducer = ProfileUtils.computeAverageProfile(profiles, ProfileType.PRODUCER);
+            ProfileDto avgConsumer = ProfileUtils.computeAverageProfile(profiles, ProfileType.CONSUMER);
+
+            System.out.println(avgProducer);
+            System.out.println(avgConsumer);
+
+            member.setProfiles(
+                    Stream.of(avgProducer, avgConsumer)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList()));
+        });
+        return selectedMembers;
     }
 }

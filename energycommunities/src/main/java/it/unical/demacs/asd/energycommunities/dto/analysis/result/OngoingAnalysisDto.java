@@ -15,6 +15,7 @@ public class OngoingAnalysisDto {
     private String status; // PENDING, RUNNING, FINISHED, ERROR
     private JsonNode resultModel;
     private int numMembers;
+    private int numBatteries;
     private LocalDateTime createdAt = LocalDateTime.now();
 }
 

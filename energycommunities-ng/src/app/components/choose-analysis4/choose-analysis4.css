@@ -666,3 +666,23 @@
 .btn-close-warning:hover {
   opacity: 1;
 }
+
+.btn-async {
+  background-color: #f39c12;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-async:hover {
+  background-color: #d68910;
+}
+
+.btn-async:disabled {
+  background-color: #a9d8a3;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.7;
+}

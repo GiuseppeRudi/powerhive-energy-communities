@@ -18,7 +18,6 @@ import {BatteryInvestmentSummary} from '../../model/BatteryInvestmentSummary';
 import {BatteryDto} from '../../model/battery/BatteryDto';
 import {BaseChartDirective} from 'ng2-charts';
 import {Analysis4Request} from '../../model/analysis/Analysis4Request';
-import {ResultAnalysis_3} from '../../model/analysis/ResultAnalysis_3';
 
 @Component({
   selector: 'app-analisys4',
@@ -175,12 +174,12 @@ export class Analysis4 implements OnInit, OnDestroy {
 
       if (this.historyId) {
         this.historyService.getHistoryById(this.historyId).subscribe({
-          next: history => {
-            this.history = history;
-            this.resultAnalysis = history.analysisData as ResultAnalysis_4;
+          next: h => {
+            this.history = h;
+            this.resultAnalysis = h.analysisData as ResultAnalysis_4;
             this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
             this.resultAnalysis.assignments = new Map(
-              Object.entries(this.resultAnalysis.assignments).map(
+              Object.entries((h.analysisData as ResultAnalysis_4).assignments).map(
                 ([key, value]) => [Number(key), value as number]
               )
             );
@@ -486,6 +485,7 @@ export class Analysis4 implements OnInit, OnDestroy {
       const batteryStatuses = this.resultAnalysis?.batteryStatus;
 
       let graph: number[] = [];
+      let hasBattery: Map<number,boolean> = new Map();
 
       if(producers.length != 0) graph = [...producers[0].graph];
 
@@ -508,10 +508,11 @@ export class Analysis4 implements OnInit, OnDestroy {
           tension: 0.25
         };
         this.batteryMap.set(member.id, { labels, datasets: [batteryDataset]});
+        hasBattery.set(producers[0].id,true);
       }
 
       const datasetsProducers = producers.map((p,index) => ({
-        label: 'Producer Profile ' + p.id + " w/o battery",
+        label: hasBattery.get(p.id) ? 'Profile w/o battery' : 'Producer Profile',
         data: p.graph,
         borderColor: colors[index % colors.length],
         backgroundColor: 'transparent',
@@ -520,7 +521,7 @@ export class Analysis4 implements OnInit, OnDestroy {
 
       if(producers.length != 0 && batteryStatus != undefined) {
         datasetsProducers.push({
-          label: 'Producer Profile ' + producers[0].id + " w/ battery",
+          label: hasBattery.get(producers[0].id) ? 'Profile w/ battery' : 'Producer Profile',
           data: graph,
           borderColor: colors[1],
           backgroundColor: 'transparent',
@@ -529,7 +530,7 @@ export class Analysis4 implements OnInit, OnDestroy {
       }
 
       const datasetsConsumers = consumers.map((p, index) => ({
-        label: 'Consumer Profile ' + p.id,
+        label: 'Consumer Profile',
         data: p.graph,
         borderColor: colors[(index + producers.length) % colors.length],
         backgroundColor: 'transparent',
@@ -540,7 +541,8 @@ export class Analysis4 implements OnInit, OnDestroy {
   }
 
   buildAllBatteriesChart() {
-    if (!this.resultAnalysis || !this.resultAnalysis.batteryStatus) return;
+    console.log(this.resultAnalysis);
+    if (!this.resultAnalysis || this.resultAnalysis.batteryStatus.length===0) return;
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
     const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'black', 'brown'];
 
@@ -741,6 +743,7 @@ export class Analysis4 implements OnInit, OnDestroy {
       memberIds: memberIds,
       userId: user.id,
       analysis: 4,
+      batteries: this.analysis4Request?.batteries
     }
 
     this.analysisService.runAsync(payload).subscribe(id => {

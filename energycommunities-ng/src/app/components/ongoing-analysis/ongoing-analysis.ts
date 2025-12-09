@@ -49,6 +49,9 @@ export class OngoingAnalysisComponent implements OnInit,OnDestroy {
         if (eventName === 'FINISHED') {
           this.statusMessage.set(analysisId, 'FINISHED');
         }
+        if (eventName === 'ERROR') {
+          this.statusMessage.set(analysisId, 'ERROR');
+        }
       }
     });
   }

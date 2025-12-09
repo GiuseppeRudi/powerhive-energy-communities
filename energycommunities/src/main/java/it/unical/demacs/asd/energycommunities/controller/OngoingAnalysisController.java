@@ -39,6 +39,7 @@ public class OngoingAnalysisController {
                 ongoingAnalysisService.save(modelMapper.map(a, OngoingAnalysis.class));
             }
         }
+        // System.out.println(ongoingAnalysisDtos);
         return ongoingAnalysisDtos;
     }
 

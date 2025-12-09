@@ -223,23 +223,22 @@
   <div class="chart-section">
     <h2 class="section-title">Optimal Battery Assignment</h2>
     <div class="members-list">
-      <div *ngIf="!resultAnalysis || !resultAnalysis.assignments || resultAnalysis.assignments.size === 0" class="loading-container">
+      <div *ngIf="!resultAnalysis" class="loading-container">
         <app-generation-loader [status] = statusMessage></app-generation-loader>
-        <div *ngIf="statusWarning" class="warning-box">
-          <h4 class="warning-title">Grounding taking long time</h4>
-          <p class="warning-text">
-            Probably you sent a large amount of data to the solver.
-            If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
-            or try to send a smaller amount data to the solver.
-            You can then track the progress in the “Ongoing Analyses” page.
-          </p>
-          <br>
-          <button class="btn btn-async" (click)="runAnalysisAsync()">
-            <i class="fa-solid fa-rocket"></i> Run Asynchronously
-          </button>
-        </div>
       </div>
-
+      <div *ngIf="statusWarning" class="warning-box">
+        <h4 class="warning-title">Grounding taking long time</h4>
+        <p class="warning-text">
+          Probably you sent a large amount of data to the solver.
+          If you don't want to wait, you can switch to asynchronous generation by clicking the button next to this message
+          or try to send a smaller amount data to the solver.
+          You can then track the progress in the “Ongoing Analyses” page.
+        </p>
+        <br>
+        <button class="btn btn-async" (click)="runAnalysisAsync()">
+          <i class="fa-solid fa-rocket"></i> Run Asynchronously
+        </button>
+      </div>
 
       <div *ngFor="let member of resultAnalysis?.startingCommunity?.assignments" class="member-card">
         <div class="member-header" (click)="toggleMember(member.id)">
@@ -290,7 +289,7 @@
     </div>
   </div>
 
-  <div class="chart-section" *ngIf="allBatteriesChart">
+  <div class="chart-section" *ngIf="allBatteriesChart!=null">
     <h2 class="section-title">Batteries State of Charge</h2>
     <div class="chart-wrapper">
       <app-energy-chart

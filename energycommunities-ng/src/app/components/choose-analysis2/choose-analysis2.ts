@@ -199,8 +199,7 @@ export class ChooseAnalysis2 {
 
     const selectedMembers = this.members.filter(m => this.energyCommunities.includes(m.id));
 
-    this.analysisService.getResultAnalysis_2(selectedMembers, this.communitySize)
-      .subscribe({
+    this.analysisService.getResultAnalysis_2(selectedMembers, this.communitySize).subscribe({
         next: (result) => {
           console.log('Analisi completata:', result);
           this.analysisService.setAnalysisResult(result);

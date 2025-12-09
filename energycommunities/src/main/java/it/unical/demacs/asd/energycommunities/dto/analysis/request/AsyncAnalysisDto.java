@@ -2,6 +2,7 @@ package it.unical.demacs.asd.energycommunities.dto.analysis.request;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import it.unical.demacs.asd.energycommunities.dto.battery.BatteryDto;
+import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

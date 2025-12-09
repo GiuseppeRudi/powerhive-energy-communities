@@ -193,7 +193,7 @@ export class Analysis2 implements OnInit{
       const consumers = member.profiles.filter(p => p.profileType === 'CONSUMER');
 
       const datasetsProducers = producers.map((p, index) => ({
-        label: 'Producer Profile ' + p.id,
+        label: 'Producer Profile',
         data: p.graph,
         borderColor: colors[index % colors.length],
         backgroundColor: 'transparent',
@@ -201,7 +201,7 @@ export class Analysis2 implements OnInit{
       }));
 
       const datasetsConsumers = consumers.map((p, index) => ({
-        label: 'Consumer Profile ' + p.id,
+        label: 'Consumer Profile',
         data: p.graph,
         borderColor: colors[(index + producers.length) % colors.length],
         backgroundColor: 'transparent',

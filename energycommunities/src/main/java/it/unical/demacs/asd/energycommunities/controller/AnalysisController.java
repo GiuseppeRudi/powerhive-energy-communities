@@ -4,17 +4,17 @@ import it.unical.demacs.asd.energycommunities.clingo.ASPFactMapper;
 import it.unical.demacs.asd.energycommunities.clingo.ASPService;
 import it.unical.demacs.asd.energycommunities.clingo.mock.MockDataGenerator1;
 import it.unical.demacs.asd.energycommunities.clingo.mock.MockDataGenerator2;
+import it.unical.demacs.asd.energycommunities.clingo.mock.MockDataGenerator3;
 import it.unical.demacs.asd.energycommunities.clingo.mock.MockDataGenerator4;
 import it.unical.demacs.asd.energycommunities.data.dao.BatteryDao;
 import it.unical.demacs.asd.energycommunities.data.dao.MemberDao;
 import it.unical.demacs.asd.energycommunities.data.dao.UserDao;
-import it.unical.demacs.asd.energycommunities.data.entities.Battery;
-import it.unical.demacs.asd.energycommunities.data.entities.Member;
-import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
-import it.unical.demacs.asd.energycommunities.data.entities.User;
+import it.unical.demacs.asd.energycommunities.data.entities.*;
 import it.unical.demacs.asd.energycommunities.data.services.BatteryService;
 import it.unical.demacs.asd.energycommunities.data.services.OngoingAnalysisService;
 import it.unical.demacs.asd.energycommunities.data.services.MemberService;
+import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
+import it.unical.demacs.asd.energycommunities.data.utils.ProfileUtils;
 import it.unical.demacs.asd.energycommunities.dto.analysis.request.Analysis2Dto;
 import it.unical.demacs.asd.energycommunities.dto.analysis.request.Analysis3Dto;
 import it.unical.demacs.asd.energycommunities.dto.analysis.request.Analysis4Dto;
@@ -33,6 +33,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/analysis")
@@ -179,10 +182,9 @@ public class AnalysisController {
         //System.out.println("User id: " + user.getId());
         entity.setUser(user);
         entity.setAnalysisType(type);
+        entity.setMemberIds(payload.getMemberIds());
         //System.out.println("Analysis type: " + type);
-        List<Member> members = memberDao.findAllById(payload.getMemberIds());
         //System.out.println("Members:" + members);
-        entity.setMembers(members);
         if(type==4){
             entity.setBatteries(batteryDao.findAllById(payload.getBatteries()));
         }
@@ -196,8 +198,16 @@ public class AnalysisController {
 
         if (payload.getMemberIds() != null && !payload.getMemberIds().isEmpty()) {
             selectedMembers = memberService.findAllById(payload.getMemberIds());
+            if(type != 1) {
+                selectedMembers = aspService.computeAndAssignAvgProfiles(selectedMembers);
+            }
         }
-        else selectedMembers  = MockDataGenerator1.generateListOfMembers();
+        else {
+            selectedMembers = type==1 ? MockDataGenerator1.generateListOfMembers() :
+                    type==2 ? MockDataGenerator2.generateListOfMembers() :
+                    type==3 ? MockDataGenerator3.generateListOfMembers() :
+                            MockDataGenerator4.generateListOfMembers();
+        }
         if (payload.getBatteries() != null && !payload.getBatteries().isEmpty()) {
             selectedBatteries = batteryService.findAllById(payload.getBatteries());
         }

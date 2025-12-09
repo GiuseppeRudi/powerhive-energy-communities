@@ -28,8 +28,11 @@ import it.unical.demacs.asd.energycommunities.data.entities.Member;
 import it.unical.demacs.asd.energycommunities.data.entities.Plan;
 import it.unical.demacs.asd.energycommunities.data.entities.User;
 import it.unical.demacs.asd.energycommunities.data.services.implementation.PlanServiceImpl;
+import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
+import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import it.unical.demacs.asd.energycommunities.dto.plan.PlanSummaryDto;
+import it.unical.demacs.asd.energycommunities.data.entities.Profile;
 import it.unical.demacs.asd.energycommunities.exception.ElementNotFoundException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -278,98 +281,102 @@ public class PlanServiceTests {
     }
 
     @Test
-    void testAddNewMember_Success() {
+    void testAddNewMember_Success_WithExistingPlan() {
+        // ARRANGE
         Long ownerId = 1L;
-        Plan ownerPlan = new Plan();
-        ownerPlan.setId(5L);
-        owner.setPlan(ownerPlan);
-        owner.setEmail("owner@example.com");
+        MemberDetailDto memberDetailDto = new MemberDetailDto();
+        memberDetailDto.setFullName("Test User");
+        memberDetailDto.setEmail("test@example.com");
 
-        MemberDetailDto inputDto = new MemberDetailDto();
-        inputDto.setFullName("Nuovo Membro");
-        inputDto.setEmail("nuovo.membro@example.com");
+        ProfileDto profileDto = new ProfileDto();
+        profileDto.setProfileType(ProfileType.PRODUCER);
+        profileDto.setGraph(new ArrayList<>(Collections.nCopies(24, 1)));
+        memberDetailDto.setProfiles(List.of(profileDto));
 
-        Member savedMember = new Member();
-        savedMember.setId(10L);
-        savedMember.setFullName(inputDto.getFullName());
-        savedMember.setEmail(inputDto.getEmail());
-        savedMember.setPlan(ownerPlan);
-
-        MemberDetailDto expectedDto = new MemberDetailDto();
-        expectedDto.setId(10L);
-        expectedDto.setFullName(inputDto.getFullName());
-        expectedDto.setEmail(inputDto.getEmail());
+        Plan existingPlan = new Plan();
+        existingPlan.setId(1L);
+        existingPlan.setUser(owner);
+        owner.setPlan(existingPlan);
 
         when(userDao.findById(ownerId)).thenReturn(Optional.of(owner));
-        when(memberDao.save(any(Member.class))).thenReturn(savedMember);
-        when(modelMapper.map(eq(savedMember), eq(MemberDetailDto.class))).thenReturn(expectedDto);
+        when(planDao.findByUser(owner)).thenReturn(Optional.of(existingPlan));
+        when(memberDao.save(any(Member.class))).thenAnswer(invocation -> {
+            Member savedMember = invocation.getArgument(0);
+            savedMember.setId(10L);
+            return savedMember;
+        });
+        when(modelMapper.map(any(Member.class), eq(MemberDetailDto.class))).thenReturn(memberDetailDto);
 
-        MemberDetailDto result = planService.add_new_member(inputDto, ownerId);
+        // ACT
+        MemberDetailDto result = planService.add_new_member(memberDetailDto, ownerId);
 
+        // ASSERT
         assertNotNull(result);
-        assertEquals(expectedDto.getId(), result.getId());
-        assertEquals(expectedDto.getEmail(), result.getEmail());
-
-        verify(userDao, times(1)).findById(ownerId);
-        verify(memberDao, times(1)).save(any(Member.class));
-        verify(modelMapper, times(1)).map(eq(savedMember), eq(MemberDetailDto.class));
-
+        verify(userDao).findById(ownerId);
+        verify(planDao).findByUser(owner);
+        verify(userDao, never()).save(any(User.class));
         verify(memberDao).save(any(Member.class));
+        verify(modelMapper).map(any(Member.class), eq(MemberDetailDto.class));
     }
 
     @Test
-    void testAddNewMember_Fail_OwnerIdIsNull() {
-        MemberDetailDto inputDto = new MemberDetailDto();
+    void testAddNewMember_Success_CreatesNewPlan() {
+        // ARRANGE
+        Long ownerId = 1L;
+        MemberDetailDto memberDetailDto = new MemberDetailDto();
+        memberDetailDto.setFullName("Test User");
+        memberDetailDto.setEmail("test@example.com");
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            planService.add_new_member(inputDto, null);
+        ProfileDto profileDto = new ProfileDto();
+        profileDto.setProfileType(ProfileType.CONSUMER);
+        profileDto.setGraph(new ArrayList<>(Collections.nCopies(24, 2)));
+        memberDetailDto.setProfiles(List.of(profileDto));
+
+        User userWithoutPlan = new User();
+        userWithoutPlan.setId(ownerId);
+
+        when(userDao.findById(ownerId)).thenReturn(Optional.of(userWithoutPlan));
+        when(planDao.findByUser(userWithoutPlan)).thenReturn(Optional.empty());
+        when(userDao.save(any(User.class))).thenAnswer(invocation -> {
+            User savedUser = invocation.getArgument(0);
+            if (savedUser.getPlan() == null) {
+                Plan newPlan = new Plan();
+                newPlan.setUser(savedUser);
+                savedUser.setPlan(newPlan);
+            }
+            return savedUser;
         });
+        when(memberDao.save(any(Member.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(modelMapper.map(any(Member.class), eq(MemberDetailDto.class))).thenReturn(memberDetailDto);
 
-        verify(userDao, never()).findById(any());
-        verify(memberDao, never()).save(any());
+        // ACT
+        MemberDetailDto result = planService.add_new_member(memberDetailDto, ownerId);
+
+        // ASSERT
+        assertNotNull(result);
+        verify(userDao).findById(ownerId);
+        verify(planDao).findByUser(userWithoutPlan);
+        verify(userDao).save(userWithoutPlan);
+        verify(memberDao).save(any(Member.class));
+        assertNotNull(userWithoutPlan.getPlan());
     }
 
     @Test
     void testAddNewMember_Fail_OwnerNotFound() {
-        Long nonExistentOwnerId = 99L;
-        MemberDetailDto inputDto = new MemberDetailDto();
+        // ARRANGE
+        Long ownerId = 99L;
+        when(userDao.findById(ownerId)).thenReturn(Optional.empty());
 
-        when(userDao.findById(nonExistentOwnerId)).thenReturn(Optional.empty());
-
+        // ACT & ASSERT
         assertThrows(ElementNotFoundException.class, () -> {
-            planService.add_new_member(inputDto, nonExistentOwnerId);
+            planService.add_new_member(new MemberDetailDto(), ownerId);
         });
-
-        verify(userDao, times(1)).findById(nonExistentOwnerId);
         verify(memberDao, never()).save(any());
     }
 
     @Test
-    void testAddNewMember_SetsCorrectPlan() {
-        Long ownerId = 1L;
-        Plan expectedPlan = new Plan();
-        expectedPlan.setId(7L);
-        owner.setPlan(expectedPlan);
-
-        MemberDetailDto inputDto = new MemberDetailDto();
-        inputDto.setFullName("Membro con Plan");
-        inputDto.setEmail("plan.check@example.com");
-
-        when(userDao.findById(ownerId)).thenReturn(Optional.of(owner));
-
-        when(memberDao.save(any(Member.class))).thenAnswer(invocation -> {
-            Member memberToSave = invocation.getArgument(0);
-            assertEquals(expectedPlan.getId(), memberToSave.getPlan().getId());
-            memberToSave.setId(20L);
-            return memberToSave;
-        });
-
-        when(modelMapper.map(any(Member.class), eq(MemberDetailDto.class))).thenReturn(new MemberDetailDto());
-
-        planService.add_new_member(inputDto, ownerId);
-
-        verify(userDao, times(1)).findById(ownerId);
-        verify(memberDao, times(1)).save(any(Member.class));
+    void testAddNewMember_Fail_OwnerIdNull() {
+        assertThrows(IllegalArgumentException.class, () -> planService.add_new_member(new MemberDetailDto(), null));
     }
 
 }

@@ -56,4 +56,9 @@ public class HistoryServiceImpl implements HistoryService {
         return modelMapper.map(history, HistoryDetailDto.class);
     }
 
+    @Override
+    public void removeHistoryById(Long historyId) {
+        historyDao.deleteById(historyId);
+    }
+
 }

@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {User} from '../../model/User';
-import {BehaviorSubject, Observable, tap} from 'rxjs';
+import { User } from '../../model/User';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  private userSubject : BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
-  public user$ : Observable<User | null> = this.userSubject.asObservable();
+  private userSubject: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(null);
+  public user$: Observable<User | null> = this.userSubject.asObservable();
 
-  constructor(private http : HttpClient) {
+  constructor(private http: HttpClient) {
     const savedUser = sessionStorage.getItem('currentUser');
     this.userSubject = new BehaviorSubject<User | null>(
       savedUser ? JSON.parse(savedUser) : null
@@ -29,7 +29,7 @@ export class AuthService {
       tap(user => {
         sessionStorage.setItem('currentUser', JSON.stringify(user));
         this.userSubject.next(user)
-      } )
+      })
     );
   }
 
@@ -39,7 +39,7 @@ export class AuthService {
     this.userSubject.next(null);
   }
 
-  register(registrationDto : any){
+  register(registrationDto: any) {
     return this.http.post(`${this.baseUrl}/register`, registrationDto);
   }
 
@@ -59,6 +59,13 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return this.userSubject.value !== null;
+  }
+
+  set_plan(plan_id: number): void {
+    if (this.currentUser != null) {
+      this.currentUser.plan_id = plan_id;
+      this.setUserField('plan_id', plan_id);
+    }
   }
 
 }

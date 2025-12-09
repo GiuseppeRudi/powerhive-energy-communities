@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <!-- Tabella History -->
 <div *ngIf="!loading && !error && historyList.length > 0">
 
@@ -39,6 +41,10 @@
       <td>{{ formatDate(history.createdAt) }}</td>
       <td>
         <button class="btn" (click)="viewAnalysis(history.id,history.analysisNumber)">Visualize</button>
+        <button class="btn-trash" (click)="onDeleteAnalysis(history.id)" aria-label="Delete">
+          <i class="fa fa-trash"></i>
+        </button>
+
       </td>
     </tr>
     </tbody>

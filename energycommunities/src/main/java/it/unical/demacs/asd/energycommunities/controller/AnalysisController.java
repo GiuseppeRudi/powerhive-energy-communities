@@ -144,22 +144,22 @@ public class AnalysisController {
 
     @PostMapping(value = "/start_4")
     public ResponseEntity<ResultAnalysis4Dto> startFourthAnalysis(@RequestBody Analysis4Dto request){
-//        System.out.println("Request :" + request.toString() );
-//
-//        List<MemberDetailDto> members = request.getMembers();
-//        List<BatteryDto> batteries = request.getBatteries();
-//        int budget = request.getBudget();
-//
-//        System.out.println("Members:" + members.toString());
-//        System.out.println("Batteries: " + batteries.toString());
-//        System.out.println("Budget:" + budget);
+        System.out.println("Request :" + request.toString() );
+
+        List<MemberDetailDto> members = request.getMembers();
+        List<BatteryDto> batteries = request.getBatteries();
+        int budget = request.getBudget();
+
+        System.out.println("Members:" + members.toString());
+        System.out.println("Batteries: " + batteries.toString());
+        System.out.println("Budget:" + budget);
 
 
-        List<MemberDetailDto> mockMembers = MockDataGenerator4.generateListOfMembers();
-        List<BatteryDto> mockBattery = MockDataGenerator4.generateListBatteries();
-        int mockBudget = MockDataGenerator4.generateBudget();
+//        List<MemberDetailDto> mockMembers = MockDataGenerator4.generateListOfMembers();
+//        List<BatteryDto> mockBattery = MockDataGenerator4.generateListBatteries();
+//        int mockBudget = MockDataGenerator4.generateBudget();
 
-        ResultAnalysis4Dto resultAnalysis4Dto = aspService.generateChooseBatteries(mockMembers,mockBattery,mockBudget);
+        ResultAnalysis4Dto resultAnalysis4Dto = aspService.generateChooseBatteries(members,batteries,budget);
 
         return ResponseEntity.ok(resultAnalysis4Dto);
     }

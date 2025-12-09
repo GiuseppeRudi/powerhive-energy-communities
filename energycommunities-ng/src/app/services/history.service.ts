@@ -17,6 +17,10 @@ export class HistoryService {
     return this.http.get<HistorySummary[]>(`${this.baseUrl}/getAll/${userId}`);
   }
 
+  deleteHistory(historyId:number) : Observable<Response> {
+    return this.http.get<Response>(`${this.baseUrl}/remove/${historyId}`);
+  }
+
   saveAnalysis(saveAnalysisRequest : SaveAnalysisRequest) : Observable<string>{
     return this.http.post(`${this.baseUrl}/save`, saveAnalysisRequest, { headers : { 'Content-Type' : 'application/json'} , responseType: 'text' });
   }

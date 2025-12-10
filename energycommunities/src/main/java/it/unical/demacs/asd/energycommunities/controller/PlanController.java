@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import javax.naming.NameNotFoundException;
 
+import it.unical.demacs.asd.energycommunities.clingo.ASPService;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileUtils;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
@@ -33,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 public class PlanController {
     private final PlanService planService;
     private final ModelMapper modelMapper;
+    private final ASPService aspService;
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadFile(@RequestPart("file") MultipartFile file, @RequestParam Long ownerId)
@@ -70,35 +72,35 @@ public class PlanController {
     public ResponseEntity<PlanDetailDto> getDetailPlanById(@PathVariable Long id) {
         PlanDetailDto plan = planService.getDetailPlanById(id);
 
-        List<MemberDetailDto> averagedMembers = new ArrayList<>();
+        List<MemberDetailDto> averagedMembers = aspService.computeAndAssignAvgProfiles(plan.getMembers());
 
-        for (MemberDetailDto member : plan.getMembers()) {
-            // Ottieni tutti i profili associati al membro
-            List<ProfileDto> profiles = member.getProfiles().stream()
-                    .map(profile -> {
-                        ProfileDto dto = modelMapper.map(profile, ProfileDto.class);
-                        return dto;
-                    })
-                    .collect(Collectors.toList());
-
-            // Calcola i profili medi per PRODUCER e CONSUMER
-            ProfileDto avgProducer = ProfileUtils.computeAverageProfile(profiles, ProfileType.PRODUCER);
-            ProfileDto avgConsumer = ProfileUtils.computeAverageProfile(profiles, ProfileType.CONSUMER);
-
-            // Crea nuovo MemberDetailDto con i profili medi
-            MemberDetailDto memberDto = new MemberDetailDto();
-            memberDto.setId(member.getId());
-            memberDto.setFullName(member.getFullName());
-            memberDto.setEmail(member.getEmail());
-            memberDto.setMemberType(member.getMemberType());
-            memberDto.setProfiles(
-                    Stream.of(avgProducer, avgConsumer)
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toList()));
-
-            averagedMembers.add(memberDto);
-        }
-
+//        for (MemberDetailDto member : plan.getMembers()) {
+//            // Ottieni tutti i profili associati al membro
+//            List<ProfileDto> profiles = member.getProfiles().stream()
+//                    .map(profile -> {
+//                        ProfileDto dto = modelMapper.map(profile, ProfileDto.class);
+//                        return dto;
+//                    })
+//                    .collect(Collectors.toList());
+//
+//            // Calcola i profili medi per PRODUCER e CONSUMER
+//            ProfileDto avgProducer = ProfileUtils.computeAverageProfile(profiles, ProfileType.PRODUCER);
+//            ProfileDto avgConsumer = ProfileUtils.computeAverageProfile(profiles, ProfileType.CONSUMER);
+//
+//            // Crea nuovo MemberDetailDto con i profili medi
+//            MemberDetailDto memberDto = new MemberDetailDto();
+//            memberDto.setId(member.getId());
+//            memberDto.setFullName(member.getFullName());
+//            memberDto.setEmail(member.getEmail());
+//            memberDto.setMemberType(member.getMemberType());
+//            memberDto.setProfiles(
+//                    Stream.of(avgProducer, avgConsumer)
+//                            .filter(Objects::nonNull)
+//                            .collect(Collectors.toList()));
+//
+//            averagedMembers.add(memberDto);
+//        }
+//
         plan.setMembers(averagedMembers);
 
         if (plan == null)

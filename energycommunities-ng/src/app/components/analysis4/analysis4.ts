@@ -469,75 +469,8 @@ export class Analysis4 implements OnInit, OnDestroy {
   buildAllCharts() {
     this.buildMemberCharts();
     this.buildAllBatteriesChart();
-    this.buildOptConsProdProfChart();
     this.buildTotalComparisonChart();
     this.buildKpiChart();
-  }
-
-  buildMemberCharts() {
-    if (!this.resultAnalysis) return;
-    const labels = Array.from({ length: 24 }, (_, i) => i.toString());
-    const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'black', 'brown'];
-
-    this.resultAnalysis.startingCommunity.assignments.forEach(member => {
-      const producers = member.profiles.filter(p => p.profileType === 'PRODUCER');
-      const consumers = member.profiles.filter(p => p.profileType === 'CONSUMER');
-      const batteryStatuses = this.resultAnalysis?.batteryStatus;
-
-      let graph: number[] = [];
-      let hasBattery: Map<number,boolean> = new Map();
-
-      if(producers.length != 0) graph = [...producers[0].graph];
-
-      const batteryStatus = batteryStatuses?.find(b => b.memberId == member.id);
-      if (batteryStatus) {
-        batteryStatus.energyByHour.forEach((value, index) => {
-          if(index!=0) {
-            const previousStatus = batteryStatus.energyByHour.at(index - 1);
-            if (graph) {
-              graph[index] = graph[index] - (value - (previousStatus ?? 0));
-            }
-          }
-        });
-
-        const batteryDataset = {
-          label: "Battery State",
-          data: batteryStatus.energyByHour,
-          borderColor: 'green',
-          backgroundColor: 'transparent',
-          tension: 0.25
-        };
-        this.batteryMap.set(member.id, { labels, datasets: [batteryDataset]});
-        hasBattery.set(producers[0].id,true);
-      }
-
-      const datasetsProducers = producers.map((p,index) => ({
-        label: hasBattery.get(p.id) ? 'Profile w/o battery' : 'Producer Profile',
-        data: p.graph,
-        borderColor: colors[index % colors.length],
-        backgroundColor: 'transparent',
-        tension: 0.25
-      }));
-
-      if(producers.length != 0 && batteryStatus != undefined) {
-        datasetsProducers.push({
-          label: hasBattery.get(producers[0].id) ? 'Profile w/ battery' : 'Producer Profile',
-          data: graph,
-          borderColor: colors[1],
-          backgroundColor: 'transparent',
-          tension: 0.25
-        })
-      }
-
-      const datasetsConsumers = consumers.map((p, index) => ({
-        label: 'Consumer Profile',
-        data: p.graph,
-        borderColor: colors[(index + producers.length) % colors.length],
-        backgroundColor: 'transparent',
-        tension: 0.25
-      }));
-      this.chartDataMap.set(member.id, { labels, datasets: [...datasetsProducers, ...datasetsConsumers] });
-    });
   }
 
   buildAllBatteriesChart() {
@@ -559,40 +492,109 @@ export class Analysis4 implements OnInit, OnDestroy {
     this.allBatteriesChart = { labels, datasets };
   }
 
-  buildOptConsProdProfChart() {
+  buildMemberCharts() {
     if (!this.resultAnalysis) return;
+
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
     const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'black', 'brown'];
 
-    const datasetsConsumers: any[] = [];
-    const datasetsProducers: any[] = [];
+    const optConsumers: any[] = [];
+    const optProducers: any[] = [];
 
-    this.resultAnalysis.startingCommunity.assignments.forEach((member, index) => {
-      const consumer = member.profiles.find(p => p.profileType === 'CONSUMER');
-      const producer = member.profiles.find(p => p.profileType === 'PRODUCER');
+    this.resultAnalysis.startingCommunity.assignments.forEach((member, globalIndex) => {
 
-      if (consumer) {
-        datasetsConsumers.push({
-          label: member.fullName,
-          data: consumer.graph,
-          borderColor: colors[index % colors.length],
+      const producers = member.profiles.filter(p => p.profileType === 'PRODUCER');
+      const consumers = member.profiles.filter(p => p.profileType === 'CONSUMER');
+      const batteryStatus = this.resultAnalysis?.batteryStatus?.find(b => b.memberId === member.id);
+
+      let graph: number[] = [];
+      let hasBattery = false;
+
+      if (producers.length !== 0) {
+        graph = [...producers[0].graph];
+      }
+
+      if (batteryStatus) {
+        hasBattery = true;
+
+        batteryStatus.energyByHour.forEach((value, h) => {
+          if (h !== 0) {
+            const prev = batteryStatus.energyByHour[h - 1] ?? 0;
+            graph[h] = graph[h] - (value - prev);
+          }
+        });
+
+        const batteryDataset = {
+          label: "Battery State",
+          data: batteryStatus.energyByHour,
+          borderColor: 'green',
           backgroundColor: 'transparent',
           tension: 0.25
-        });
+        };
+        this.batteryMap.set(member.id, { labels, datasets: [batteryDataset] });
       }
-      if (producer) {
+
+      const datasetsProducers = producers.map((p, index) => ({
+        label: hasBattery && index === 0 ? 'Profile w/o battery' : 'Producer Profile',
+        data: p.graph,
+        borderColor: colors[index % colors.length],
+        backgroundColor: 'transparent',
+        tension: 0.25
+      }));
+
+      if (producers.length !== 0 && hasBattery) {
         datasetsProducers.push({
-          label: member.fullName,
-          data: producer.graph,
-          borderColor: colors[(index + member.profiles.filter(p => p.profileType === 'PRODUCER').length) % colors.length],
+          label: "Profile w/ battery",
+          data: graph,
+          borderColor: colors[1],
           backgroundColor: 'transparent',
           tension: 0.25
         });
       }
+
+      const datasetsConsumers = consumers.map((p, index) => ({
+        label: 'Consumer Profile',
+        data: p.graph,
+        borderColor: colors[(index + producers.length) % colors.length],
+        backgroundColor: 'transparent',
+        tension: 0.25
+      }));
+
+      this.chartDataMap.set(member.id, {
+        labels,
+        datasets: [...datasetsProducers, ...datasetsConsumers]
+      });
+
+      // Consumer globale
+      const c = member.profiles.find(p => p.profileType === 'CONSUMER');
+      if (c) {
+        optConsumers.push({
+          label: member.fullName,
+          data: c.graph,
+          borderColor: colors[globalIndex % colors.length],
+          backgroundColor: 'transparent',
+          tension: 0.25
+        });
+      }
+
+      // Producer globale
+      const p = member.profiles.find(p => p.profileType === 'PRODUCER');
+      if (p) {
+        optProducers.push({
+          label: member.fullName,
+          data: hasBattery ? graph : p.graph,
+          borderColor: colors[(globalIndex + 1) % colors.length],
+          backgroundColor: 'transparent',
+          tension: 0.25
+        });
+      }
+
     });
-    this.optConsProfChart = { labels, datasets: datasetsConsumers };
-    this.optProdProfChart = { labels, datasets: datasetsProducers };
+
+    this.optConsProfChart = { labels, datasets: optConsumers };
+    this.optProdProfChart = { labels, datasets: optProducers };
   }
+
 
   buildTotalComparisonChart() {
     if (!this.resultAnalysis) return;

@@ -235,7 +235,8 @@ public class ASPService {
             // ctl.getConfiguration().get("solve").set("solve_limit", "100000");
             Thread thread = new Thread(() -> {
                 try {
-                    Thread.sleep(20000);
+                    if(!isAsync) Thread.sleep(60000);
+                    else Thread.sleep(60000*15);
                     ctl.interrupt();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);

@@ -55,6 +55,8 @@ export class AnalysisActionsComponent implements OnInit {
       analysisData: this.resultAnalysis
     };
 
+    console.log(this.resultAnalysis)
+
     this.historyService.saveAnalysis(saveAnalysisRequest).subscribe({
       next: res => {
         console.log('Analisi salvata:', res);

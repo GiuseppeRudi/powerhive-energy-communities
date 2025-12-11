@@ -45,10 +45,8 @@ public class AnalysisController {
 
     private final ASPService aspService;
     private final MemberService memberService;
-    private final ModelMapper modelMapper;
     private final OngoingAnalysisService ongoingAnalysisService;
     private final UserDao userDao;
-    private final MemberDao memberDao;
     private final BatteryDao batteryDao;
     private final BatteryService batteryService;
 

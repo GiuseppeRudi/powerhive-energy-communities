@@ -49,6 +49,9 @@ export class OngoingAnalysisComponent implements OnInit,OnDestroy {
         if (eventName === 'FINISHED') {
           this.statusMessage.set(analysisId, 'FINISHED');
         }
+        if (eventName === 'ERROR') {
+          this.statusMessage.set(analysisId, 'ERROR');
+        }
       }
     });
   }
@@ -63,9 +66,13 @@ export class OngoingAnalysisComponent implements OnInit,OnDestroy {
 
     this.service.openAnalysis(item.id).subscribe((data: any) => {
       console.log(data);
-      if (data !== null) {
-        this.router.navigate(['/analysis1'], {
-          state: {result: data}
+      if (data.result !== null) {
+        this.router.navigate(['/analysis' + data.analysis], {
+          state: {
+            result: data.result,
+            wantToAdd: data.wantToAdd,
+            wantToRemove: data.wantToRemove,
+          }
         });
       } else {
         window.location.reload();

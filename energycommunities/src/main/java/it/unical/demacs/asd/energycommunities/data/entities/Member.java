@@ -50,10 +50,6 @@ public class Member {
     @JsonIgnore
     private Plan plan;
 
-    @ManyToMany(mappedBy = "members")
-    @JsonIgnore
-    private List<OngoingAnalysis> ongoingAnalysis = new ArrayList<>();
-
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Profile> profiles;

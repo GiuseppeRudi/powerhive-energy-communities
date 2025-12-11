@@ -1,15 +1,21 @@
 package it.unical.demacs.asd.energycommunities.clingo;
 
+import aj.org.objectweb.asm.commons.Remapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.unical.demacs.asd.energycommunities.controller.ClingoStreamController;
 import it.unical.demacs.asd.energycommunities.data.dao.OngoingAnalysisDao;
 import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.utils.ProfileType;
+import it.unical.demacs.asd.energycommunities.data.utils.ProfileUtils;
 import it.unical.demacs.asd.energycommunities.dto.analysis.result.*;
 import it.unical.demacs.asd.energycommunities.dto.battery.BatteryDto;
 import it.unical.demacs.asd.energycommunities.dto.battery.BatteryStatusDto;
 import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import it.unical.demacs.asd.energycommunities.dto.member.ProfileDto;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.potassco.clingo.control.Control;
 import org.potassco.clingo.solving.Model;
 import org.potassco.clingo.solving.SolveHandle;
@@ -26,6 +32,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -37,35 +45,64 @@ public class ASPService {
     @Autowired
     private OngoingAnalysisDao ongoingAnalysisDao;
 
+    ModelMapper modelMapper = new ModelMapper();
+
     @Async
-    public void startAsyncAnalysis(Long id, int analysisType, String facts) {
+    public void startAsyncAnalysis(
+            Long id,
+            int analysisType,
+            String facts,
+            List<MemberDetailDto> members,
+            List<BatteryDto> batteries,
+            List<Long> wantToAdd,
+            List<Long> wantToRemove
+    ) {
         OngoingAnalysis analysis = ongoingAnalysisDao.findById(id).orElseThrow();
         try {
             analysis.setStatus("RUNNING");
             ongoingAnalysisDao.save(analysis);
 
-            String[] bestModel = calculateBestModel(facts, analysisType, analysis.getId());
+            String[] bestModel = calculateBestModel(facts, analysisType, analysis.getId(), true);
 
             if (bestModel == null) {
                 analysis.setStatus("ERROR");
+                streamController.sendEvent("ERROR",id);
             } else {
                 analysis.setStatus("FINISHED");
-                analysis.setResultModel(String.join(" ", bestModel));
+                ObjectMapper mapper = new ObjectMapper();
+                ResultAnalysis3Dto resultAnalysis3Dto = new ResultAnalysis3Dto();
+                if (analysisType==3) {
+                    SingleAnalysis optimalCommunity = createBestModel3Dto(members,bestModel);
+                    SingleAnalysis defaultComunity = createCommunity(members,wantToAdd);
+                    SingleAnalysis wantedCommunity = createCommunity(members,wantToRemove);
+
+                    resultAnalysis3Dto.setOptimalCommunity(optimalCommunity);
+                    resultAnalysis3Dto.setWantedCommunity(wantedCommunity);
+                    resultAnalysis3Dto.setDefaultCommunity(defaultComunity);
+                }
+                JsonNode node = mapper.valueToTree(
+                        analysisType==1 ? createBestModel1Dto(members, bestModel) :
+                        analysisType==2 ? createBestModel2Dto(members, bestModel) :
+                        analysisType==3 ? resultAnalysis3Dto :
+                        createBestModel4Dto(members,batteries,bestModel)
+                );
+
+                analysis.setResultModel(node);
+                streamController.sendEvent("FINISHED",id);
             }
 
         } catch (Exception e) {
             analysis.setStatus("ERROR");
+            streamController.sendEvent("ERROR",id);
             e.printStackTrace();
         }
 
         ongoingAnalysisDao.save(analysis);
-        streamController.sendEvent("FINISHED",id);
     }
 
     public ResultAnalysis1Dto chooseBestProfiles(List<MemberDetailDto> members) {
-        int analysis = 1;
-        String facts = ASPFactMapper.toFacts1(members,analysis);
-        String[] bestModel = calculateBestModel(facts,analysis,-1);
+        String facts = ASPFactMapper.toFacts1(members);
+        String[] bestModel = calculateBestModel(facts,1,-1,false);
 
         if (bestModel != null) {
             return createBestModel1Dto(members, bestModel);
@@ -77,7 +114,7 @@ public class ASPService {
     public ResultAnalysis4Dto generateChooseBatteries(List<MemberDetailDto> members, List<BatteryDto> batteries, int budget) {
         int analysis = 4;
         String facts = ASPFactMapper.toFacts4(members,batteries,budget);
-        String[] bestModel = calculateBestModel(facts,analysis,-1);
+        String[] bestModel = calculateBestModel(facts,analysis,-1,false);
 
         if (bestModel != null) {
             return createBestModel4Dto(members, batteries, bestModel);
@@ -90,7 +127,7 @@ public class ASPService {
         int analysis = 2;
         String facts = ASPFactMapper.toFacts2(members,analysis,dim);
 
-        String[] bestModel = calculateBestModel(facts,analysis,-1);
+        String[] bestModel = calculateBestModel(facts,analysis,-1,false);
 
         if (bestModel != null) {
             return createBestModel2Dto(members, bestModel);
@@ -104,7 +141,7 @@ public class ASPService {
         int analysis = 3;
         String facts = ASPFactMapper.toFacts3(members,wantToAdd,wantToRemove);
 
-        String[] bestModel = calculateBestModel(facts,analysis,-1);
+        String[] bestModel = calculateBestModel(facts,analysis,-1,false);
         ResultAnalysis3Dto resultAnalysis3Dto = new ResultAnalysis3Dto();
 
         SingleAnalysis optimalCommunity = createBestModel3Dto(members,bestModel);
@@ -186,7 +223,7 @@ public class ASPService {
         return community;
     }
 
-    private String[] calculateBestModel(String facts, int analysis, long analysisId) {
+    private String[] calculateBestModel(String facts, int analysis, long analysisId, boolean isAsync) {
         String bestModelStr = null;
         long[] bestCost = null;
         String[] bestModel = null;
@@ -198,7 +235,9 @@ public class ASPService {
             // ctl.getConfiguration().get("solve").set("solve_limit", "100000");
             Thread thread = new Thread(() -> {
                 try {
-                    Thread.sleep(20000);
+                    if(!isAsync) Thread.sleep(60000);
+                    else Thread.sleep(60000*15);
+                    ctl.interrupt();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -232,7 +271,7 @@ public class ASPService {
             try (SolveHandle handle = ctl.solve(SolveMode.YIELD)) {
                 while (handle.hasNext()) {
                     Model model = handle.next();
-                    System.out.println(model);
+                    //System.out.println(model);
                     long[] cost = model.getCost();
 
                     for (int i = 0; i < cost.length; i++) {
@@ -246,7 +285,6 @@ public class ASPService {
                         bestCost = cost.clone();
                         bestModelStr = model.toString();
                     }
-                    if(!thread.isAlive()) break;
                 }
             }
 
@@ -373,8 +411,8 @@ public class ASPService {
         resultAnalysis4Dto.setAssignments(assignment);
         resultAnalysis4Dto.setBatteryStatus(batteryStatuses);
 
-        List<Double> totalProduction = calculateTotal(consPerHour);
-        List<Double> totalConsumption = calculateTotal(prodPerHour);
+        List<Double> totalProduction = calculateTotal(prodPerHour);
+        List<Double> totalConsumption = calculateTotal(consPerHour);
         resultAnalysis4Dto.setTotalProduction(totalProduction);
         resultAnalysis4Dto.setTotalConsumption(totalConsumption);
 
@@ -560,5 +598,24 @@ public class ASPService {
             if (a[i] > b[i]) return false;
         }
         return a.length < b.length;
+    }
+
+    public List<MemberDetailDto> computeAndAssignAvgProfiles(List<MemberDetailDto> selectedMembers) {
+        selectedMembers.forEach(member -> {
+            List<ProfileDto> profiles = member.getProfiles().stream()
+                    .map(profile -> modelMapper.map(profile, ProfileDto.class))
+                    .collect(Collectors.toList());
+            ProfileDto avgProducer = ProfileUtils.computeAverageProfile(profiles, ProfileType.PRODUCER);
+            ProfileDto avgConsumer = ProfileUtils.computeAverageProfile(profiles, ProfileType.CONSUMER);
+
+            System.out.println(avgProducer);
+            System.out.println(avgConsumer);
+
+            member.setProfiles(
+                    Stream.of(avgProducer, avgConsumer)
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList()));
+        });
+        return selectedMembers;
     }
 }

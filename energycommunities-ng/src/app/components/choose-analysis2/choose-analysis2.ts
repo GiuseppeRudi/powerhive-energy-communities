@@ -199,8 +199,7 @@ export class ChooseAnalysis2 {
 
     const selectedMembers = this.members.filter(m => this.energyCommunities.includes(m.id));
 
-    this.analysisService.getResultAnalysis_2(selectedMembers, this.communitySize)
-      .subscribe({
+    this.analysisService.getResultAnalysis_2(selectedMembers, this.communitySize).subscribe({
         next: (result) => {
           console.log('Analisi completata:', result);
           this.analysisService.setAnalysisResult(result);
@@ -211,5 +210,26 @@ export class ChooseAnalysis2 {
           alert('Si è verificato un errore durante l\'analisi. Riprova più tardi.');
         }
       });
+  }
+
+  runAnalysisAsync() {
+    const memberIds: number[] = this.energyCommunities;
+    const userJson = sessionStorage.getItem('currentUser');
+    if (!userJson) return;
+
+    const user: User = JSON.parse(userJson);
+
+    const payload = {
+      memberIds: memberIds,
+      userId: user.id,
+      analysis: 2,
+      dim: this.communitySize
+    }
+
+    console.log(payload);
+
+    this.analysisService.runAsync(payload).subscribe(id => {
+      this.router.navigate(['/ongoing-analysis']);
+    });
   }
 }

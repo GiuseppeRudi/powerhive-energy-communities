@@ -59,3 +59,31 @@
     margin-bottom: 0.2rem;
   }
 }
+
+/* Pulsante icona cestino rosso */
+.btn-trash {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;        /* compatto */
+  margin-left: 0.5rem;    /* spazio dal pulsante Visualize */
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: #fef2f2;  /* sfondo leggero rosso */
+  border: 1px solid #f87171;
+  color: #b91c1c;             /* icona rossa */
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-trash i {
+  font-size: 16px;
+}
+
+/* Hover effetto */
+.btn-trash:hover {
+  background-color: #fee2e2;  /* rosso chiaro hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(185,28,28,0.2);
+}

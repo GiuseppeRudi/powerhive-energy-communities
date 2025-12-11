@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Data
 @NoArgsConstructor
-public class ResultAnalysis4Dto {
+public class ResultAnalysis4Dto implements ResultAnalysis {
     List<Double> kpi1;
     List<Double> kpi2;
     List<Double> totalConsumption;

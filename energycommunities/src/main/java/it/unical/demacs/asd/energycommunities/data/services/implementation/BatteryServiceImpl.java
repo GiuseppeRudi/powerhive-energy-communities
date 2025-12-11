@@ -2,6 +2,8 @@ package it.unical.demacs.asd.energycommunities.data.services.implementation;
 
 import java.util.List;
 
+import it.unical.demacs.asd.energycommunities.data.dao.MemberDao;
+import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -69,6 +71,14 @@ public class BatteryServiceImpl implements BatteryService{
             batteryDao.findById(battery_id).orElseThrow(() -> new ElementNotFoundException("no battery with id: " + battery_id)),
             BatteryDto.class
         );
+    }
+
+    @SuppressWarnings("null")
+    public List<BatteryDto> findAllById(List<Long> batteryIds) {
+        return batteryDao.findAllById(batteryIds)
+                .stream()
+                .map(battery -> modelMapper.map(battery, BatteryDto.class))
+                .toList();
     }
 
 }

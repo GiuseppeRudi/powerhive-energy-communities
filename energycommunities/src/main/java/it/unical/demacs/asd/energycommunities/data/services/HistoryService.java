@@ -16,4 +16,7 @@ public interface HistoryService {
     List<HistorySummaryDto> getAllHistoriesByUserId(Long userId);
 
     HistoryDetailDto getHistoryById(Long historyId);
+
+    void removeHistoryById(Long historyId);
+
 }

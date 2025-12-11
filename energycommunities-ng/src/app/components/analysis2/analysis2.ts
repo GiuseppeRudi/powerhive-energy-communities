@@ -90,6 +90,16 @@ export class Analysis2 implements OnInit{
   ngOnInit() {
     this.isLoading = true;
 
+    this.resultAnalysis = history.state?.result ?? null;
+
+    if(this.resultAnalysis != null) {
+      this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+      this.summary = this.calculateEnergyStats(this.resultAnalysis.totalProduction, this.resultAnalysis.totalConsumption);
+      this.buildAllCharts();
+      this.isLoading = false;
+      return;
+    }
+
     this.route.queryParams.subscribe(params => {
       const historyId = +params['historyId'];
 
@@ -183,7 +193,7 @@ export class Analysis2 implements OnInit{
       const consumers = member.profiles.filter(p => p.profileType === 'CONSUMER');
 
       const datasetsProducers = producers.map((p, index) => ({
-        label: 'Producer Profile ' + p.id,
+        label: 'Producer Profile',
         data: p.graph,
         borderColor: colors[index % colors.length],
         backgroundColor: 'transparent',
@@ -191,7 +201,7 @@ export class Analysis2 implements OnInit{
       }));
 
       const datasetsConsumers = consumers.map((p, index) => ({
-        label: 'Consumer Profile ' + p.id,
+        label: 'Consumer Profile',
         data: p.graph,
         borderColor: colors[(index + producers.length) % colors.length],
         backgroundColor: 'transparent',
@@ -326,6 +336,5 @@ export class Analysis2 implements OnInit{
     if (hasProducer) return 'Producer';
     return 'Consumer';
   }
-
 }
 

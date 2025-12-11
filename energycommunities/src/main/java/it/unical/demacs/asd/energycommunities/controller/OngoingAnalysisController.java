@@ -1,5 +1,9 @@
 package it.unical.demacs.asd.energycommunities.controller;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import it.unical.demacs.asd.energycommunities.clingo.ASPService;
 import it.unical.demacs.asd.energycommunities.data.entities.OngoingAnalysis;
 import it.unical.demacs.asd.energycommunities.data.services.OngoingAnalysisService;
@@ -22,7 +26,6 @@ import java.util.List;
 public class OngoingAnalysisController {
 
     private final OngoingAnalysisService ongoingAnalysisService;
-    private final ASPService aspService;
     private final ModelMapper modelMapper;
 
     @GetMapping("/{userId}")
@@ -36,25 +39,25 @@ public class OngoingAnalysisController {
                 ongoingAnalysisService.save(modelMapper.map(a, OngoingAnalysis.class));
             }
         }
+        // System.out.println(ongoingAnalysisDtos);
         return ongoingAnalysisDtos;
     }
 
     @GetMapping("/open/{id}")
-    public ResponseEntity<ResultAnalysis1Dto> openCompletedAnalysis(@PathVariable Long id) {
+    public ResponseEntity<JsonNode> openCompletedAnalysis(@PathVariable Long id) {
 
         OngoingAnalysis analysis = ongoingAnalysisService.findById(id);
-
-        List<MemberDetailDto> members = analysis.getMembers().stream()
-                .map(member -> modelMapper.map(member, MemberDetailDto.class))
-                .toList();
-
-
-        ResultAnalysis1Dto dto = null;
-        if(analysis.getResultModel() != null) {
-            dto = aspService.createBestModel1Dto(members, analysis.getResultModel().split(" "));
-        }
         ongoingAnalysisService.deleteById(id);
 
-        return ResponseEntity.ok(dto);
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode node = objectMapper.createObjectNode();
+
+        node.put("result",analysis.getResultModel());
+        node.put("analysis", analysis.getAnalysisType());
+        node.put("wantToAdd", objectMapper.valueToTree(analysis.getWantToAdd()));
+        node.put("wantToRemove", objectMapper.valueToTree(analysis.getWantToRemove()));
+
+
+        return ResponseEntity.ok(node);
     }
 }

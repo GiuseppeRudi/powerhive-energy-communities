@@ -101,6 +101,23 @@ export class Analysis3 implements OnInit {
 
 
   ngOnInit() {
+    this.resultAnalysis = history.state?.result ?? null;
+
+    if(this.resultAnalysis != null) {
+      this.wantToRemove = history.state?.wantToRemove;
+      this.wantToAdd = history.state?.wantToAdd;
+      this.members = this.resultAnalysis.defaultCommunity.assignments;
+
+      if (this.members && this.wantToRemove) {
+        this.removedMembers = this.wantToRemove
+          .map(id => this.members!.find(m => m.id === id))
+          .filter((m): m is MemberDetail => m !== undefined);
+      }
+      this.setupCommunities();
+      this.buildAllCharts();
+      return;
+    }
+
     this.route.queryParams.subscribe(params => {
       this.historyId = +params['historyId'];
 

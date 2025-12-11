@@ -175,14 +175,31 @@ export class Analysis4 implements OnInit, OnDestroy {
       if (this.historyId) {
         this.historyService.getHistoryById(this.historyId).subscribe({
           next: h => {
+
+            console.log("history ottenuta" + (h.analysisData as ResultAnalysis_4).assignments.toString());
+
             this.history = h;
             this.resultAnalysis = h.analysisData as ResultAnalysis_4;
             this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
-            this.resultAnalysis.assignments = new Map(
-              Object.entries((h.analysisData as ResultAnalysis_4).assignments).map(
-                ([key, value]) => [Number(key), value as number]
-              )
-            );
+
+            const analysisData : any = h.analysisData; // tipo any
+            let assignmentsMap = new Map<number, number>();
+
+            if (analysisData && analysisData.assignments) {
+              const a = analysisData.assignments;
+
+              if (Array.isArray(a)) {
+                for (const item of a) {
+                  if (Array.isArray(item) && item.length >= 2) {
+                    const key = Number(item[0]);
+                    const value = Number(item[1]);
+                    if (!Number.isNaN(key)) assignmentsMap.set(key, Number.isNaN(value) ? 0 : value);
+                  }
+                }
+              }
+            }
+            this.resultAnalysis.assignments = assignmentsMap;
+
             this.buildAllCharts();
           },
           error: err => console.error('Errore caricamento history:', err)

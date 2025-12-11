@@ -59,6 +59,7 @@ public class HistoryController {
     @PostMapping(value = "/save")
     public ResponseEntity<String> saveAnalysis(@RequestBody SaveAnalysisRequestDto saveAnalysisRequestDto) {
         try {
+            System.out.println(saveAnalysisRequestDto.getAnalysisData());
 
             Long userId = saveAnalysisRequestDto.getUserId();
             Integer analysisNumber = saveAnalysisRequestDto.getAnalysisNumber();

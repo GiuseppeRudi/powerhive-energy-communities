@@ -299,7 +299,9 @@ export class ChooseAnalysis4 {
 
     this.analysisService.setAnalysisResult(analysis4Request)
 
-    this.router.navigate(['/analysis4']);
+    this.router.navigate(['/analysis4'], {
+      state: {allowAnalysis: true}
+    });
   }
 
   hasSelectedProducer(): boolean {

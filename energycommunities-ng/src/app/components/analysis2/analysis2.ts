@@ -137,7 +137,7 @@ export class Analysis2 implements OnInit{
           },
           error: (err) => {
             console.error('Errore durante la richiesta:', err);
-            alert('Si è verificato un errore durante l\'analisi. Riprova più tardi.');
+            this.router.navigate(['/analysis/']);//alert('Si è verificato un errore durante l\'analisi. Riprova più tardi.');
           }
         });
 

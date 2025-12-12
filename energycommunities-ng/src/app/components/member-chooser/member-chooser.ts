@@ -120,7 +120,8 @@ export class MemberChooser implements OnInit {
     this.router.navigate(['/analysis1'], {
       queryParams: {
         memberIds: Array.from(this.selectedMembers).join(',')
-      }
+      },
+      state: { allowAnalysis: true }
     });
   }
 

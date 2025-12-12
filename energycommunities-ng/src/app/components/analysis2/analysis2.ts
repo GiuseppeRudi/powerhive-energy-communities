@@ -120,16 +120,27 @@ export class Analysis2 implements OnInit{
           error: err => console.error('Errore caricamento history:', err)
         });
       } else {
-        // Nuova analisi
-        this.resultAnalysis = this.analysisService.getAnalysisResult();
+        const body : any = this.analysisService.getAnalysisResult();
 
-        if (this.resultAnalysis) {
-          this.members = this.resultAnalysis?.assignments
-          this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
-          this.summary = this.calculateEnergyStats(this.resultAnalysis.totalProduction, this.resultAnalysis.totalConsumption);
-          this.buildAllCharts();
-          this.isLoading = false;
-        }
+        this.analysisService.getResultAnalysis_2(body).subscribe({
+          next: (result) => {
+            console.log('Analisi completata:', result);
+            this.resultAnalysis = result;
+
+            if (this.resultAnalysis) {
+              this.members = this.resultAnalysis?.assignments
+              this.resultAnalysis.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+              this.summary = this.calculateEnergyStats(this.resultAnalysis.totalProduction, this.resultAnalysis.totalConsumption);
+              this.buildAllCharts();
+              this.isLoading = false;
+            }
+          },
+          error: (err) => {
+            console.error('Errore durante la richiesta:', err);
+            alert('Si è verificato un errore durante l\'analisi. Riprova più tardi.');
+          }
+        });
+
       }
     });
 

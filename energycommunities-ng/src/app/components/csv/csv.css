@@ -189,15 +189,7 @@
   margin: 0 auto;
 }
 
-.disclaimer {
-  background: linear-gradient(135deg, greenyellow 0%, darkgreen 100%);
-  color: white;
-  padding: 20px 30px;
-  border-radius: 12px;
-  margin: 30px 0;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  font-size: 17px;
-}
+
 
 /* Make app-energy-chart take full width of table cell */
 .members-table td {

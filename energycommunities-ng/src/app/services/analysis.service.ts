@@ -30,11 +30,8 @@ export class AnalysisService {
     return this.http.get<ResultAnalysis_1>(`${this.baseUrl}/start_1`);
   }
 
-  getResultAnalysis_2(members: MemberDetail[], dimCommunity: number ) : Observable<ResultAnalysis_2>{
-    const body = {
-      members: members,
-      dimCommunity: dimCommunity
-    };
+  getResultAnalysis_2(body : any ) : Observable<ResultAnalysis_2>{
+
     return this.http.post<ResultAnalysis_2>(`${this.baseUrl}/start_2`,body);
   }
 

@@ -315,7 +315,7 @@ h1 {
 }
 
 .disclaimer {
-  background: linear-gradient(135deg, greenyellow 0%, darkgreen 100%);
+  background: darkgreen;
   color: white;
   padding: 20px 30px;
   border-radius: 12px;

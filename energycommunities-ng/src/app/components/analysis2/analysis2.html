@@ -18,8 +18,7 @@
   </div>
 
 
-
-    <div class="members-section">
+  <div *ngIf="resultAnalysis" class="members-section">
     <h3>Available members</h3>
     <div class="members-grid">
       <div class="member-initial-card" *ngFor="let m of members">

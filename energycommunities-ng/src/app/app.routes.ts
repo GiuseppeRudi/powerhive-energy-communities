@@ -21,7 +21,6 @@ import {ChooseAnalysis4} from './components/choose-analysis4/choose-analysis4';
 export const routes: Routes = [
   { path: '', component: Welcome },
   { path: 'login', component: Login },
-  //protected routes
   { path: 'dashboard', component: Dashboard, canActivate: [AuthGuard] },
   { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
   { path: 'member/:id', component: MemberOverview, canActivate: [AuthGuard] },

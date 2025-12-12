@@ -203,7 +203,10 @@ export class ChooseAnalysis2 {
         next: (result) => {
           console.log('Analisi completata:', result);
           this.analysisService.setAnalysisResult(result);
-          this.router.navigate(['/analysis2']);
+          this.router.navigate(['/analysis2'],{
+            state: {allowAnalysis: true}
+          });
+
         },
         error: (err) => {
           console.error('Errore durante la richiesta:', err);

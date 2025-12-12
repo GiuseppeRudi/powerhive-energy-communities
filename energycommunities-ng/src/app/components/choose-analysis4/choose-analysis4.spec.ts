@@ -8,7 +8,7 @@ import { Router, ActivatedRoute, NavigationEnd, UrlTree } from '@angular/router'
 import { of } from 'rxjs';
 
   let component: ChooseAnalysis4;
-  let routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+  let routerSpy: jasmine.SpyObj<Router>;
 
   const batteryServiceMock = {
     get_batteries_by_plan: () => of([])
@@ -19,7 +19,7 @@ import { of } from 'rxjs';
   let planServiceSpy: jasmine.SpyObj<PlanService>;
   let analysisServiceSpy: jasmine.SpyObj<AnalysisService>;
   let historyServiceSpy: jasmine.SpyObj<HistoryService>;
-  let routerSpy: jasmine.SpyObj<Router>;
+
 
   beforeEach(async () => {
     // Creazione dei mock
@@ -109,8 +109,6 @@ import { of } from 'rxjs';
 
     component.startAnalysis4();
 
-    expect(analysisServiceMock.setAnalysisResult).toHaveBeenCalled();
+    expect(analysisServiceSpy.setAnalysisResult).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/analysis4']);
   });
-
-});

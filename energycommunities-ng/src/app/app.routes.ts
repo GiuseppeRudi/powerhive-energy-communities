@@ -17,6 +17,7 @@ import {ChooseAnalysis2} from './components/choose-analysis2/choose-analysis2';
 import {OngoingAnalysisComponent} from './components/ongoing-analysis/ongoing-analysis';
 import {Analysis4} from './components/analysis4/analysis4';
 import {ChooseAnalysis4} from './components/choose-analysis4/choose-analysis4';
+import {AnalysisGuard} from './services/auth/analysis.guard';
 
 export const routes: Routes = [
   { path: '', component: Welcome },
@@ -26,16 +27,16 @@ export const routes: Routes = [
   { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
   { path: 'member/:id', component: MemberOverview, canActivate: [AuthGuard] },
   { path: 'analysis', component: AnalysisComponent, canActivate: [AuthGuard] },
-  { path: 'analysis1', component: Analysis1, canActivate: [AuthGuard] },
-  { path: 'analysis2', component: Analysis2, canActivate: [AuthGuard] },
+  { path: 'analysis1', component: Analysis1, canActivate: [AuthGuard, AnalysisGuard] },
+  { path: 'analysis2', component: Analysis2, canActivate: [AuthGuard, AnalysisGuard] },
+  { path: 'analysis3', component: Analysis3, canActivate: [AuthGuard, AnalysisGuard] },
+  { path: 'analysis4', component: Analysis4, canActivate: [AuthGuard, AnalysisGuard]},
+  { path: 'member-chooser', component: MemberChooser, canActivate: [AuthGuard]},
   { path: 'choose-analysis2', component: ChooseAnalysis2, canActivate: [AuthGuard] },
   { path: 'choose-analysis3', component: ChooseAnalysis3, canActivate: [AuthGuard] },
   { path: 'choose-analysis4', component: ChooseAnalysis4, canActivate: [AuthGuard] },
-  { path: 'analysis3', component: Analysis3, canActivate: [AuthGuard] },
   { path: 'csv', component: Csv, canActivate: [AuthGuard] },
   { path: 'plan-management', component: PlanManagement, canActivate: [AuthGuard]},
-  { path: 'member-chooser', component: MemberChooser, canActivate: [AuthGuard]},
-  { path: 'ongoing-analysis', component: OngoingAnalysisComponent, canActivate: [AuthGuard]},
-  { path: 'analysis4', component: Analysis4, canActivate: [AuthGuard]}
+  { path: 'ongoing-analysis', component: OngoingAnalysisComponent, canActivate: [AuthGuard]}
 
 ];

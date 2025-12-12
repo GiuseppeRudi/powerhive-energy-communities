@@ -225,7 +225,9 @@ export class ChooseAnalysis3 implements OnInit {
     this.wantToRemove = []
     this.communityMembers = []
 
-    this.router.navigate(['/analysis3']);
+    this.router.navigate(['/analysis3'],{
+      state: {allowAnalysis: true}
+    });
   }
 
   loadHistory(): void {

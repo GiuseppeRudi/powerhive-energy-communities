@@ -178,7 +178,7 @@ public class PlanServiceImpl implements PlanService {
         }
         profile.setProfileGraph(graph);
         member.getProfiles().add(profile);
-
+        member.setMemberType(member.getMemberType());
         planDao.save(plan);
 
         MemberDetailDto dto = modelMapper.map(member, MemberDetailDto.class);

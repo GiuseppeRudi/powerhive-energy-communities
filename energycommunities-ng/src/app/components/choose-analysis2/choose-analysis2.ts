@@ -206,7 +206,9 @@ export class ChooseAnalysis2 {
 
     this.analysisService.setAnalysisResult(body);
 
-    this.router.navigate(['/analysis2']);
+    this.router.navigate(['/analysis2'],{
+      state: {allowAnalysis: true}
+    });
 
   }
 

@@ -6,14 +6,7 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.disclaimer {
-  background: linear-gradient(135deg, greenyellow 0%, darkgreen 100%);
-  color: white;
-  padding: 20px 30px;
-  border-radius: 12px;
-  margin-bottom: 30px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
+
 
 .analysis-cards {
   display: flex;

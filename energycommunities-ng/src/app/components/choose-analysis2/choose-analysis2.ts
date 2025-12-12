@@ -199,20 +199,17 @@ export class ChooseAnalysis2 {
 
     const selectedMembers = this.members.filter(m => this.energyCommunities.includes(m.id));
 
-    this.analysisService.getResultAnalysis_2(selectedMembers, this.communitySize).subscribe({
-        next: (result) => {
-          console.log('Analisi completata:', result);
-          this.analysisService.setAnalysisResult(result);
-          this.router.navigate(['/analysis2'],{
-            state: {allowAnalysis: true}
-          });
+    const body : any ={
+      members : selectedMembers,
+      dimCommunity : this.communitySize,
+    }
 
-        },
-        error: (err) => {
-          console.error('Errore durante la richiesta:', err);
-          alert('Si è verificato un errore durante l\'analisi. Riprova più tardi.');
-        }
-      });
+    this.analysisService.setAnalysisResult(body);
+
+    this.router.navigate(['/analysis2'],{
+      state: {allowAnalysis: true}
+    });
+
   }
 
   runAnalysisAsync() {

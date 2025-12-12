@@ -22,7 +22,6 @@ import {AnalysisGuard} from './services/auth/analysis.guard';
 export const routes: Routes = [
   { path: '', component: Welcome },
   { path: 'login', component: Login },
-  //protected routes
   { path: 'dashboard', component: Dashboard, canActivate: [AuthGuard] },
   { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
   { path: 'member/:id', component: MemberOverview, canActivate: [AuthGuard] },

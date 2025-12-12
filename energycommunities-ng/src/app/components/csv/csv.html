@@ -11,11 +11,11 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
     </pre>
     <p>
       Each row represents a consumption or production profile for a user.
-      Each user can have multiple profiles. The <strong>category</strong> field can be either <em>CONSUMER</em> or
-      <em>PRODUCER</em>.
-      The columns <strong>t0–t23</strong> represent the energy consumption or production (in kW) for each hour of the
+      Each user can have multiple profiles.  <br>
+      The category field can be either <em>CONSUMER</em> or <em>PRODUCER</em>.
+      The columns <em>t0–t23</em> represent the energy consumption or production (in kW) for each hour of the
       day.
-      Each user must have a unique identifier in the <strong>email</strong> field.
+      Each user must have a unique identifier in the <em>email</em> field. <br> <br>
 
       PLEASE DOWNLOAD THE TEMPLATE AND COMPILE IT FOLLOWING THESE INSTRUCTIONS
     </p>
@@ -25,7 +25,7 @@ id,full_name,email,category,t0,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t1
   <div class="csv-container">
     <h2>CSV Section</h2>
 
-    <input type="file" accept=".csv" (change)="onFileSelected($event)" id="fileInput" />
+    <input type="file" accept=".csv" (change)="onFileSelected($event)" id="fileInput"/>
     <br><br>
     <button (click)="downloadTemplate()" class="btn">Download CSV template</button>
 

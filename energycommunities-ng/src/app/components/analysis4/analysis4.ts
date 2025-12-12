@@ -156,6 +156,7 @@ export class Analysis4 implements OnInit, OnDestroy {
 
 
   ngOnInit() {
+    // 1. Controllo dati passati via Router State (navigazione diretta da choose-analysis)
     this.resultAnalysis = history.state?.result ?? null;
 
     if(this.resultAnalysis != null) {
@@ -169,25 +170,25 @@ export class Analysis4 implements OnInit, OnDestroy {
       return;
     }
 
+    // 2. Controllo queryParams (History salvata) o dati nel Service (Reload)
     this.route.queryParams.subscribe(params => {
-       this.historyId = +params['historyId'];
+      this.historyId = +params['historyId'];
 
       if (this.historyId) {
+        // --- CASO STORICO ---
         this.historyService.getHistoryById(this.historyId).subscribe({
           next: h => {
-
             console.log("history ottenuta" + (h.analysisData as ResultAnalysis_4).assignments.toString());
 
             this.history = h;
             this.resultAnalysis = h.analysisData as ResultAnalysis_4;
             this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
 
-            const analysisData : any = h.analysisData; // tipo any
+            const analysisData : any = h.analysisData;
             let assignmentsMap = new Map<number, number>();
 
             if (analysisData && analysisData.assignments) {
               const a = analysisData.assignments;
-
               if (Array.isArray(a)) {
                 for (const item of a) {
                   if (Array.isArray(item) && item.length >= 2) {
@@ -199,12 +200,17 @@ export class Analysis4 implements OnInit, OnDestroy {
               }
             }
             this.resultAnalysis.assignments = assignmentsMap;
-
             this.buildAllCharts();
           },
-          error: err => console.error('Errore caricamento history:', err)
+          error: err => {
+            console.error('Errore caricamento history:', err);
+            this.router.navigate(['/analysis']); // Fallback in caso di errore
+          }
         });
       } else {
+        // --- CASO LIVE (SENZA HISTORY ID) ---
+
+        // Setup listener eventi Clingo
         this.clingoEvents.connect((eventName,analysisId) => {
           if (analysisId == -1) {
             if (eventName === 'GROUNDING_STARTED') {
@@ -220,24 +226,35 @@ export class Analysis4 implements OnInit, OnDestroy {
           }
         });
 
-        this.analysis4Request = this.analysisService.getAnalysisResult()
+        // Recupero dati dal service (Singleton)
+        this.analysis4Request = this.analysisService.getAnalysisResult();
 
-        if(this.analysis4Request){
-          this.analysisService.getResultAnalysis_4(this.analysis4Request.members,this.analysis4Request.batteries,this.analysis4Request.budget).subscribe({
-            next: (data) => {
-              this.resultAnalysis = data;
-              this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
-              this.resultAnalysis.assignments = new Map(
-                Object.entries(data.assignments).map(
-                  ([key, value]) => [Number(key), value as number]
-                )
-              );
-              this.buildAllCharts();
-            },
-            error: (err) => console.error(err)
-          });
-
+        // *** LOGICA DI PROTEZIONE ***
+        // Se non abbiamo una request valida o mancano i membri, significa che abbiamo perso lo stato
+        if(!this.analysis4Request || !this.analysis4Request.members || this.analysis4Request.members.length === 0){
+          console.warn('Dati persi dopo il reload. Reindirizzamento a /analysis');
+          this.router.navigate(['/analysis']);
+          return;
         }
+
+        // Se siamo qui, i dati esistono. Procediamo con la chiamata.
+        this.analysisService.getResultAnalysis_4(this.analysis4Request.members, this.analysis4Request.batteries, this.analysis4Request.budget).subscribe({
+          next: (data) => {
+            this.resultAnalysis = data;
+            this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+            this.resultAnalysis.assignments = new Map(
+              Object.entries(data.assignments).map(
+                ([key, value]) => [Number(key), value as number]
+              )
+            );
+            this.buildAllCharts();
+          },
+          error: (err) => {
+            console.error(err);
+            this.router.navigate(['/analysis']); // Fallback errore API
+          }
+        });
+
       }
     });
   }

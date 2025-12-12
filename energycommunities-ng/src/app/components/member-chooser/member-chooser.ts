@@ -119,9 +119,9 @@ export class MemberChooser implements OnInit {
     // Naviga verso analysis1 e passa gli ID dei membri selezionati
     this.router.navigate(['/analysis1'], {
       queryParams: {
-        memberIds: Array.from(this.selectedMembers).join(','),
-        state: { allowAnalysis: true }
-      }
+        memberIds: Array.from(this.selectedMembers).join(',')
+      },
+      state: { allowAnalysis: true }
     });
   }
 

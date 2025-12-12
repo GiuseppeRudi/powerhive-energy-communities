@@ -101,6 +101,7 @@ export class Analysis3 implements OnInit {
 
 
   ngOnInit() {
+    // 1. Tenta di recuperare i dati passati via Router (dal componente precedente)
     this.resultAnalysis = history.state?.result ?? null;
 
     if(this.resultAnalysis != null) {
@@ -118,10 +119,12 @@ export class Analysis3 implements OnInit {
       return;
     }
 
+    // 2. Se non ci sono dati nello state, controlla i queryParams (History salvata)
     this.route.queryParams.subscribe(params => {
       this.historyId = +params['historyId'];
 
       if (this.historyId) {
+        // Caso: Caricamento da storico
         this.historyService.getHistoryById(this.historyId).subscribe({
           next: history => {
             this.history = history;
@@ -129,10 +132,25 @@ export class Analysis3 implements OnInit {
             this.setupCommunities();
             this.buildAllCharts();
           },
-          error: err => console.error('Errore caricamento history:', err)
+          error: err => {
+            console.error('Errore caricamento history:', err);
+            // Opzionale: redirect anche qui se la history fallisce
+            this.router.navigate(['/analysis']);
+          }
         });
       } else {
-        this.analysis3Request = this.analysisService.getAnalysisResult()
+        // 3. Caso: Reload della pagina o accesso diretto senza dati
+        this.analysis3Request = this.analysisService.getAnalysisResult();
+
+        // *** LOGICA DI PROTEZIONE ***
+        // Se il service è vuoto o non ci sono membri, reindirizza
+        if (!this.analysis3Request || !this.analysis3Request.members || this.analysis3Request.members.length === 0) {
+          console.warn('Dati persi dopo il reload. Reindirizzamento a /analysis');
+          this.router.navigate(['/analysis']);
+          return;
+        }
+
+        // Se siamo qui, abbiamo i dati dal service (es. singleton non pulito), procediamo
         this.wantToRemove = this.analysis3Request?.wantToRemove;
         this.wantToAdd = this.analysis3Request?.wantToAdd;
         this.members = this.analysis3Request?.members;
@@ -150,8 +168,14 @@ export class Analysis3 implements OnInit {
               this.setupCommunities();
               this.buildAllCharts();
             },
-            error: (err) => console.error(err)
+            error: (err) => {
+              console.error(err);
+              this.router.navigate(['/analysis']); // Redirect anche in caso di errore API
+            }
           });
+        } else {
+          // Fallback di sicurezza ulteriore
+          this.router.navigate(['/analysis']);
         }
       }
     });

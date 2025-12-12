@@ -43,7 +43,6 @@ export class HistoryComponent implements OnInit {
       next: (data) => {
         console.log(data);
 
-        // Ordina dalla più recente alla più vecchia
         this.historyList = data.sort((a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
@@ -70,7 +69,21 @@ export class HistoryComponent implements OnInit {
     else if(typeAnalysis == 3){
       this.router.navigate(['/analysis3'], { queryParams: { historyId } });
     }
+    else if(typeAnalysis == 4){
+      this.router.navigate(['/analysis4'], { queryParams: { historyId } });
+    }
 
+  }
+
+  onDeleteAnalysis(id: number) {
+    this.historyService.deleteHistory(id).subscribe({
+      next: () => {
+        this.loadHistory()
+      },
+      error: err => {
+          console.error("Impossibile eliminare l'analisi salvata, riprovare più  tardi")
+      }
+    })
   }
 
   formatDate(dateString: string): string {

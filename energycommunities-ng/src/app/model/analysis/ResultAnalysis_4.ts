@@ -14,3 +14,14 @@ export interface ResultAnalysis_4 {
   batteries: BatteryDto[];
   batteryStatus: BatteryStatusDto[];
 }
+
+export function isResultAnalysis4(x: any): x is ResultAnalysis_4 {
+  return x !== null && typeof x === 'object'
+    && Array.isArray(x.kpi1)
+    && Array.isArray(x.kpi2)
+    && Array.isArray(x.totalConsumption)
+    && Array.isArray(x.totalProduction)
+    && typeof x.startingCommunity === 'object' && x.startingCommunity !== null
+    && Array.isArray(x.batteries)
+    && Array.isArray(x.batteryStatus);
+}

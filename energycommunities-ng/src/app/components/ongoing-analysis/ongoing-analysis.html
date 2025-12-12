@@ -40,6 +40,7 @@
         <p><strong>Type:</strong> {{ a.analysisType }}</p>
         <p><strong>Started:</strong> {{ a.createdAt | date:'dd/MM/yyyy HH:mm:ss' }}</p>
         <p><strong>Num. Members:</strong> {{ a.numMembers }}</p>
+        <p *ngIf="a.numBatteries!=0"><strong>Num. Batteries:</strong> {{ a.numBatteries }}</p>
       </div>
 
       <div class="analysis-card-footer" *ngIf="(statusMessage.get(a.id) === 'FINISHED' || a.status === 'FINISHED') || (statusMessage.get(a.id) === 'ERROR' || a.status === 'ERROR')">

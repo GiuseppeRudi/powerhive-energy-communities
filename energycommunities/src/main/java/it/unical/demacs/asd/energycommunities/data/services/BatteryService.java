@@ -3,6 +3,7 @@ package it.unical.demacs.asd.energycommunities.data.services;
 import java.util.List;
 
 import it.unical.demacs.asd.energycommunities.dto.battery.BatteryDto;
+import it.unical.demacs.asd.energycommunities.dto.member.MemberDetailDto;
 
 public interface BatteryService {
 
@@ -13,4 +14,6 @@ public interface BatteryService {
     void delete_battery(Long battery_id);
 
     BatteryDto add_battery(Long plan_id, BatteryDto battery);
+
+    List<BatteryDto> findAllById(List<Long> batteryIds);
 }

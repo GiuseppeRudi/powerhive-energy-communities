@@ -268,7 +268,6 @@ public class PlanServiceImpl implements PlanService {
         }).toList());
         new_member.setMemberType(new_member.getMemberType());
         new_member.setPlan(owner.getPlan());
-        new_member.setOngoingAnalysis(new ArrayList<>());
         owner.setPlan(owner_plan);
 
 

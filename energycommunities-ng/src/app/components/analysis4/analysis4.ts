@@ -28,8 +28,11 @@ import {Analysis4Request} from '../../model/analysis/Analysis4Request';
 })
 export class Analysis4 implements OnInit, OnDestroy {
 
+
   history : HistorySummary | undefined = undefined ;
   typeAnalisys : number = 4
+  historyId: number | null  = null;
+
   resultAnalysis: ResultAnalysis_4 | null = null;
   memberExpandedState: Map<number, boolean> = new Map();
 
@@ -156,7 +159,6 @@ export class Analysis4 implements OnInit, OnDestroy {
     this.resultAnalysis = history.state?.result ?? null;
 
     if(this.resultAnalysis != null) {
-      this.typeAnalisys = 0;
       this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
       this.resultAnalysis.assignments = new Map(
         Object.entries(history.state?.result.assignments).map(
@@ -168,12 +170,36 @@ export class Analysis4 implements OnInit, OnDestroy {
     }
 
     this.route.queryParams.subscribe(params => {
-      const historyId = +params['historyId'];
+       this.historyId = +params['historyId'];
 
-      if (historyId) {
-        this.historyService.getHistoryById(historyId).subscribe({
-          next: history => {
-            this.history = history;
+      if (this.historyId) {
+        this.historyService.getHistoryById(this.historyId).subscribe({
+          next: h => {
+
+            console.log("history ottenuta" + (h.analysisData as ResultAnalysis_4).assignments.toString());
+
+            this.history = h;
+            this.resultAnalysis = h.analysisData as ResultAnalysis_4;
+            this.resultAnalysis.startingCommunity.assignments.forEach(m => this.memberExpandedState.set(m.id, false));
+
+            const analysisData : any = h.analysisData; // tipo any
+            let assignmentsMap = new Map<number, number>();
+
+            if (analysisData && analysisData.assignments) {
+              const a = analysisData.assignments;
+
+              if (Array.isArray(a)) {
+                for (const item of a) {
+                  if (Array.isArray(item) && item.length >= 2) {
+                    const key = Number(item[0]);
+                    const value = Number(item[1]);
+                    if (!Number.isNaN(key)) assignmentsMap.set(key, Number.isNaN(value) ? 0 : value);
+                  }
+                }
+              }
+            }
+            this.resultAnalysis.assignments = assignmentsMap;
+
             this.buildAllCharts();
           },
           error: err => console.error('Errore caricamento history:', err)
@@ -460,77 +486,13 @@ export class Analysis4 implements OnInit, OnDestroy {
   buildAllCharts() {
     this.buildMemberCharts();
     this.buildAllBatteriesChart();
-    this.buildOptConsProdProfChart();
     this.buildTotalComparisonChart();
     this.buildKpiChart();
   }
 
-  buildMemberCharts() {
-    if (!this.resultAnalysis) return;
-    const labels = Array.from({ length: 24 }, (_, i) => i.toString());
-    const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'black', 'brown'];
-
-    this.resultAnalysis.startingCommunity.assignments.forEach(member => {
-      const producers = member.profiles.filter(p => p.profileType === 'PRODUCER');
-      const consumers = member.profiles.filter(p => p.profileType === 'CONSUMER');
-      const batteryStatuses = this.resultAnalysis?.batteryStatus;
-
-      let graph: number[] = [];
-
-      if(producers.length != 0) graph = [...producers[0].graph];
-
-      const batteryStatus = batteryStatuses?.find(b => b.memberId == member.id);
-      if (batteryStatus) {
-        batteryStatus.energyByHour.forEach((value, index) => {
-          if(index!=0) {
-            const previousStatus = batteryStatus.energyByHour.at(index - 1);
-            if (graph) {
-              graph[index] = graph[index] - (value - (previousStatus ?? 0));
-            }
-          }
-        });
-
-        const batteryDataset = {
-          label: "Battery State",
-          data: batteryStatus.energyByHour,
-          borderColor: 'green',
-          backgroundColor: 'transparent',
-          tension: 0.25
-        };
-        this.batteryMap.set(member.id, { labels, datasets: [batteryDataset]});
-      }
-
-      const datasetsProducers = producers.map((p,index) => ({
-        label: 'Producer Profile ' + p.id + " w/o battery",
-        data: p.graph,
-        borderColor: colors[index % colors.length],
-        backgroundColor: 'transparent',
-        tension: 0.25
-      }));
-
-      if(producers.length != 0 && batteryStatus != undefined) {
-        datasetsProducers.push({
-          label: 'Producer Profile ' + producers[0].id + " w/ battery",
-          data: graph,
-          borderColor: colors[1],
-          backgroundColor: 'transparent',
-          tension: 0.25
-        })
-      }
-
-      const datasetsConsumers = consumers.map((p, index) => ({
-        label: 'Consumer Profile ' + p.id,
-        data: p.graph,
-        borderColor: colors[(index + producers.length) % colors.length],
-        backgroundColor: 'transparent',
-        tension: 0.25
-      }));
-      this.chartDataMap.set(member.id, { labels, datasets: [...datasetsProducers, ...datasetsConsumers] });
-    });
-  }
-
   buildAllBatteriesChart() {
-    if (!this.resultAnalysis || !this.resultAnalysis.batteryStatus) return;
+    console.log(this.resultAnalysis);
+    if (!this.resultAnalysis || this.resultAnalysis.batteryStatus.length===0) return;
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
     const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'black', 'brown'];
 
@@ -547,40 +509,109 @@ export class Analysis4 implements OnInit, OnDestroy {
     this.allBatteriesChart = { labels, datasets };
   }
 
-  buildOptConsProdProfChart() {
+  buildMemberCharts() {
     if (!this.resultAnalysis) return;
+
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
     const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'black', 'brown'];
 
-    const datasetsConsumers: any[] = [];
-    const datasetsProducers: any[] = [];
+    const optConsumers: any[] = [];
+    const optProducers: any[] = [];
 
-    this.resultAnalysis.startingCommunity.assignments.forEach((member, index) => {
-      const consumer = member.profiles.find(p => p.profileType === 'CONSUMER');
-      const producer = member.profiles.find(p => p.profileType === 'PRODUCER');
+    this.resultAnalysis.startingCommunity.assignments.forEach((member, globalIndex) => {
 
-      if (consumer) {
-        datasetsConsumers.push({
-          label: member.fullName,
-          data: consumer.graph,
-          borderColor: colors[index % colors.length],
+      const producers = member.profiles.filter(p => p.profileType === 'PRODUCER');
+      const consumers = member.profiles.filter(p => p.profileType === 'CONSUMER');
+      const batteryStatus = this.resultAnalysis?.batteryStatus?.find(b => b.memberId === member.id);
+
+      let graph: number[] = [];
+      let hasBattery = false;
+
+      if (producers.length !== 0) {
+        graph = [...producers[0].graph];
+      }
+
+      if (batteryStatus) {
+        hasBattery = true;
+
+        batteryStatus.energyByHour.forEach((value, h) => {
+          if (h !== 0) {
+            const prev = batteryStatus.energyByHour[h - 1] ?? 0;
+            graph[h] = graph[h] - (value - prev);
+          }
+        });
+
+        const batteryDataset = {
+          label: "Battery State",
+          data: batteryStatus.energyByHour,
+          borderColor: 'green',
           backgroundColor: 'transparent',
           tension: 0.25
-        });
+        };
+        this.batteryMap.set(member.id, { labels, datasets: [batteryDataset] });
       }
-      if (producer) {
+
+      const datasetsProducers = producers.map((p, index) => ({
+        label: hasBattery && index === 0 ? 'Profile w/o battery' : 'Producer Profile',
+        data: p.graph,
+        borderColor: colors[index % colors.length],
+        backgroundColor: 'transparent',
+        tension: 0.25
+      }));
+
+      if (producers.length !== 0 && hasBattery) {
         datasetsProducers.push({
-          label: member.fullName,
-          data: producer.graph,
-          borderColor: colors[(index + member.profiles.filter(p => p.profileType === 'PRODUCER').length) % colors.length],
+          label: "Profile w/ battery",
+          data: graph,
+          borderColor: colors[1],
           backgroundColor: 'transparent',
           tension: 0.25
         });
       }
+
+      const datasetsConsumers = consumers.map((p, index) => ({
+        label: 'Consumer Profile',
+        data: p.graph,
+        borderColor: colors[(index + producers.length) % colors.length],
+        backgroundColor: 'transparent',
+        tension: 0.25
+      }));
+
+      this.chartDataMap.set(member.id, {
+        labels,
+        datasets: [...datasetsProducers, ...datasetsConsumers]
+      });
+
+      // Consumer globale
+      const c = member.profiles.find(p => p.profileType === 'CONSUMER');
+      if (c) {
+        optConsumers.push({
+          label: member.fullName,
+          data: c.graph,
+          borderColor: colors[globalIndex % colors.length],
+          backgroundColor: 'transparent',
+          tension: 0.25
+        });
+      }
+
+      // Producer globale
+      const p = member.profiles.find(p => p.profileType === 'PRODUCER');
+      if (p) {
+        optProducers.push({
+          label: member.fullName,
+          data: hasBattery ? graph : p.graph,
+          borderColor: colors[(globalIndex + 1) % colors.length],
+          backgroundColor: 'transparent',
+          tension: 0.25
+        });
+      }
+
     });
-    this.optConsProfChart = { labels, datasets: datasetsConsumers };
-    this.optProdProfChart = { labels, datasets: datasetsProducers };
+
+    this.optConsProfChart = { labels, datasets: optConsumers };
+    this.optProdProfChart = { labels, datasets: optProducers };
   }
+
 
   buildTotalComparisonChart() {
     if (!this.resultAnalysis) return;
@@ -708,7 +739,33 @@ export class Analysis4 implements OnInit, OnDestroy {
     const userJson = sessionStorage.getItem('currentUser');
     if (!userJson) return;
     const user: User = JSON.parse(userJson);
-    this.analysisService.runAsync1(user.id, 1, memberIds).subscribe(id => {
+/*
+    this.resultAnalysis = {
+      assignments: new Map<number, number>(),
+      startingCommunity: {
+        assignments: [],
+        kpi1: [],
+        kpi2: [],
+        totalConsumption: [],
+        totalProduction: []
+      },
+      batteryStatus: [],
+      batteries: [],
+      kpi1: [],
+      kpi2: [],
+      totalConsumption: [],
+      totalProduction: []
+    }
+*/
+
+    const payload = {
+      memberIds: memberIds,
+      userId: user.id,
+      analysis: 4,
+      batteries: this.analysis4Request?.batteries
+    }
+
+    this.analysisService.runAsync(payload).subscribe(id => {
       this.router.navigate(['/ongoing-analysis']);
     });
   }

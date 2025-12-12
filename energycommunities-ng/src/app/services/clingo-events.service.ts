@@ -29,6 +29,11 @@ export class ClingoEventsService {
       const analysisId = Number(event.data);
       callback('FINISHED', analysisId);
     });
+
+    this.eventSource.addEventListener('ERROR', (event: MessageEvent) => {
+      const analysisId = Number(event.data);
+      callback('ERROR', analysisId);
+    });
   }
 
   disconnect() {

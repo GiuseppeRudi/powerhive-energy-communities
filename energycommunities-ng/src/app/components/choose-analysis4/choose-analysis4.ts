@@ -89,6 +89,7 @@ export class ChooseAnalysis4 {
       this.planService.getDetailPlan(user.plan_id).subscribe({
         next: (plan) => {
           this.members = plan.members;
+          console.log(this.members);
           this.buildMemberCharts();
           this.isLoading = false;
         },
@@ -308,4 +309,25 @@ export class ChooseAnalysis4 {
   }
 
 
+  runAnalysisAsync() {
+    const memberIds = this.energyCommunities.map(id => id);
+    const userJson = sessionStorage.getItem('currentUser');
+    if (!userJson) return;
+
+    const user: User = JSON.parse(userJson);
+
+    const payload = {
+      memberIds: memberIds,
+      userId: user.id,
+      analysis: 4,
+      batteries: this.batteriesList,
+      budget: this.budget
+    }
+
+    console.log(payload);
+
+    this.analysisService.runAsync(payload).subscribe(id => {
+      this.router.navigate(['/ongoing-analysis']);
+    });
+  }
 }

@@ -47,7 +47,7 @@
     </div>
   </div>
   <div *ngIf="isLoading" class="loading-container">
-    <app-generation-loader></app-generation-loader>
+    <app-generation-loader [status]="'Loading...'"></app-generation-loader>
   </div>
   <div *ngIf="!isLoading" class="saved-analysis">
     <div class="saved-analysis-header" (click)="showSavedAnalysis = !showSavedAnalysis">
@@ -257,6 +257,9 @@
     batteriesList.length === 0
   ">
         <i class="fa-solid fa-play"></i> Start Analysis
+      </button>
+      <button class="btn btn-async" (click)="runAnalysisAsync()" [disabled]="energyCommunities.length === 0 || !budget || budget <= 0 || batteriesList.length===0">
+        <i class="fa-solid fa-rocket"></i> Run Asynchronously
       </button>
     </div>
   </div>

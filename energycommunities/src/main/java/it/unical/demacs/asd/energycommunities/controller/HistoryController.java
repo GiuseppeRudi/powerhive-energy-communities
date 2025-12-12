@@ -35,6 +35,15 @@ public class HistoryController {
         return new ResponseEntity<>(histories, HttpStatus.OK);
     }
 
+    @GetMapping("/remove/{historyId}")
+    public ResponseEntity<String> deleteHistory(@PathVariable Long historyId) {
+
+        historyService.removeHistoryById(historyId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+
+    }
+
 
     @GetMapping("/get/{id}")
     public ResponseEntity<HistoryDetailDto> getHistoryById(@PathVariable Long id) {
@@ -50,6 +59,7 @@ public class HistoryController {
     @PostMapping(value = "/save")
     public ResponseEntity<String> saveAnalysis(@RequestBody SaveAnalysisRequestDto saveAnalysisRequestDto) {
         try {
+            System.out.println(saveAnalysisRequestDto.getAnalysisData());
 
             Long userId = saveAnalysisRequestDto.getUserId();
             Integer analysisNumber = saveAnalysisRequestDto.getAnalysisNumber();

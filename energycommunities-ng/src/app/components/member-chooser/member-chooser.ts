@@ -6,6 +6,7 @@ import { AnalysisService } from '../../services/analysis.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { User } from '../../model/User';
 import {PlanSummary} from '../../model/plan/PlanSummary';
+import {ResultAnalysis_1} from '../../model/analysis/ResultAnalysis_1';
 
 
 @Component({
@@ -129,7 +130,23 @@ export class MemberChooser implements OnInit {
     if (!userJson) return;
 
     const user: User = JSON.parse(userJson);
-    this.analysisService.runAsync1(user.id, 1, memberIds).subscribe(id => {
+    /*
+    const resultAnalysis = {
+      assignments: [],
+      kpi1: [],
+      kpi2: [],
+      totalConsumption: [],
+      totalProduction: []
+    }
+     */
+
+    const payload = {
+      memberIds: memberIds,
+      userId: user.id,
+      analysis: 1,
+    }
+
+    this.analysisService.runAsync(payload).subscribe(id => {
       this.router.navigate(['/ongoing-analysis']);
     });
   }

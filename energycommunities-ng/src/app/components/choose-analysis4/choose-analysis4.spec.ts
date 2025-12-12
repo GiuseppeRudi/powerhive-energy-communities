@@ -7,47 +7,39 @@ import { HistoryService } from '../../services/history.service';
 import { Router, ActivatedRoute, NavigationEnd, UrlTree } from '@angular/router';
 import { of } from 'rxjs';
 
+describe('ChooseAnalysis4', () => {
   let component: ChooseAnalysis4;
-  let routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+  let fixture: ComponentFixture<ChooseAnalysis4>;
 
-  const batteryServiceMock = {
-    get_batteries_by_plan: () => of([])
-  };
-
-  // Spy per i servizi
+  let routerSpy: jasmine.SpyObj<Router>;
   let batteryServiceSpy: jasmine.SpyObj<BatteryService>;
   let planServiceSpy: jasmine.SpyObj<PlanService>;
   let analysisServiceSpy: jasmine.SpyObj<AnalysisService>;
   let historyServiceSpy: jasmine.SpyObj<HistoryService>;
-  let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
-    // Creazione dei mock
     batteryServiceSpy = jasmine.createSpyObj('BatteryService', ['get_batteries_by_plan']);
     planServiceSpy = jasmine.createSpyObj('PlanService', ['getDetailPlan']);
     analysisServiceSpy = jasmine.createSpyObj('AnalysisService', ['setAnalysisResult']);
     historyServiceSpy = jasmine.createSpyObj('HistoryService', ['getHistories', 'getHistoryMembers']);
 
-    // FIX COMPLETO ROUTER: Oltre ai metodi, aggiungiamo le proprietà url e events
     routerSpy = jasmine.createSpyObj('Router', ['navigate', 'createUrlTree', 'serializeUrl']);
 
-    // Configurazione ritorno metodi Router
     routerSpy.createUrlTree.and.returnValue({} as UrlTree);
     routerSpy.serializeUrl.and.returnValue('mock-url');
 
-    // Configurazione proprietà Router (events e url) per RouterLink
     Object.defineProperty(routerSpy, 'events', { get: () => of(new NavigationEnd(0, 'url', 'urlAfterRedirects')) });
     Object.defineProperty(routerSpy, 'url', { get: () => '/mock-url' });
 
-    // Mock servizi dati
     batteryServiceSpy.get_batteries_by_plan.and.returnValue(of([]));
     historyServiceSpy.getHistories.and.returnValue(of([]));
     planServiceSpy.getDetailPlan.and.returnValue(of({ id: 100, members: [] } as any));
 
+
     spyOn(sessionStorage, 'getItem').and.returnValue(JSON.stringify({ id: 1, plan_id: 100 }));
 
     await TestBed.configureTestingModule({
-      imports: [ChooseAnalysis4],
+      imports: [ChooseAnalysis4], // Se è standalone
       providers: [
         { provide: BatteryService, useValue: batteryServiceSpy },
         { provide: PlanService, useValue: planServiceSpy },
@@ -62,12 +54,19 @@ import { of } from 'rxjs';
           }
         }
       ]
-    })
-      .compileComponents();
+    }).compileComponents();
 
-    component = TestBed.inject(ChooseAnalysis4);
+
+    fixture = TestBed.createComponent(ChooseAnalysis4);
+    component = fixture.componentInstance;
+
+
+    fixture.detectChanges();
   });
 
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
 
   it('should toggle member selection', () => {
     component.energyCommunities = [];
@@ -98,7 +97,6 @@ import { of } from 'rxjs';
     expect(component.isIndeterminate()).toBeTrue();
   });
 
-
   it('should start analysis and navigate', () => {
     component.members = [{ id: 1 }, { id: 2 }] as any;
     component.plan_batteries = [{ id: 10 }] as any;
@@ -109,8 +107,9 @@ import { of } from 'rxjs';
 
     component.startAnalysis4();
 
-    expect(analysisServiceMock.setAnalysisResult).toHaveBeenCalled();
+
+    expect(analysisServiceSpy.setAnalysisResult).toHaveBeenCalled();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/analysis4']);
   });
-
 });
+

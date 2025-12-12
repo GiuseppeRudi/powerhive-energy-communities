@@ -2,8 +2,10 @@ package it.unical.demacs.asd.energycommunities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unical.demacs.asd.energycommunities.clingo.ASPService;
 import it.unical.demacs.asd.energycommunities.controller.AnalysisController;
+import it.unical.demacs.asd.energycommunities.data.dao.BatteryDao;
 import it.unical.demacs.asd.energycommunities.data.dao.MemberDao;
 import it.unical.demacs.asd.energycommunities.data.dao.UserDao;
+import it.unical.demacs.asd.energycommunities.data.services.BatteryService;
 import it.unical.demacs.asd.energycommunities.data.services.MemberService;
 import it.unical.demacs.asd.energycommunities.data.services.OngoingAnalysisService;
 import it.unical.demacs.asd.energycommunities.dto.analysis.request.Analysis4Dto;
@@ -41,10 +43,12 @@ public class AnalysisControllerTest {
 
     @MockitoBean private ASPService aspService;
     @MockitoBean private MemberService memberService;
+    @MockitoBean private BatteryService batteryService;
     @MockitoBean private ModelMapper modelMapper;
     @MockitoBean private OngoingAnalysisService ongoingAnalysisService;
     @MockitoBean private UserDao userDao;
     @MockitoBean private MemberDao memberDao;
+    @MockitoBean private BatteryDao batteryDao;
 
     @Test
     @WithMockUser(username = "admin")

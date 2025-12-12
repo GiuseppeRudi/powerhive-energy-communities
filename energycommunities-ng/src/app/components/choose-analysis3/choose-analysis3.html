@@ -31,30 +31,30 @@
   <div *ngIf="isLoading" class="loading-container">
     <app-generation-loader></app-generation-loader>
   </div>
-
-  <div *ngIf="!isLoading && members.length > 0" class="member-selection-container">
-    <div *ngIf="!isLoading" class="saved-analysis">
-      <div class="saved-analysis-header" (click)="showSavedAnalysis = !showSavedAnalysis">
-        <div class="saved-analysis-info">
-          <h3 class="saved-analysis-name">Add community default from saved Analysis</h3>
-        </div>
-        <div class="expand-icon" [class.expanded]="showSavedAnalysis">
-          <i class="fa-solid fa-square-caret-down"></i>
-        </div>
+  <div *ngIf="!isLoading" class="saved-analysis">
+    <div class="saved-analysis-header" (click)="showSavedAnalysis = !showSavedAnalysis">
+      <div class="saved-analysis-info">
+        <h3 class="saved-analysis-name">Add community default from saved Analysis</h3>
       </div>
-      <div class="dropdown-content" [class.open]="showSavedAnalysis">
-        <div *ngIf="!loading && !error && historyList.length > 0" class="analysis-grid">
-          <button *ngFor="let history of historyList"
-                  class="btn"
-                  (click)="addCommunityDefault(history.id)">
-            {{history.name}}
-          </button>
-        </div>
-        <div *ngIf="!loading && historyList.length === 0" class="no-data-msg">
-          No saved analysis found.
-        </div>
+      <div class="expand-icon" [class.expanded]="showSavedAnalysis">
+        <i class="fa-solid fa-square-caret-down"></i>
       </div>
     </div>
+    <div class="dropdown-content" [class.open]="showSavedAnalysis">
+      <div *ngIf="!loading && !error && historyList.length > 0" class="analysis-grid">
+        <button *ngFor="let history of historyList"
+                class="btn"
+                (click)="addCommunityDefault(history.id)">
+          {{history.name}}
+        </button>
+      </div>
+      <div *ngIf="!loading && historyList.length === 0" class="no-data-msg">
+        No saved analysis found.
+      </div>
+    </div>
+  </div>
+  <div *ngIf="!isLoading && members.length > 0" class="member-selection-container">
+
     <div *ngIf="showMissingWarning" class="warning-alert fade-in">
       <div class="warning-header">
         <div class="warning-title">

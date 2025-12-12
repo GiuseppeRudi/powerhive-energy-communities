@@ -71,6 +71,7 @@ export class ChooseAnalysis4 {
   ) {}
 
   ngOnInit() {
+    window.scrollTo({top: 0, behavior: 'smooth'});
     const userJson = sessionStorage.getItem('currentUser');
     if (!userJson) return;
 
@@ -299,5 +300,12 @@ export class ChooseAnalysis4 {
 
     this.router.navigate(['/analysis4']);
   }
+
+  hasSelectedProducer(): boolean {
+    return this.members.some(
+      m => this.energyCommunities.includes(m.id) && m.memberType === 'PRODUCER'
+    );
+  }
+
 
 }

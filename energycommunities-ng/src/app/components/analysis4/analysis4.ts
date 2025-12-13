@@ -750,40 +750,42 @@ export class Analysis4 implements OnInit, OnDestroy {
     this.kpiChartWBatteries = undefined;
     this.kpiChartWOBatteries = undefined;
   }
+  /*
+    runAnalysisAsync() {
+      const memberIds = this.memberIds;
+      const userJson = sessionStorage.getItem('currentUser');
+      if (!userJson) return;
+      const user: User = JSON.parse(userJson);
 
-  runAnalysisAsync() {
-    const memberIds = this.memberIds;
-    const userJson = sessionStorage.getItem('currentUser');
-    if (!userJson) return;
-    const user: User = JSON.parse(userJson);
-/*
-    this.resultAnalysis = {
-      assignments: new Map<number, number>(),
-      startingCommunity: {
-        assignments: [],
+      this.resultAnalysis = {
+        assignments: new Map<number, number>(),
+        startingCommunity: {
+          assignments: [],
+          kpi1: [],
+          kpi2: [],
+          totalConsumption: [],
+          totalProduction: []
+        },
+        batteryStatus: [],
+        batteries: [],
         kpi1: [],
         kpi2: [],
         totalConsumption: [],
         totalProduction: []
-      },
-      batteryStatus: [],
-      batteries: [],
-      kpi1: [],
-      kpi2: [],
-      totalConsumption: [],
-      totalProduction: []
-    }
-*/
+      }
 
-    const payload = {
-      memberIds: memberIds,
-      userId: user.id,
-      analysis: 4,
-      batteries: this.analysis4Request?.batteries
+
+      const payload = {
+        memberIds: memberIds,
+        userId: user.id,
+        analysis: 4,
+        batteries: this.analysis4Request?.batteries
+      }
+
+      this.analysisService.runAsync(payload).subscribe(id => {
+        this.router.navigate(['/ongoing-analysis']);
+      });
     }
 
-    this.analysisService.runAsync(payload).subscribe(id => {
-      this.router.navigate(['/ongoing-analysis']);
-    });
-  }
+   */
 }

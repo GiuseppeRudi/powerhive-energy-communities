@@ -235,9 +235,6 @@
           You can then track the progress in the “Ongoing Analyses” page.
         </p>
         <br>
-        <button class="btn btn-async" (click)="runAnalysisAsync()">
-          <i class="fa-solid fa-rocket"></i> Run Asynchronously
-        </button>
       </div>
 
       <div *ngFor="let member of resultAnalysis?.startingCommunity?.assignments" class="member-card">
@@ -313,9 +310,6 @@
           You can then track the progress in the “Ongoing Analyses” page.
         </p>
         <br>
-        <button class="btn btn-async" (click)="runAnalysisAsync()">
-          <i class="fa-solid fa-rocket"></i> Run Asynchronously
-        </button>
       </div>
     </div>
     <div class="chart-wrapper" *ngIf="optConsProfChart">
@@ -340,9 +334,6 @@
           You can then track the progress in the “Ongoing Analyses” page.
         </p>
         <br>
-        <button class="btn btn-async" (click)="runAnalysisAsync()">
-          <i class="fa-solid fa-rocket"></i> Run Asynchronously
-        </button>
       </div>
     </div>
     <div class="chart-wrapper" *ngIf="optProdProfChart">

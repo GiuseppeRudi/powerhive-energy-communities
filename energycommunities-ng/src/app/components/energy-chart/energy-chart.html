@@ -1,7 +1,13 @@
 <div class="chart-container">
+  <div class="chart-buttons">
+    <button (click)="zoomIn()">+</button>
+    <button (click)="zoomOut()">-</button>
+    <button (click)="resetZoom()">Reset Zoom</button>
+  </div>
   <canvas baseChart
           [data]="data"
           [options]="options"
-          [type]="selectedChartType">
+          [type]="selectedChartType"
+          >
   </canvas>
 </div>

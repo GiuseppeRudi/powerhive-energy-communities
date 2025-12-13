@@ -1,20 +1,25 @@
 .chart-container {
-  position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  height: 300px;
   margin: 0 auto;
 }
 
-.chart-buttons {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 10;
-  display: flex;
-  gap: 5px;
+.chart-canvas-wrapper {
+  position: relative;
+  width: 100%;
+  height: 300px;
 }
 
-.chart-buttons button {
+.chart-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.chart-controls button {
   display: inline-block;
   background-color: #0c751b;
   color: white;
@@ -29,7 +34,29 @@
   border: none;
 }
 
-.chart-buttons button:hover {
+.chart-controls button:hover {
   background-color: #0a5f16;
   transform: translateY(-2px);
+}
+
+.chart-controls button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.chart-controls button:disabled:hover {
+  background-color: #cccccc;
+  transform: none;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.control-group button {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
 }

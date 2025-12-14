@@ -61,16 +61,17 @@ export class HistoryComponent implements OnInit {
 
   viewAnalysis(historyId: number, typeAnalysis:number) {
     if(typeAnalysis ==  1){
-      this.router.navigate(['/analysis1'], { queryParams: { historyId } });
+      this.router.navigate(['/analysis1'], { queryParams: { historyId }, state: {allowAnalysis: true} },
+        );
     }
     else if(typeAnalysis == 2){
-      this.router.navigate(['/analysis2'], { queryParams: { historyId } });
+      this.router.navigate(['/analysis2'], { queryParams: { historyId }, state: {allowAnalysis: true}  });
     }
     else if(typeAnalysis == 3){
-      this.router.navigate(['/analysis3'], { queryParams: { historyId } });
+      this.router.navigate(['/analysis3'], { queryParams: { historyId }, state: {allowAnalysis: true}  });
     }
     else if(typeAnalysis == 4){
-      this.router.navigate(['/analysis4'], { queryParams: { historyId } });
+      this.router.navigate(['/analysis4'], { queryParams: { historyId }, state: {allowAnalysis: true}  });
     }
 
   }

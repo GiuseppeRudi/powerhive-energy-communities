@@ -72,6 +72,7 @@ export class OngoingAnalysisComponent implements OnInit,OnDestroy {
             result: data.result,
             wantToAdd: data.wantToAdd,
             wantToRemove: data.wantToRemove,
+            allowAnalysis: true
           }
         });
       } else {

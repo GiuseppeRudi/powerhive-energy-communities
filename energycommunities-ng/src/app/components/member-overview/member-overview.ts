@@ -64,12 +64,10 @@ export class MemberOverview  {
   private generateDynamicColors(count: number, type: 'producer' | 'consumer'): string[] {
     const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     const saturation = 70;
-    const lightness = isDarkMode ? 70 : 40; // Colori più chiari per il tema scuro, più scuri per quello chiaro
+    const lightness = isDarkMode ? 70 : 40;
 
-    // Produttori: colori caldi (rossi, arancioni, gialli)
     const producerHueRange = { start: 0, end: 60 };
 
-    // Consumatori: colori freddi (blu, ciano)
     const consumerHueRange = { start: 180, end: 240 };
 
     const hueConfig = type === 'producer' ? producerHueRange : consumerHueRange;

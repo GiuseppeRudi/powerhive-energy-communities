@@ -17,6 +17,7 @@ export class EnergyChartComponent implements OnInit, OnChanges {
   @Input() data!: ChartData<any>;
   @Input() options!: ChartOptions<any>;
   @Input() selectedChartType: ChartType = 'line';
+  @Input() not_a_line_chart: boolean = false;
 
   @ViewChild(BaseChartDirective) private chart?: BaseChartDirective;
 

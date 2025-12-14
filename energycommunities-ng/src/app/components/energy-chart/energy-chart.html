@@ -2,6 +2,7 @@
   <div class="chart-canvas-wrapper">
     <canvas baseChart [data]="displayData" [options]="chartOptions" [type]="selectedChartType"></canvas>
   </div>
+  @if (!this.not_a_line_chart) {
   <div class="chart-controls">
     <div class="control-group">
       <button (click)="applyIntervalFilter(2)">~2h</button>
@@ -21,4 +22,5 @@
       <button (click)="resetView()">Reset</button>
     </div>
   </div>
+  }
 </div>

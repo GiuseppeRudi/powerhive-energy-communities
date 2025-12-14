@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { CommonModule } from '@angular/common';
 import { EnergyChartComponent } from '../energy-chart/energy-chart';
@@ -8,13 +8,13 @@ import { AnalysisService } from '../../services/analysis.service';
 import { AuthService } from '../../services/auth/auth.service';
 import { GenerationLoader } from '../generation-loader/generation-loader';
 import { HistoryService } from '../../services/history.service';
-import {HistorySummary} from '../../model/history/HistorySummary';
-import {FormsModule} from '@angular/forms';
-import {ResultAnalysis_3} from '../../model/analysis/ResultAnalysis_3';
-import {SingleAnalysis} from '../../model/analysis/SingleAnalysis';
-import {Analysis3Request} from '../../model/analysis/Analysis3Request';
-import {AnalysisActionsComponent} from '../analysis-save/analysis-save';
-import {CommunityData} from '../../model/CommunityData';
+import { HistorySummary } from '../../model/history/HistorySummary';
+import { FormsModule } from '@angular/forms';
+import { ResultAnalysis_3 } from '../../model/analysis/ResultAnalysis_3';
+import { SingleAnalysis } from '../../model/analysis/SingleAnalysis';
+import { Analysis3Request } from '../../model/analysis/Analysis3Request';
+import { AnalysisActionsComponent } from '../analysis-save/analysis-save';
+import { CommunityData } from '../../model/CommunityData';
 
 @Component({
   selector: 'app-analisys3',
@@ -25,7 +25,7 @@ import {CommunityData} from '../../model/CommunityData';
 })
 export class Analysis3 implements OnInit {
 
-  history : HistorySummary | undefined = undefined ;
+  history: HistorySummary | undefined = undefined;
   resultAnalysis: ResultAnalysis_3 | null = null;
   communityExpanded: SingleAnalysis | null = null;
 
@@ -84,27 +84,27 @@ export class Analysis3 implements OnInit {
 
   constructor(
     private router: Router,
-    private route : ActivatedRoute,
+    private route: ActivatedRoute,
     private analysisService: AnalysisService,
     private authService: AuthService,
     private historyService: HistoryService
-  ) {}
+  ) { }
 
-  typeAnalysis : number = 3;
-  historyId: number | null  = null;
+  typeAnalysis: number = 3;
+  historyId: number | null = null;
   members: MemberDetail[] | undefined;
   wantToRemove: number[] | undefined;
   removedMembers: MemberDetail[] = [];
   wantToAdd: number[] | undefined;
   addedMembers: MemberDetail[] = [];
-  analysis3Request: Analysis3Request | undefined = undefined ;
+  analysis3Request: Analysis3Request | undefined = undefined;
 
 
   ngOnInit() {
     // 1. Tenta di recuperare i dati passati via Router (dal componente precedente)
     this.resultAnalysis = history.state?.result ?? null;
 
-    if(this.resultAnalysis != null) {
+    if (this.resultAnalysis != null) {
       this.wantToRemove = history.state?.wantToRemove;
       this.wantToAdd = history.state?.wantToAdd;
       this.members = this.resultAnalysis.defaultCommunity.assignments;
@@ -161,8 +161,8 @@ export class Analysis3 implements OnInit {
             .filter((m): m is MemberDetail => m !== undefined);
         }
 
-        if(this.members && this.members.length > 0 && this.wantToAdd  && this.wantToRemove) {
-          this.analysisService.getResultAnalysis_3(this.members,this.wantToAdd,this.wantToRemove).subscribe({
+        if (this.members && this.members.length > 0 && this.wantToAdd && this.wantToRemove) {
+          this.analysisService.getResultAnalysis_3(this.members, this.wantToAdd, this.wantToRemove).subscribe({
             next: (data) => {
               this.resultAnalysis = data;
               this.setupCommunities();
@@ -386,35 +386,61 @@ export class Analysis3 implements OnInit {
     this.buildChartsForCommunity(this.resultAnalysis.wantedCommunity);
   }
 
+  private generateDynamicColors(count: number, type: 'producer' | 'consumer'): string[] {
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const saturation = 70;
+    const lightness = isDarkMode ? 70 : 40;
+
+    const producerHueRange = { start: 0, end: 60 };
+
+    const consumerHueRange = { start: 180, end: 240 };
+
+    const hueConfig = type === 'producer' ? producerHueRange : consumerHueRange;
+
+    const colors: string[] = [];
+    if (count === 0) {
+      return colors;
+    }
+
+    const hueStep = count > 1 ? (hueConfig.end - hueConfig.start) / (count - 1) : 0;
+
+    for (let i = 0; i < count; i++) {
+      const hue = hueConfig.start + (count > 1 ? i * hueStep : (hueConfig.end - hueConfig.start) / 2);
+      colors.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
+    }
+    return colors;
+  }
+
+
   buildChartsForCommunity(community: SingleAnalysis) {
     const labels = Array.from({ length: 24 }, (_, i) => i.toString());
-    const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'black', 'brown'];
-    let datasetsConsumers: any[] = [];
-    let datasetsProducers: any[] = [];
 
-    community.assignments.forEach((member, index) => {
-      const consumer = member.profiles.find(p => p.profileType === 'CONSUMER');
-      const producer = member.profiles.find(p => p.profileType === 'PRODUCER');
+    const consumers = community.assignments.filter(m => m.profiles.some(p => p.profileType === 'CONSUMER'));
+    const producers = community.assignments.filter(m => m.profiles.some(p => p.profileType === 'PRODUCER'));
 
-      if (consumer) {
-        datasetsConsumers.push({
-          label: member.fullName,
-          data: consumer.graph,
-          borderColor: colors[index % colors.length],
-          backgroundColor: 'transparent',
-          tension: 0.25,
-        });
-      }
+    const consumerColors = this.generateDynamicColors(consumers.length, 'consumer');
+    const producerColors = this.generateDynamicColors(producers.length, 'producer');
 
-      if (producer) {
-        datasetsProducers.push({
-          label: member.fullName,
-          data: producer.graph,
-          borderColor: colors[(index + 4) % colors.length],
-          backgroundColor: 'transparent',
-          tension: 0.25,
-        });
-      }
+    const datasetsConsumers = consumers.map((member, index) => {
+      const consumerProfile = member.profiles.find(p => p.profileType === 'CONSUMER');
+      return {
+        label: member.fullName,
+        data: consumerProfile!.graph, 
+        borderColor: consumerColors[index],
+        backgroundColor: 'transparent',
+        tension: 0.25,
+      };
+    });
+
+    const datasetsProducers = producers.map((member, index) => {
+      const producerProfile = member.profiles.find(p => p.profileType === 'PRODUCER');
+      return {
+        label: member.fullName,
+        data: producerProfile!.graph, 
+        borderColor: producerColors[index],
+        backgroundColor: 'transparent',
+        tension: 0.25,
+      };
     });
 
     this.optConsProfChart.set(community, { labels, datasets: datasetsConsumers });

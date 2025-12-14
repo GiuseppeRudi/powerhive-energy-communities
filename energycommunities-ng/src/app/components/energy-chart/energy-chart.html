@@ -1,7 +1,26 @@
 <div class="chart-container">
-  <canvas baseChart
-          [data]="data"
-          [options]="options"
-          [type]="selectedChartType">
-  </canvas>
+  <div class="chart-canvas-wrapper">
+    <canvas baseChart [data]="displayData" [options]="chartOptions" [type]="selectedChartType"></canvas>
+  </div>
+  @if (!this.not_a_line_chart) {
+  <div class="chart-controls">
+    <div class="control-group">
+      <button (click)="applyIntervalFilter(2)">~2h</button>
+      <button (click)="applyIntervalFilter(6)">~6h</button>
+      <button (click)="applyIntervalFilter(12)">~12h</button>
+    </div>
+    <div class="control-group">
+      <button (click)="pan('prev')" [disabled]="currentIntervalIndex <= 0 || totalIntervals <= 1">&lt;</button>
+      <button (click)="pan('next')"
+        [disabled]="currentIntervalIndex >= totalIntervals - 1 || totalIntervals <= 1">&gt;</button>
+    </div>
+    <div class="control-group">
+      <button (click)="zoomIn()">+</button>
+      <button (click)="zoomOut()">-</button>
+    </div>
+    <div class="control-group">
+      <button (click)="resetView()">Reset</button>
+    </div>
+  </div>
+  }
 </div>

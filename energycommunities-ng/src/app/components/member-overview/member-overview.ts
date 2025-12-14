@@ -61,10 +61,37 @@ export class MemberOverview  {
     });
   }
 
+  private generateDynamicColors(count: number, type: 'producer' | 'consumer'): string[] {
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const saturation = 70;
+    const lightness = isDarkMode ? 70 : 40;
+
+    const producerHueRange = { start: 0, end: 60 };
+
+    const consumerHueRange = { start: 180, end: 240 };
+
+    const hueConfig = type === 'producer' ? producerHueRange : consumerHueRange;
+
+    const colors: string[] = [];
+    if (count === 0) {
+      return colors;
+    }
+
+    const hueStep = count > 1 ? (hueConfig.end - hueConfig.start) / (count - 1) : 0;
+
+    for (let i = 0; i < count; i++) {
+      const hue = hueConfig.start + (count > 1 ? i * hueStep : (hueConfig.end - hueConfig.start) / 2);
+      colors.push(`hsl(${hue}, ${saturation}%, ${lightness}%)`);
+    }
+    return colors;
+  }
+
   buildCharts(member: MemberDetail) {
     const producers = member.profiles.filter(p => p.profileType === 'PRODUCER');
     const consumers = member.profiles.filter(p => p.profileType === 'CONSUMER');
-    const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange', 'black', 'brown'];
+
+    const producerColors = this.generateDynamicColors(producers.length, 'producer');
+    const consumerColors = this.generateDynamicColors(consumers.length, 'consumer');
 
     if (producers.length > 0) {
       this.produceChartData = {
@@ -72,7 +99,7 @@ export class MemberOverview  {
         datasets: producers.map((p, index) => ({
           label: `Producer Profile ${p.id}`,
           data: p.graph,
-          borderColor: colors[index % colors.length],
+          borderColor: producerColors[index],
           backgroundColor: 'transparent',
           tension: 0.25
         }))
@@ -85,7 +112,7 @@ export class MemberOverview  {
         datasets: consumers.map((p, index) => ({
           label: `Consumer Profile ${p.id}`,
           data: p.graph,
-          borderColor: colors[(index + producers.length) % colors.length],
+          borderColor: consumerColors[index],
           backgroundColor: 'transparent',
           tension: 0.25
         }))

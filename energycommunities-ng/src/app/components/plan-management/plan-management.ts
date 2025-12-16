@@ -216,8 +216,11 @@ export class PlanManagement implements OnInit {
       .filter(v => v !== '')
       .map(Number);
 
-    if (energyValuesArray.some(value => isNaN(value) || !Number.isInteger(Number(value)))) {
-      this.errorMessage = 'Error: Energy values must be valid integers.';
+    if (energyValuesArray.some(value => {
+      const num = Number(value);
+      return isNaN(num) || !Number.isInteger(num) || num < 0;
+    })) {
+      this.errorMessage = 'Error: Energy values must be valid non-negative integers (>= 0).';
       return;
     }
 

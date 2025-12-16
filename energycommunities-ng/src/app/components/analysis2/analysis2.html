@@ -18,10 +18,10 @@
   </div>
 
 
-  <div *ngIf="resultAnalysis" class="members-section">
+  <div *ngIf="startingMembers" class="members-section">
     <h3>Available members</h3>
     <div class="members-grid">
-      <div class="member-initial-card" *ngFor="let m of members">
+      <div class="member-initial-card" *ngFor="let m of startingMembers">
         <div class="member-avatar">{{ m.fullName[0] }}</div>
         <div class="member-initial-info">
           <p class="name">{{ m.fullName }}</p>
@@ -144,7 +144,9 @@
       <app-energy-chart
         [data]="kpiChart!"
         [options]="kpiChartOptions"
-        [selectedChartType]="'line'">
+        [selectedChartType]="'line'"
+        [isEnergy]="false"
+      >
       </app-energy-chart>
     </div>
 

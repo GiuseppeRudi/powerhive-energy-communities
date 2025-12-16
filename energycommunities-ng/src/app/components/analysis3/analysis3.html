@@ -59,7 +59,9 @@
         <app-energy-chart
           [data]="globalKpiChartData"
           [options]="kpiChartOptions"
-          [selectedChartType]="'line'">
+          [selectedChartType]="'line'"
+          [isEnergy]="false"
+        >
         </app-energy-chart>
       </div>
 
@@ -220,7 +222,9 @@
               <app-energy-chart
                 [data]="kpiChart.get(communityData.community) ?? { labels: [], datasets: [] }"
                 [options]="kpiChartOptions"
-                [selectedChartType]="'line'">
+                [selectedChartType]="'line'"
+                [isEnergy]="false"
+              >
               </app-energy-chart>
             </div>
 

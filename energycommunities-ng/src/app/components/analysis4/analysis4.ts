@@ -750,6 +750,11 @@ export class Analysis4 implements OnInit, OnDestroy {
     this.kpiChartWBatteries = undefined;
     this.kpiChartWOBatteries = undefined;
   }
+
+  resetCostAnalysis(){
+    this.summary = null;
+  }
+
   /*
     runAnalysisAsync() {
       const memberIds = this.memberIds;

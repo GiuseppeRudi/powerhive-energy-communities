@@ -27,7 +27,6 @@
     <h3 style="margin-top:0; color: #444;">Investment Parameters</h3>
 
     <div class="input-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-
       <div class="input-wrapper">
         <label for="energyCost" class="analysis-label">Energy Cost (€/kWh):</label>
         <input
@@ -103,7 +102,9 @@
 
 
   <div class="analysis-section" *ngIf="summary as s">
+
     <div class="analysis-card">
+
       <div class="analysis-header">
         <h3> Costs Analysis</h3>
         <p class="analysis-subtitle">
@@ -201,6 +202,9 @@
             The curve flattens after year <strong>{{batteryLifespan}}</strong> (end of life).
             Convenience requires payback before end of life and within your {{maxPaybackDesired}}-year target.
           </p>
+
+          <button class="btn"(click)="resetCostAnalysis()">Insert different values</button>
+
         </div>
       </div>
     </div>

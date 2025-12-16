@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {MemberSummary} from '../../model/member/MemberSummary';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AnalysisService} from '../../services/analysis.service';
@@ -87,6 +87,8 @@ export class Analysis2 implements OnInit{
               private historyService: HistoryService,
               private authService: AuthService) {}
 
+  startingMembers!: MemberDetail[];
+
   ngOnInit() {
     this.isLoading = true;
 
@@ -121,6 +123,8 @@ export class Analysis2 implements OnInit{
         });
       } else {
         const body : any = this.analysisService.getAnalysisResult();
+        this.startingMembers = body.members;
+        console.log(body);
 
         this.analysisService.getResultAnalysis_2(body).subscribe({
           next: (result) => {

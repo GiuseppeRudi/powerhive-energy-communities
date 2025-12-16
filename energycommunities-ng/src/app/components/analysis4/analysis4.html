@@ -275,7 +275,8 @@
             <app-energy-chart
               [data]="batteryMap.get(member.id)!"
               [options]="chartOptions"
-              [selectedChartType]="'line'">
+              [selectedChartType]="'line'"
+              [isBattery]="true">
             </app-energy-chart>
           </div>
           <div *ngIf="!chartDataMap.get(member.id)" class="no-data">
@@ -292,7 +293,8 @@
       <app-energy-chart
         [data]="allBatteriesChart"
         [options]="chartOptions"
-        [selectedChartType]="'line'">
+        [selectedChartType]="'line'"
+        [isBattery]="true">
       </app-energy-chart>
     </div>
   </div>
@@ -316,7 +318,9 @@
       <app-energy-chart
         [data]="optConsProfChart"
         [options]="chartOptions"
-        [selectedChartType]="'line'">
+        [selectedChartType]="'line'"
+        [isEnergy]="false"
+      >
       </app-energy-chart>
     </div>
   </div>
@@ -398,7 +402,9 @@
           <app-energy-chart
             [data]="kpiChartWBatteries"
             [options]="kpiChartOptions"
-            [selectedChartType]="'line'">
+            [selectedChartType]="'line'"
+            [isEnergy]="false"
+          >
           </app-energy-chart>
 
           <div class="kpi-legend">
@@ -425,7 +431,9 @@
           <app-energy-chart
             [data]="kpiChartWOBatteries"
             [options]="kpiChartOptions"
-            [selectedChartType]="'line'">
+            [selectedChartType]="'line'"
+            [isEnergy]="false"
+          >
           </app-energy-chart>
 
           <div class="kpi-legend">

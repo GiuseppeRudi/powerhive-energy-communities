@@ -230,6 +230,4 @@ public class AnalysisController {
         // System.out.println(entity.getId());
         return ResponseEntity.ok(entity.getId());
     }
-
-
 }

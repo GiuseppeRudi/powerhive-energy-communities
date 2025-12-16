@@ -17,6 +17,8 @@ export class EnergyChartComponent implements OnInit, OnChanges {
   @Input() options!: ChartOptions<any>;
   @Input() selectedChartType: ChartType = 'line';
   @Input() not_a_line_chart: boolean = false;
+  @Input() isEnergy: boolean = true;
+  @Input() isBattery: boolean = false;
 
   @ViewChild(BaseChartDirective) private chart?: BaseChartDirective;
 
@@ -65,6 +67,7 @@ export class EnergyChartComponent implements OnInit, OnChanges {
     const originalLabels = this.data.labels;
     const originalDatasets = this.data.datasets;
 
+
     const aggregatedLabels: any[] = [];
     const aggregatedDatasets = originalDatasets.map(ds => ({
       ...ds,
@@ -74,7 +77,14 @@ export class EnergyChartComponent implements OnInit, OnChanges {
     for (let i = 0; i < originalLabels.length; i += numberOfHours) {
       const chunkEnd = Math.min(i + numberOfHours, originalLabels.length);
 
-      aggregatedLabels.push(originalLabels[i]);
+      aggregatedLabels.push(originalLabels[i] + "-" + originalLabels[chunkEnd - 1]);
+
+      if(this.isBattery){
+        originalDatasets.forEach((dataset, datasetIndex) => {
+          aggregatedDatasets[datasetIndex].data.push(dataset.data[chunkEnd - 1]);
+        });
+        continue;
+      }
 
       originalDatasets.forEach((dataset, datasetIndex) => {
         const dataChunk = (dataset.data as number[]).slice(i, chunkEnd);

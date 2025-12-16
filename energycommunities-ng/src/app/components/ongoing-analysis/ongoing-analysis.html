@@ -16,9 +16,19 @@
   </div>
 
   <!-- Nessuna analisi -->
-  <div *ngIf="!loading && analyses.length === 0" class="empty-box">
-    <p>No ongoing analysis at the moment.</p>
+  <div *ngIf="!loading && analyses.length === 0" class="no-plan-wrapper">
+    <div class="empty-state-card">
+      <div class="icon-box">
+        <i class="bi bi-clipboard-data"></i>
+        <div class="pulse-ring"></div>
+      </div>
+      <h3>No Ongoing Analyses Found</h3>
+      <p>
+        It seems there is no ongoing analyses yet.<br>
+      </p>
+    </div>
   </div>
+
 
   <!-- Lista analisi -->
   <div *ngIf="!loading && analyses.length > 0" class="analysis-cards">

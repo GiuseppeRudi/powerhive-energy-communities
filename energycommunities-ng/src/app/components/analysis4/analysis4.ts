@@ -754,7 +754,6 @@ export class Analysis4 implements OnInit, OnDestroy {
   resetCostAnalysis(){
     this.summary = null;
   }
-
   /*
     runAnalysisAsync() {
       const memberIds = this.memberIds;

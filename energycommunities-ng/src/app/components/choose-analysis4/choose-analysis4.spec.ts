@@ -109,7 +109,9 @@ describe('ChooseAnalysis4', () => {
 
 
     expect(analysisServiceSpy.setAnalysisResult).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/analysis4']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(
+      ['/analysis4'],
+      {state: {allowAnalysis: true}});
   });
 });
 

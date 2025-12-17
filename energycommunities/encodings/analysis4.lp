@@ -12,7 +12,7 @@ time(0..23).
 % :- assign(M1,B), assign(M2,B), M1!=M2.
 
 % action that choose a specific battery
-{ charge(B,M,T); discharge(B,M,T) } <= 1 :- assign(M,B), time(T).
+{ charge(B,M,T); discharge(B,M,T) } <= 1 :- assign(M,B), time(T), T>0.
 nothing(B,M,T) :- assign(M,B), time(T), not charge(B,M,T), not discharge(B,M,T).
 
 

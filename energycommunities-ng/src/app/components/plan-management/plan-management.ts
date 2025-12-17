@@ -188,7 +188,7 @@ export class PlanManagement implements OnInit {
 
     setTimeout(() => {
       window.scrollTo({
-        top: document.body.scrollHeight,
+        top: 700,
         behavior: 'smooth'
       });
     }, 100);

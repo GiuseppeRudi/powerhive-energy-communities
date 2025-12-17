@@ -75,7 +75,7 @@ export class EnergyChartComponent implements OnInit, OnChanges {
     }));
 
     for (let i = 0; i < originalLabels.length; i += numberOfHours) {
-      const chunkEnd = Math.min(i + numberOfHours, originalLabels.length);
+      const chunkEnd = i + numberOfHours;
 
       aggregatedLabels.push(originalLabels[i] + "-" + originalLabels[chunkEnd - 1]);
 

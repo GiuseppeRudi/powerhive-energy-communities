@@ -29,7 +29,6 @@ batteryStatusPerHour(B,M,0,0) :- assign(M,B).
 batteryStatusPerHour(B,M,T,E2) :-
     batteryStatusPerHour(B,M,T-1,E1),
     T>0,
-    charge(B,M,T),
     charge_amt(B,M,T,A),
     E2 = E1 + A.
     
@@ -38,7 +37,8 @@ batteryStatusPerHour(B,M,T,E2) :-
    
 % is not possible to charge a battery B connected to member M if the maximum capacity C is less than the current batteryStatusPerHour E plus the amount of charge A 
 :- charge_amt(B,M,T,A),
-   batteryStatusPerHour(B,M,T,E),
+   batteryStatusPerHour(B,M,T-1,E),
+   T>0,
    battery(B,C,_),
    C < (E+A).
 
@@ -49,17 +49,17 @@ batteryStatusPerHour(B,M,T,E2) :-
 batteryStatusPerHour(B,M,T,E2) :-
     batteryStatusPerHour(B,M,T-1,E1),
     T>0,
-    discharge(B,M,T),
     discharge_amt(B,M,T,A),
     E2 = E1 - A.
 
 % is not possible to discharge a battery B connected to member M if the current energy E - the amount A is  < 0
 :- discharge_amt(B,M,T,A),
-   batteryStatusPerHour(B,M,T,E),
+   batteryStatusPerHour(B,M,T-1,E),
+   T>0,
    battery(B,C,_),
    (E-A) < 0.
 
-batteryStatusPerHour(B,M,T,E) :- nothing(B,M,T), batteryStatusPerHour(B,M,T-1,E).
+batteryStatusPerHour(B,M,T,E) :- nothing(B,M,T), batteryStatusPerHour(B,M,T-1,E), T>0.
 
 % the sum of all  cost battery assign to a specific member is not greater to the budget
 totalPrice(T) :- #sum{C,M: battery(B,_,C), assign(M,B)}=T.

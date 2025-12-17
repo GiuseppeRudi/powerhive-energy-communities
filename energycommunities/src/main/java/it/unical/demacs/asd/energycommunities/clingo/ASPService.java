@@ -242,7 +242,6 @@ public class ASPService {
                     throw new RuntimeException(e);
                 }
             });
-            thread.start();
 
             if (analysis == 1) {
                 ctl.load(Path.of("energycommunities/encodings/analysis1.lp"));
@@ -263,6 +262,7 @@ public class ASPService {
             ctl.ground();
             groundingCompleted.set(true);
             groundingMonitor.interrupt();
+            thread.start();
             streamController.sendEvent("GROUNDING_FINISHED",analysisId);
             System.out.println("Solving...");
 

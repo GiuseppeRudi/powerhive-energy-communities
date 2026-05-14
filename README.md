@@ -105,3 +105,9 @@ Filocamo Francesco
 Ielpa Eugenio
 Trocini Pierluigi  
 ```
+
+## Project Status
+
+This repository contains the final archived version, a university project developed for academic purposes.
+
+The project is not currently maintained, and the repository has been archived to preserve the final submitted version. The code remains publicly available as part of the project documentation and portfolio. Future work may restart from this codebase if the project is extended or redesigned.
